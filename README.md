@@ -19,3 +19,13 @@ lseek, fstat, fcntl, poll (or equivalent)
 
 Libft authorized n/a
 Description An IRC server in C++ 98
+
+
+Idea principal de gestión de proyecto :
+
+Sólo son objetos las partes replicables que se diferencian.
+Todos los objetos heredan o implementan. 
+Todos los strings del programa están indexados en algún fichero de configuración.
+Errores de preprocesado. Por ejemplo al introducir mal los parametros.
+
+Servidor - Rooms/Channels - Comandos por channel, Perfiles de usuarios especiales Admin/Bot - File transfer - UTF8
