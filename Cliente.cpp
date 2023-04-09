@@ -17,8 +17,10 @@ int main() {
     // Conectar al servidor
     int con = connect(client_socket, (struct sockaddr *)&server_address, sizeof(server_address));
     if (con == 0)
-        std::cout << "Conexion con el cliente es correcta" << std::endl;
+        std::cout << "Conexion con el servidor es correcta" << std::endl;
 
+    char message[1024];
+    
 /*
     // Recibir el mensaje del servidor
     char buffer[1024] = {0};
@@ -27,6 +29,11 @@ int main() {
     std::cout << buffer << std::endl;
 */
     // Cerrar el socket
+    while(1)
+    {
+        std::cin >> message;
+        send(client_socket, message, strlen(message), 0);
+    }
     close(client_socket);
 
     return 0;
