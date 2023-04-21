@@ -80,6 +80,18 @@ void bind_socket(Server *server)
 #define MAX_CLIENTS 50
 
 
+int command_manager(std::string &command,Server *server)
+{
+    #define CREATE "/create"
+    std::cout << "Im in" << std::endl;
+    if (!command.compare(CREATE))
+    {
+        //Channel channel("TEST ROOM",server);
+        return (0);
+    }
+    return (1);
+}
+
 void main_loop(Server *server)
 {
     /*
@@ -92,7 +104,10 @@ void main_loop(Server *server)
     char buffer[BUFFER_SIZE];
     std::vector<pollfd> fds;
     std::vector<bool> notices;
-    std::vector<std::string>message_list;
+    for(int i = 0; i < notices.size(); i++)
+        notices[i] = false;
+    std::vector<std::string> message_list;
+    std::string password  = "42Urduliz";
    // Channel channel(server);
 
     fds.push_back(pollfd());
@@ -121,25 +136,52 @@ void main_loop(Server *server)
                 }
                 else
                 {
-                    ssize_t bytes_read = recv(fds[i].fd, buffer, BUFFER_SIZE, 0);
-  
-                    if (!strcmp(buffer,"/exit") || bytes_read <= 0)
+                    if (notices[i] == false)
                     {
-                        close(fds[i].fd);
-                        fds.erase(fds.begin() + i);
-                        std::cout << "Se ha desconectado el cliente " << i << " " << std::endl;
+                        notices[i] = true;
+                        ssize_t bytes_read = recv(fds[i].fd, buffer, BUFFER_SIZE, 0); 
+                        std::cout << "Se recibe la password : " << buffer << std::endl;
+                        memset(buffer, 0, sizeof(buffer));
+                        if (!password.compare(buffer))
+                        {
+                            std::cout << "Password confirm successfull" << std::endl;
+                            std::string lobby_message = "<-Server-> Welcome to Lobby\n";
+                            //Rutina de creación de usuarios
+                            send(fds[i].fd, lobby_message.c_str(), lobby_message.length(), 0);
+
+                            std::string nickname_question = "<-Server-> Please enter your nickname : " ;
+                            send(fds[i].fd, nickname_question.c_str(), nickname_question.length(), 0);
+                            memset(buffer, 0, sizeof(buffer));
+
+                            ssize_t bytes_read = recv(fds[i].fd, buffer, BUFFER_SIZE, 0);
+                            std::cout << "User " << buffer << "has been logged :D" << std::endl;
+                            /* HARDCODE*/ 
+                            
+
+                        }
+                        else
+                        {
+                            std::cout << "Se cierra el fd del cliente por contraseña erronea" << std::endl;
+                            //close(fds[i].fd);
+                        }
+                    //std::cout << " Me bloqueo aqui con el siguiente fd " << std::endl;
+                    //ssize_t bytes_read = recv(fds[i].fd, buffer, BUFFER_SIZE, 0);
+                    //if (!strcmp(buffer,"/exit") || bytes_read <= 0)
+                    //{
+                    //    close(fds[i].fd);
+                    //    fds.erase(fds.begin() + i);
+                    //    std::cout << "Se ha desconectado el cliente " << i << " " << std::endl;
                     }
                     else
-                    {
-                        if (notices[i] == false)
-                        {
-                            notices[i] = true;
-                            std::string lobby_message = "Welcome to Lobby";
-                            send(fds[i].fd,lobby_message.c_str(), lobby_message.length(),0);
-                        }
+                    {    
+                       // std::cout << "Gestion de mensaje normal " << std::endl;
+                        //std::cout<< "entro aqui";
+                       // std::string message(buffer, bytes_read);
+                        //if (command_manager(message,server))
+                       // std::cout << "Mensaje recibido de cliente " << i << " : " << message << std::endl;    
+                            //for(int u = 0; u < fds.size(); u++)
+                            //    send(fds[i].fd, copytry.c_str(), copytry.length(),0);  
                         // message_list.push_back(buffer); Historial de las salas?
-                        std::string message(buffer, bytes_read);
-                        std::cout << "Mensaje recibido de cliente " << i << " : " << message << std::endl;
                     }
                 }
             }
@@ -161,6 +203,7 @@ int main(int argc, char const *argv[])
     server.server_socket, /* Fd socket Server*/
     MAX_CLIENTS /* Es un entero que especifica el número máximo de conexiones pendientes en la cola de conexiones entrantes que aún no han sido aceptadas por el servidor.*/ 
     );
+    std::cout << server.server_socket << std::endl;
     main_loop(&server);
 
 

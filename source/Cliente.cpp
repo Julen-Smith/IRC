@@ -9,52 +9,47 @@
 const int PORT = 4242;
 const int BUFFER_SIZE = 1024;
 
+#define CREATE "/create"
+
+
 int main() {
     // Crear el socket
-    int client_fd;
+    std::string password  = "42Urduliz";
+    std::string admin_password  = "AP";
+    int server_fd;
     struct sockaddr_in server_addr;
 
-    client_fd = socket(AF_INET, SOCK_STREAM, 0);
+    server_fd = socket(AF_INET, SOCK_STREAM, 0);
+    std::cout << "Server fd : " <<  server_fd << std::endl;
 
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons(PORT);
     inet_pton(AF_INET, "127.0.0.1", &server_addr.sin_addr);
 
-    connect(client_fd, (struct sockaddr *)&server_addr, sizeof(server_addr));
-
-    struct pollfd fds[2];
-    memset(fds, 0, sizeof(fds));
-
-    fds[0].fd = STDIN_FILENO; // Entrada estándar (teclado)
-    fds[0].events = POLLIN;
-
-    fds[1].fd = client_fd; // Socket del cliente
-    fds[1].events = POLLIN;
-
+    connect(server_fd, (struct sockaddr *)&server_addr, sizeof(server_addr));
+    std::cout << "Conectado a servidor" << std::endl;
+    
+    //SEND PASSWORD ARGV[2];
     char buffer[BUFFER_SIZE];
+    std::cout << "Cliente envia contraseña" << std::endl;
+    send(server_fd, password.c_str(), password.size(), 0);
+    std::cout << "Cliente espera respuest del servidor\n\n" << std::endl;
+    recv(server_fd, buffer, BUFFER_SIZE, 0);
+    std::cout << buffer << std::endl;
+    recv(server_fd, buffer, BUFFER_SIZE, 0);
+    std::string nickname;
+    getline(std::cin,nickname);
+    send(server_fd,nickname.c_str(),nickname.size(),0);
 
-    while (true) {
-        poll(fds, 2, -1);
+    //if ()
+    //{
 
-        if (fds[0].revents & POLLIN) {
-            std::string input;
-            std::getline(std::cin, input);
-            send(client_fd, input.c_str(), input.length(), 0);
-        }
-        
+    //}
 
-        if (fds[1].revents & POLLIN) {
-            int n = recv(client_fd, buffer, BUFFER_SIZE, 0);
-
-            if (n <= 0) {
-                std::cout << "Conexión con el servidor cerrada." << std::endl;
-                close(client_fd);
-                break;
-            } else {
-                buffer[n] = '\0';
-                std::cout << "Mensaje del servidor: " << buffer << std::endl;
-            }
-        }
+    while (true)
+    {
+            usleep(50000);        
+            std::cout << "Cliente esperando" << std::endl;
     }
 
     return 0;
