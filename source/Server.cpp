@@ -141,9 +141,9 @@ void main_loop(Server *server)
                         notices[i] = true;
                         ssize_t bytes_read = recv(fds[i].fd, buffer, BUFFER_SIZE, 0); 
                         std::cout << "Se recibe la password : " << buffer << std::endl;
-                        memset(buffer, 0, sizeof(buffer));
                         if (!password.compare(buffer))
                         {
+                            memset(buffer, 0, sizeof(buffer));
                             std::cout << "Password confirm successfull" << std::endl;
                             std::string lobby_message = "<-Server-> Welcome to Lobby\n";
                             //Rutina de creación de usuarios
@@ -154,10 +154,10 @@ void main_loop(Server *server)
                             memset(buffer, 0, sizeof(buffer));
 
                             ssize_t bytes_read = recv(fds[i].fd, buffer, BUFFER_SIZE, 0);
-                            std::cout << "User " << buffer << "has been logged :D" << std::endl;
-                            /* HARDCODE*/ 
-                            
-
+                            std::cout << "User " << buffer << " has been logged :D" << std::endl; 
+                            //Channel se ha creado de antemano y ese usuario va al array
+                            //Creación de objeto usuario;
+                            /* HARDCODE*/
                         }
                         else
                         {

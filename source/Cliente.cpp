@@ -35,20 +35,19 @@ int main() {
     send(server_fd, password.c_str(), password.size(), 0);
     std::cout << "Cliente espera respuest del servidor\n\n" << std::endl;
     recv(server_fd, buffer, BUFFER_SIZE, 0);
-    std::cout << buffer << std::endl;
-    recv(server_fd, buffer, BUFFER_SIZE, 0);
+    
+    std::cout << buffer << std::endl; // Welcome to lobby
+
+    recv(server_fd, buffer, BUFFER_SIZE, 0); // Enter your nickname
+    /* NICKNAME PART */
+    std::cout << buffer << " ";
     std::string nickname;
     getline(std::cin,nickname);
     send(server_fd,nickname.c_str(),nickname.size(),0);
 
-    //if ()
-    //{
-
-    //}
-
+    
     while (true)
-    {
-            usleep(50000);        
+    {      
             std::cout << "Cliente esperando" << std::endl;
     }
 
