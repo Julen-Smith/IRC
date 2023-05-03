@@ -1,29 +1,46 @@
-CC = g++
-CFLAGS = -Wall
-OBJDIR = obj
+CC				= clang++
+SERVER			= Server
+CLIENTE			= Client
+FLAGS			=  #-Wall -Wextra -Werror -g -fsanitize=address -g3
 
-all: Server Cliente
+SRCS			=	source/Channel.cpp	\
+					source/Server.cpp		
+				  	
+SERVER_SRCS = source/Server.cpp \
+			 source/Channel.cpp \
 
-Server: $(OBJDIR)/Server.o
-	$(CC) $(CFLAGS) -o Server $(OBJDIR)/Server.o 
+CLIENT_SRCS = source/Cliente.cpp \
+			 source/Channel.cpp  \
 
-Cliente: $(OBJDIR)/Cliente.o
-	$(CC) $(CFLAGS) -o Cliente $(OBJDIR)/Cliente.o 
+#OBJS = $(SRCS:.cpp=.o)
 
-$(OBJDIR)/Server.o: source/Server.cpp | $(OBJDIR)
-	$(CC) $(CFLAGS) -c source/Server.cpp -o $(OBJDIR)/Server.o 
+SERVER_OBJ = $(SERVER_SRCS:.cpp=.o)
+CLIENT_OBJ = $(CLIENT_SRCS:.cpp=.o)
 
-$(OBJDIR)/Cliente.o: source/Cliente.cpp | $(OBJDIR)
-	$(CC) $(CFLAGS) -c source/Cliente.cpp -o $(OBJDIR)/Cliente.o
 
-$(OBJDIR)/Cliente.o: source/Cliente.cpp | $(OBJDIR)
-	$(CC) $(CFLAGS) -c source/Cliente.cpp -o $(OBJDIR)/Cliente.o 
+all : $(SERVER) $(CLIENT) 
 
-$(OBJDIR):
-	mkdir -p $(OBJDIR)
+%.o : %.cpp
+	${CC} ${FLAGS} -c $< -o $@
+
+$(SERVER) : $(SERVER_OBJ)
+	$(CC) $(FLAGS) -o $(SERVER) $(SERVER_OBJ)
+
+$(CLIENT) : $(CLIENT_OBJS)
+	$(CC) $(FLAGS) -o $(CLIENTE) $(CLIENT_OBJS)
+
 
 clean:
-	rm -f $(OBJDIR)/*.o Server Cliente
+	$(RM) $(SERVER_OBJ)
+	$(RM) $(CLIENT_OBJ)
+	echo "clean done"
 
-fclean:
-	make clean
+fclean: clean
+	$(RM) $(SERVER_OBJ)
+	$(RM) $(CLIENT_OBJ)
+	rm -rf .DS_Store
+	rm -rf .vscode
+
+re: clean all
+
+.PHONY: all clean fclean re
