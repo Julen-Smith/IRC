@@ -1,4 +1,7 @@
+#include <iostream>
+
 #include "User.hpp"
+#include "Channel.hpp"
 
 User::User()
 {
@@ -6,7 +9,7 @@ User::User()
 }
 
 User::User(Channel &channel)
-{   
+{
     this->rooms = &channel;
     //Cambiar más adelante
     std::cout << "Guest has join the channel [ " << "Lobby"<< " ]" << std::endl;
@@ -32,9 +35,10 @@ User::User(User& user)
 User& User::operator=(User &user)
 {
      std::cout << "Operator placeholder" << std::endl;
+     return *this;
 }
 
-std::string& User::getName(void)
+const std::string& User::getName(void) const
 {
     return this->nickname;
 }

@@ -1,9 +1,10 @@
+#include <iostream>
+
 #include "Channel.hpp"
-#include <vector>
 #include "User.hpp"
 
+Channel::Channel() {}
 
-class User;
 Channel::Channel(Server *server)
 {
     this->room_name = "Lobby";
@@ -23,14 +24,11 @@ Channel::~Channel()
     std::cout << "The channel " << room_name << " has been deleted." << std::endl;
 }
 
-Channel::Channel(Channel& new_channel)
-{
-
-}
+Channel::Channel(Channel& new_channel) {}
 
 Channel& Channel::operator=(Channel &new_channel)
 {
-
+    return *this;
 }
 
 void Channel::Welcome_message()
@@ -38,10 +36,13 @@ void Channel::Welcome_message()
     std::cout << "Welcome to " << this->room_name << std::endl;
 }
 
-void Channel::join_channel(std::string buffer) 
+void Channel::join_channel(std::string buffer)
 {
+    User    *tmp;
 
-    this->channel_users.push_back(User());
+    tmp = new User(buffer);
+
+    this->channel_users.push_back(tmp);
    // this->channel_users.back().nickname = buffer;
    // std::cout << "User " << this->channel_usersback().getName() << " has join the channel" << std::endl;
 }
