@@ -1,24 +1,23 @@
 CC				= clang++
 SERVER			= Server
-CLIENTE			= Client
+CLIENT			= Client
 FLAGS			=  #-Wall -Wextra -Werror -g -fsanitize=address -g3
-
-SRCS			=	source/Channel.cpp	\
-					source/Server.cpp		
+	
 				  	
 SERVER_SRCS = source/Server.cpp \
 			 source/Channel.cpp \
+			 source/User.cpp \
+
 
 CLIENT_SRCS = source/Cliente.cpp \
 			 source/Channel.cpp  \
-
-#OBJS = $(SRCS:.cpp=.o)
+			 source/User.cpp
 
 SERVER_OBJ = $(SERVER_SRCS:.cpp=.o)
 CLIENT_OBJ = $(CLIENT_SRCS:.cpp=.o)
 
 
-all : $(SERVER) $(CLIENT) 
+all : $(SERVER) $(CLIENT)
 
 %.o : %.cpp
 	${CC} ${FLAGS} -c $< -o $@
@@ -26,8 +25,8 @@ all : $(SERVER) $(CLIENT)
 $(SERVER) : $(SERVER_OBJ)
 	$(CC) $(FLAGS) -o $(SERVER) $(SERVER_OBJ)
 
-$(CLIENT) : $(CLIENT_OBJS)
-	$(CC) $(FLAGS) -o $(CLIENTE) $(CLIENT_OBJS)
+$(CLIENT) : $(CLIENT_OBJ)
+	$(CC) $(FLAGS) -o $(CLIENT) $(CLIENT_OBJ)
 
 
 clean:

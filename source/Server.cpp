@@ -8,14 +8,14 @@
 #include <poll.h>
 #include <vector>
 #include "Server.h"
-//#include "Channel.hpp"
+#include "Channel.hpp"
+#include "User.hpp"
 
 #define SOCKET_ERROR "Error al crear el socket"
 #define SOCKET_PREF_ERROR "Error al setear las preferencias del socket"
 
 const int BUFFER_SIZE = 1024;
 const int MAX_CLIENTS = 10;
-
 
 void generate_socket(Server *server)
 {
@@ -39,7 +39,7 @@ void generate_socket(Server *server)
         {
             std::cerr << SOCKET_PREF_ERROR << std::endl;
             std::cerr << "Intentandolo de nuevo . . ." << std::endl;
-            usleep(10000);
+            usleep(500000);
             //Soltar excepción y propagarla o gestionarla de alguna manera
             //  exit(0);
         }
@@ -108,7 +108,7 @@ void main_loop(Server *server)
         notices[i] = false;
     std::vector<std::string> message_list;
     std::string password  = "42Urduliz";
-   // Channel channel(server);
+    Channel lobby(server);
 
     fds.push_back(pollfd());
     fds[0].fd = server->server_socket;
@@ -155,7 +155,9 @@ void main_loop(Server *server)
 
                             ssize_t bytes_read = recv(fds[i].fd, buffer, BUFFER_SIZE, 0);
                             std::cout << "User " << buffer << " has been logged :D" << std::endl; 
-                            //Channel se ha creado de antemano y ese usuario va al array
+                            //User* new_user = new User(buffer, lobby);
+                            
+                            lobby.join_channel(buffer);
                             //Creación de objeto usuario;
                             /* HARDCODE*/
                         }

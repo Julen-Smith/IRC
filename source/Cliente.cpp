@@ -45,9 +45,9 @@ int main() {
     getline(std::cin,nickname);
     send(server_fd,nickname.c_str(),nickname.size(),0);
 
-    
     while (true)
     {      
+            //usleep(1000);
             std::cout << "Cliente esperando" << std::endl;
     }
 
