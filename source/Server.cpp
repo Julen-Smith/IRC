@@ -155,9 +155,8 @@ void main_loop(Server *server)
 
                             ssize_t bytes_read = recv(fds[i].fd, buffer, BUFFER_SIZE, 0);
                             std::cout << "User " << buffer << " has been logged :D" << std::endl; 
-                            //User* new_user = new User(buffer, lobby);
-                            
-                            lobby.join_channel(buffer);
+                            User new_user(buffer, lobby);
+                            lobby.join_channel(buffer, new_user);
                             //Creación de objeto usuario;
                             /* HARDCODE*/
                         }

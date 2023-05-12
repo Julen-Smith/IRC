@@ -5,6 +5,12 @@ User::User()
 
 }
 
+
+User::User(char * nickname, Channel &channel)
+{
+    std::cout << "Nickname, channel constructor" << std::endl;
+}
+
 User::User(Channel &channel)
 {   
     this->rooms = &channel;

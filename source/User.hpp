@@ -16,6 +16,7 @@ class User
         User();
         User(Channel &channel);
         User(std::string nickname);
+        User(char *nickname, Channel &channel);
         ~User();
         User(User& user);
         User &operator=(User &user);

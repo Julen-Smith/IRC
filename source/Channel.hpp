@@ -12,7 +12,7 @@ class Channel
     private:
         std::string room_name;
         Server *server;
-        std::vector<User> channel_users;
+        std::vector<User *> channel_users;
     public:   
         Channel(Server *server);
         Channel(std::string room_name, Server *server);
@@ -20,7 +20,7 @@ class Channel
         Channel(Channel& new_channel);
         Channel& operator=(Channel &new_channel);
         void Welcome_message();
-        void join_channel(std::string buffer);
+        void join_channel(std::string buffer, User &user);
 };
 
 
