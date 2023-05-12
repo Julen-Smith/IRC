@@ -7,6 +7,7 @@ FLAGS			=  #-Wall -Wextra -Werror -g -fsanitize=address -g3
 SERVER_SRCS = source/Server.cpp \
 			 source/Channel.cpp \
 			 source/User.cpp \
+			 source/serverUtils.cpp
 
 
 CLIENT_SRCS = source/Cliente.cpp \

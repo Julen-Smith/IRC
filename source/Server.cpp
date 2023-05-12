@@ -157,7 +157,7 @@ void generate_socket(Server *server)
             std::cerr << "Intentandolo de nuevo . . ." << std::endl;
             usleep(500000);
             //Soltar excepción y propagarla o gestionarla de alguna manera
-            //  exit(0);
+            //exit(0);
         }
         print_server_menu(server);
     }
