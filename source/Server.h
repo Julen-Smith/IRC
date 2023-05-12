@@ -14,10 +14,9 @@ typedef struct server
     int server_socket; //Fd que utiliza el servidor como socket
     int ipv4;
     int socket_type;
-
 } Server;
 
-
 void main_loop(Server *server);
+void print_server_menu(Server *server);
 
 #endif

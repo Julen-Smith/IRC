@@ -41,5 +41,5 @@ void Channel::join_channel(std::string buffer, User &user)
 {
     this->channel_users.push_back(&user);
    // this->channel_users.back().nickname = buffer;
-   // std::cout << "User " << this->channel_usersback().getName() << " has join the channel" << std::endl;
+    std::cout << "User " << this->channel_users.back()->getName() << " has join the channel" << std::endl;
 }

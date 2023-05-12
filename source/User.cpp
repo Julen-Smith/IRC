@@ -8,7 +8,11 @@ User::User()
 
 User::User(char * nickname, Channel &channel)
 {
-    std::cout << "Nickname, channel constructor" << std::endl;
+    this->nickname = nickname;
+
+    (void) channel;
+    std::cout << "User(nickname,channel) constructor" << std::endl;
+
 }
 
 User::User(Channel &channel)
@@ -21,7 +25,7 @@ User::User(Channel &channel)
 User::User(std::string nickname)
 {
     // this->rooms = &channel;
-    this->nickname = nickname;
+   // this->nickname = nickname;
     //Cambiar más adelante
 }
 
@@ -40,7 +44,7 @@ User& User::operator=(User &user)
      std::cout << "Operator placeholder" << std::endl;
 }
 
-std::string& User::getName(void)
+char * User::getName(void)
 {
     return this->nickname;
 }

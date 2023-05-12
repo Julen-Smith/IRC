@@ -9,7 +9,7 @@ class Channel;
 class User
 {
     private:
-        std::string nickname;
+        char * nickname;
         Channel *rooms;
         std::vector<std::string> *message_list;
     public:
@@ -20,7 +20,7 @@ class User
         ~User();
         User(User& user);
         User &operator=(User &user);
-        std::string& getName(void);
+        char * getName(void);
 };
 
 #endif
