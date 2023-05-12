@@ -1,21 +1,31 @@
-#ifndef SERVER_H
-#define SERVER_H
+#ifndef SERVER_HPP
+#define SERVER_HPP
 
+#include <string>
+#include <sys/types.h>
 #include <sys/socket.h>
-#include <netinet/in.h>
-#include <unistd.h>
-#include <exception>
+#include <netdb.h>
 
-typedef struct server
+class Server
 {
-    int port; // Puerto
-    int server_socket; //Fd que utiliza el servidor como socket
-    int ipv4;
-    int socket_type;
+	public:
+		Server();
+		Server(const char *);
 
-} Server;
+		~Server();
+
+		const int	max_clients;
+	protected:
+
+	private:
+
+		std::string	_port;
+		int		_socket;
+		struct addrinfo	_hint;
+		struct addrinfo *_serv_info;
+
+		void	_init_cout();
+};
 
 
-void main_loop(Server *server);
-
-#endif
+#endif //SERVER_HPP
