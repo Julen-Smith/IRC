@@ -81,11 +81,24 @@ void main_loop(Server *server)
                 }
                 else
                 {
+
+                    ssize_t bytes_read = recv(fds[i].fd, buffer, BUFFER_SIZE, 0); 
+                    std::cout << buffer << std::endl;    
+
                     if (notices[i] == false)
                     {
-                        notices[i] = true;
+                          notices[i] = true;
+
+                      
+                        
+                        
+                        //std::string lobby_message = "<-Server-> Welcome to Lobby\n";
+                        //send(fds[i].fd, lobby_message.c_str(), lobby_message.length(), 0);
+                      /*
+                      
                         ssize_t bytes_read = recv(fds[i].fd, buffer, BUFFER_SIZE, 0); 
                         std::cout << "Se recibe la password : " << buffer << std::endl;
+                      
                         if (!password.compare(buffer))
                         {
                             memset(buffer, 0, sizeof(buffer));
@@ -109,6 +122,7 @@ void main_loop(Server *server)
                             std::cout << "Se cierra el fd del cliente por contraseña erronea" << std::endl;
                             close(fds[i].fd);
                         }
+                        */
                     }
                     else
                     {    
@@ -128,16 +142,15 @@ void main_loop(Server *server)
  *  
  * setsockopt :
  * 
- * 
- * 
- * 
  * @param Argc,Port,Password 
  * @return Void
  * */
-void generate_socket(Server *server)
+void generate_socket(Server *server,struct sockaddr_in& address)
 {
     server->port = 4242;
+    //address.sin_port = 4242;
     server->ipv4 = AF_INET; //2
+    //address.sin_addr = AF_INET;
     server->socket_type = SOCK_STREAM; //1
     server->server_socket = socket(server->ipv4, server->socket_type, 0);
     if (server->server_socket == -1)
@@ -167,8 +180,10 @@ void generate_socket(Server *server)
 int main(int argc, char const *argv[])
 {
     Server server;
+    struct sockaddr_in address;
 
-    generate_socket(&server); //Generar socket
+
+    generate_socket(&server, address); //Generar socket
     bind_socket(&server); //Bindear Socket
     listen(server.server_socket,MAX_CLIENTS); 
     main_loop(&server);

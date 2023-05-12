@@ -19,6 +19,7 @@ CLIENT_OBJ = $(CLIENT_SRCS:.cpp=.o)
 
 
 all : $(SERVER) $(CLIENT)
+	./Server
 
 %.o : %.cpp
 	${CC} ${FLAGS} -c $< -o $@
