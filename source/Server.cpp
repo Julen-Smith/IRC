@@ -14,7 +14,7 @@
 #define SOCKET_ERROR "Error al crear el socket"
 #define SOCKET_PREF_ERROR "Error al setear las preferencias del socket"
 
-const int BUFFER_SIZE = 1024;
+const int BUFFER_SIZE = 4080;
 const int MAX_CLIENTS = 10;
 
 
@@ -48,7 +48,7 @@ void bind_socket(Server *server)
     @return
 */
 
-/** @attention Main loop del servidor @param  @return */
+/** @attention Main loop del servidor @param none @return */
 void main_loop(Server *server)
 {
 
@@ -81,10 +81,22 @@ void main_loop(Server *server)
                 }
                 else
                 {
+                    //ssize_t bytes_read = recv(fds[i].fd, buffer, BUFFER_SIZE, 0); 
+            //        memset(buffer, 0, sizeof(buffer));
+            //        recv(fds[1].fd, buffer, BUFFER_SIZE,0);
 
-                    ssize_t bytes_read = recv(fds[i].fd, buffer, BUFFER_SIZE, 0); 
-                    std::cout << buffer << std::endl;    
+                    std::string saludo = "Welcome to the Server Lobby.";
+                    std::string channel = "";
+                    //std::string message = "SQUIT";
+                    std::string ircMessage = "PRIVMSG " + channel + " :" + saludo + "\r\n";
 
+                    send(fds[1].fd,ircMessage.c_str(),ircMessage.size(),0);
+                    std::string format(buffer);
+
+                    std::cout << buffer << std::endl;   
+                    //format.clear();
+                    std::string lobby_message = "<-Server-> Welcome to Lobby\n";
+                    send(fds[i].fd, lobby_message.c_str(), lobby_message.length(), 0);
                     if (notices[i] == false)
                     {
                           notices[i] = true;
@@ -92,8 +104,8 @@ void main_loop(Server *server)
                       
                         
                         
-                        //std::string lobby_message = "<-Server-> Welcome to Lobby\n";
-                        //send(fds[i].fd, lobby_message.c_str(), lobby_message.length(), 0);
+                        //
+                        //
                       /*
                       
                         ssize_t bytes_read = recv(fds[i].fd, buffer, BUFFER_SIZE, 0); 
@@ -138,8 +150,8 @@ void main_loop(Server *server)
  * @attention Funciones destacadas
  * socket : Crea un endpoint 
  *
- * 
- *  
+ *
+ *
  * setsockopt :
  * 
  * @param Argc,Port,Password 
