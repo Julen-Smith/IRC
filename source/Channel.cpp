@@ -3,19 +3,15 @@
 #include "Channel.hpp"
 #include "User.hpp"
 
-Channel::Channel() {}
-
-Channel::Channel(Server *server)
+Channel::Channel(const Server &server) : server(server)
 {
     this->room_name = "Lobby";
-    this->server = server;
     std::cout << "The channel " << room_name << " has been created." << std::endl;
 }
 
-Channel::Channel(std::string room_name, Server *server)
+Channel::Channel(const std::string& room_name, const Server &server) : server(server)
 {
     this->room_name = room_name;
-    this->server = server;
     std::cout << "The channel " << room_name << " has been created." << std::endl;
 }
 
@@ -24,14 +20,12 @@ Channel::~Channel()
     std::cout << "The channel " << room_name << " has been deleted." << std::endl;
 }
 
-Channel::Channel(Channel& new_channel) {}
-
-Channel& Channel::operator=(Channel &new_channel)
+Channel& Channel::operator=(const Channel &new_channel)
 {
     return *this;
 }
 
-void Channel::Welcome_message()
+void Channel::Welcome_message() const
 {
     std::cout << "Welcome to " << this->room_name << std::endl;
 }

@@ -15,6 +15,8 @@ class Server
 		~Server();
 
 		const int	max_clients;
+		const int	get_socket() const;
+
 	protected:
 
 	private:

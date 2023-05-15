@@ -10,6 +10,8 @@ Server::Server() : max_clients(MAX_CLIENTS)
 	std::cout << "Default Server\n";
 }
 
+Server::~Server() {}
+
 Server::Server(const char *port) : _port(port), max_clients(MAX_CLIENTS)
 {
 	int	retval;
@@ -24,7 +26,7 @@ Server::Server(const char *port) : _port(port), max_clients(MAX_CLIENTS)
 
 	retval = getaddrinfo(NULL, port, &this->_hint, &this->_serv_info);
 	this->_socket = socket(this->_serv_info->ai_family, this->_serv_info->ai_socktype, this->_serv_info->ai_protocol);
-	if (this->_socket != 0)
+	if (this->_socket < 0)
 	{
 		std::cerr << SOCKET_ERROR << std::endl;
 		//Soltar excepción y propagarla o gestionarla de alguna manera
@@ -62,14 +64,16 @@ void	Server::_init_cout()
         std::cerr << "El servidor ha sido iniciado ... \n"
         << " _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n"
         << "| Puerto : "
-        << server->port << "                                 |"
+        << this->_port << "                                 |"
         << std::endl
         << "| Protocolo : "
-        << (server->ipv4 == 2 ? "Ipv4" : server->ipv4 == 1 ? "Ipv6" : "Uknown")
+        //<< (server->ipv4 == 2 ? "Ipv4" : server->ipv4 == 1 ? "Ipv6" : "Uknown")
         << "                              |"
         << std::endl
-        << "| Tipo de conexión : " << (server->socket_type == 1 ? "Socket de conexiones" : "Uknown")
+        << "| Tipo de conexión : " << (this->_hint.ai_socktype == 1 ? "Socket de conexiones" : "Uknown")
         << "       |"
         << std::endl
         << " ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯\n";
 }
+
+const int	Server::get_socket() const {return this->_socket;}

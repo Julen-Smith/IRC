@@ -8,16 +8,10 @@
 #include <poll.h>
 #include <vector>
 
-#include "Server.h"
+#include "Server.hpp"
 #include "Channel.hpp"
 #include "User.hpp"
-
-
-const int BUFFER_SIZE = 1024;
-const int MAX_CLIENTS = 10;
-
-
-
+#include "defs.hpp"
 
 int command_manager(std::string &command,Server *server)
 {
@@ -32,6 +26,7 @@ int command_manager(std::string &command,Server *server)
 }
 
 # define TIMEOUT	0
+# define PASSWORD   "42Urduliz"
 
 void main_loop(Server &server)
 {
@@ -43,17 +38,21 @@ void main_loop(Server &server)
         POLLNVAL NO ES VALIDO O NO ESTÁ ABIERTO
     */
     char buffer[BUFFER_SIZE];
+    std::string password  = "42Urduliz";
+
     std::vector<pollfd> fds;
+
     std::vector<bool> notices;
     //NO VALE. notices.size() == 0.
     for(int i = 0; i < notices.size(); i++)
         notices[i] = false;
+
     std::vector<std::string> message_list;
-    std::string password  = "42Urduliz";
+
     Channel lobby(server);
 
     fds.push_back(pollfd());
-    fds[0].fd = server->server_socket;
+    fds[0].fd = server.get_socket();
     fds[0].events = POLLIN;
     while (true)
     {
@@ -66,11 +65,11 @@ void main_loop(Server &server)
             // La unica diferencia con una comparativa habitual es la eficiencia 000001 0000011 != and true
             if (fds[i].revents & POLLIN)
             {
-                if (fds[i].fd == server->server_socket)
+                if (fds[i].fd == server.get_socket())
                 {
                     sockaddr_in clientes;
                     socklen_t client_address_size = sizeof(clientes);
-                    int client_fd = accept(server->server_socket, (sockaddr *)&clientes, &client_address_size);
+                    int client_fd = accept(server.get_socket(), (sockaddr *)&clientes, &client_address_size);
                     fds.push_back(pollfd());
                     fds.back().fd = client_fd;
                     fds.back().events = POLLIN;
@@ -143,8 +142,8 @@ int main(int argc, char const *argv[])
 	Server	server(PORT);
     //generate_socket(); //Generar socket
     //bind_socket(&server); //Bindear Socket
-    std::cout << server.server_socket << std::endl;
-    main_loop(&server);
+    std::cout << server.get_socket() << std::endl;
+    main_loop(server);
 
 
     return (0);

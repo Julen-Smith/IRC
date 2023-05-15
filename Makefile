@@ -5,13 +5,14 @@ FLAGS			=  #-Wall -Wextra -Werror -g -fsanitize=address -g3
 
 
 SERVER_SRCS = source/Server.cpp \
-			 source/Channel.cpp \
-			 source/User.cpp
+			 	source/main.cpp \
+			 	source/Channel.cpp \
+			 	source/User.cpp
 
 
 CLIENT_SRCS = source/Cliente.cpp \
-			 source/Channel.cpp  \
-			 source/User.cpp
+			 	source/Channel.cpp  \
+			 	source/User.cpp
 
 INC = -I ./inc
 
