@@ -15,15 +15,15 @@ class Channel
         std::string         room_name;
         std::vector<User *>   channel_users;
     public:
-        Channel(const Server &server);
-        Channel(const std::string& room_name, const Server &server);
+        Channel(const Server&);
+        Channel(const std::string&, const Server&);
 
         ~Channel();
-        Channel(Channel& new_channel);
+        Channel(Channel&);
 
-        Channel& operator=(const Channel &new_channel);
+        Channel& operator=(const Channel&);
         void Welcome_message() const;
-        void join_channel(std::string buffer);
+        void join_channel(std::string, User&);
 };
 
 

@@ -13,16 +13,15 @@ class User
     private:
 
         std::string                 nickname;
-        Channel                     *rooms;
-        std::vector<std::string>    *message_list;
+        Channel                     &rooms;
+        std::vector<std::string>    message_list;
 
     protected:
 
     public:
-        User();
-        User(User&);
-        User(Channel&);
-        User(std::string);
+
+        User(const std::string&, Channel&);
+        User(const User&);
 
         ~User();
 

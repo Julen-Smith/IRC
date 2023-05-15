@@ -30,6 +30,7 @@ void Channel::Welcome_message() const
     std::cout << "Welcome to " << this->room_name << std::endl;
 }
 
+/*
 void Channel::join_channel(std::string buffer)
 {
     User    *tmp;
@@ -39,4 +40,11 @@ void Channel::join_channel(std::string buffer)
     this->channel_users.push_back(tmp);
    // this->channel_users.back().nickname = buffer;
    // std::cout << "User " << this->channel_usersback().getName() << " has join the channel" << std::endl;
+}
+*/
+void Channel::join_channel(std::string buffer, User &user)
+{
+    this->channel_users.push_back(&user);
+   // this->channel_users.back().nickname = buffer;
+    std::cout << "User " << this->channel_users.back()->getName() << " has join the channel" << std::endl;
 }

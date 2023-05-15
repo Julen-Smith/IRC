@@ -26,9 +26,9 @@ int main() {
     server_addr.sin_port = htons(PORT);
     inet_pton(AF_INET, "127.0.0.1", &server_addr.sin_addr);
 
+    std::cout << "Intento de conexión al servidor" << std::endl;
     connect(server_fd, (struct sockaddr *)&server_addr, sizeof(server_addr));
-    std::cout << "Conectado a servidor" << std::endl;
-    
+  
     //SEND PASSWORD ARGV[2];
     char buffer[BUFFER_SIZE];
     std::cout << "Cliente envia contraseña" << std::endl;

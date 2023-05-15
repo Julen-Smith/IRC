@@ -29,3 +29,6 @@ Todos los strings del programa están indexados en algún fichero de configuraci
 Errores de preprocesado. Por ejemplo al introducir mal los parametros.
 
 Servidor - Rooms/Channels - Comandos por channel, Perfiles de usuarios especiales Admin/Bot - File transfer - UTF8
+
+
+Hacer un Rakefile

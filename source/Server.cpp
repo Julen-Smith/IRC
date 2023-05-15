@@ -77,3 +77,4 @@ void	Server::_init_cout()
 }
 
 const int	Server::get_socket() const {return this->_socket;}
+
