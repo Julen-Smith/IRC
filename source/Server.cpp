@@ -78,31 +78,36 @@ void main_loop(Server *server)
                     fds.back().fd = client_fd;
                     fds.back().events = POLLIN;
                     notices.push_back(false);
+                    
                 }
                 else
                 {
+                    
                     //ssize_t bytes_read = recv(fds[i].fd, buffer, BUFFER_SIZE, 0); 
-            //        memset(buffer, 0, sizeof(buffer));
-            //        recv(fds[1].fd, buffer, BUFFER_SIZE,0);
+                    
+                    
+                  
 
-                    std::string saludo = "Welcome to the Server Lobby.";
-                    std::string channel = "";
-                    //std::string message = "SQUIT";
-                    std::string ircMessage = "PRIVMSG " + channel + " :" + saludo + "\r\n";
 
-                    send(fds[1].fd,ircMessage.c_str(),ircMessage.size(),0);
-                    std::string format(buffer);
+                  
+                   // std::string format(buffer);
 
-                    std::cout << buffer << std::endl;   
+                   // std::cout << buffer << std::endl;   
                     //format.clear();
-                    std::string lobby_message = "<-Server-> Welcome to Lobby\n";
-                    send(fds[i].fd, lobby_message.c_str(), lobby_message.length(), 0);
+                   // std::string lobby_message = "<-Server-> Welcome to Lobby\n";
+                   // send(fds[i].fd, lobby_message.c_str(), lobby_message.length(), 0);
                     if (notices[i] == false)
                     {
-                          notices[i] = true;
+                        notices[i] = true;
+                        memset(buffer, 0, sizeof(buffer));
+                        recv(fds[i].fd, buffer, BUFFER_SIZE,0);
+                        std::cout << buffer << std::endl;
 
-                      
-                        
+                        std::string channel = "Server";
+                        std::string saludo = "Welcome to the Server Lobby.";
+                        std::string ircMessage = "PRIVMSG " + channel + " :" + saludo + "\r\n";
+
+                        send(fds[1].fd,ircMessage.c_str(),ircMessage.size(),0);
                         
                         //
                         //
