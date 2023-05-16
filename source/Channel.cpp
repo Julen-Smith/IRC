@@ -1,19 +1,17 @@
+#include <iostream>
+
 #include "Channel.hpp"
-#include <vector>
 #include "User.hpp"
 
-class User;
-Channel::Channel(Server *server)
+Channel::Channel(const Server &server) : server(server)
 {
     this->room_name = "Lobby";
-    this->server = server;
     std::cout << "The channel " << room_name << " has been created." << std::endl;
 }
 
-Channel::Channel(std::string room_name, Server *server)
+Channel::Channel(const std::string& room_name, const Server &server) : server(server)
 {
     this->room_name = room_name;
-    this->server = server;
     std::cout << "The channel " << room_name << " has been created." << std::endl;
 }
 
@@ -22,22 +20,29 @@ Channel::~Channel()
     std::cout << "The channel " << room_name << " has been deleted." << std::endl;
 }
 
-Channel::Channel(Channel& ref_cha)
+Channel& Channel::operator=(const Channel &new_channel)
 {
-    std::cout << "Channel copy constructor called" << std::endl;
-}   
-
-Channel& Channel::operator=(Channel &new_channel)
-{
-    std::cout << "Operator =  called" << std::endl;
+    return *this;
 }
 
-void Channel::Welcome_message()
+void Channel::Welcome_message() const
 {
     std::cout << "Welcome to " << this->room_name << std::endl;
 }
 
-void Channel::join_channel(std::string buffer, User &user) 
+/*
+void Channel::join_channel(std::string buffer)
+{
+    User    *tmp;
+
+    tmp = new User(buffer);
+
+    this->channel_users.push_back(tmp);
+   // this->channel_users.back().nickname = buffer;
+   // std::cout << "User " << this->channel_usersback().getName() << " has join the channel" << std::endl;
+}
+*/
+void Channel::join_channel(std::string buffer, User &user)
 {
     this->channel_users.push_back(&user);
    // this->channel_users.back().nickname = buffer;

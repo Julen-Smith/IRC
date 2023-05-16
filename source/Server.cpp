@@ -1,55 +1,18 @@
 #include <iostream>
-#include <string>
 #include <cstring>
 #include <unistd.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <poll.h>
-#include <vector>
-#include "Server.h"
-#include "Channel.hpp"
-#include "User.hpp"
 
-#define SOCKET_ERROR "Error al crear el socket"
-#define SOCKET_PREF_ERROR "Error al setear las preferencias del socket"
+#include "Server.hpp"
+#include "defs.hpp"
 
-const int BUFFER_SIZE = 4080;
-const int MAX_CLIENTS = 10;
-
-
-/** @attention Función que genera el socket @param @return */
-
-
-/** @attention sdfdfs @param sdfsd @return dfdfs */
-void bind_socket(Server *server)
+Server::Server() : max_clients(MAX_CLIENTS)
 {
-    struct sockaddr_in address;
-
-    address.sin_family = server->ipv4;
-    address.sin_addr.s_addr = INADDR_ANY; //Aceptar cualquier dirección
-    address.sin_port = htons(server->port);
-    if (bind(server->server_socket, (sockaddr *) &address, sizeof(address)) < 0) {
-        std::cerr << "Error al asignar la dirección al socket\n";
-        exit (0);
-    }
-   //if (listen(server->server_socket, 3) < 0) {
-   //     std::cerr << "Error al escuchar conexiones entrantes\n";
-   //     exit(0) ;
-   // }
+	std::cout << "Default Server\n";
 }
 
-#define MAX_CLIENTS 50
+Server::~Server() {}
 
-
-/*
-    @details
-    @param 
-    @return
-*/
-
-/** @attention Main loop del servidor @param none @return */
-void main_loop(Server *server)
+Server::Server(const char *port) : _port(port), max_clients(MAX_CLIENTS)
 {
 
     char buffer[BUFFER_SIZE];
@@ -78,46 +41,66 @@ void main_loop(Server *server)
                     fds.back().fd = client_fd;
                     fds.back().events = POLLIN;
                     notices.push_back(false);
-                    
                 }
                 else
                 {
+                    //ssize_t bytes_read = recv(fds[i].fd, buffer, BUFFER_SIZE, 0); 
+            //        memset(buffer, 0, sizeof(buffer));
+            //        recv(fds[1].fd, buffer, BUFFER_SIZE,0);
+
+                    std::string saludo = "Welcome to the Server Lobby.";
+                    std::string channel = "";
+                    //std::string message = "SQUIT";
+                    std::string ircMessage = "PRIVMSG " + channel + " :" + saludo + "\r\n";
+
+                    send(fds[1].fd,ircMessage.c_str(),ircMessage.size(),0);
+                    std::string format(buffer);
+
+                    std::cout << buffer << std::endl;   
+                    //format.clear();
+                    std::string lobby_message = "<-Server-> Welcome to Lobby\n";
+                    send(fds[i].fd, lobby_message.c_str(), lobby_message.length(), 0);
                     if (notices[i] == false)
                     {
+                          notices[i] = true;
 
-                        //Metadata del usuario
-                        notices[i] = true;
-                        memset(buffer, 0, sizeof(buffer));
-                        recv(fds[i].fd, buffer, BUFFER_SIZE,0);
-                        std::cout << buffer << std::endl;
-                        //Mensaje de bienvenida al servidor
-                        std::string channel = "Server";
-                        std::string saludo = "Welcome to the Server Lobby.";
-                        std::string ircMessage = "PRIVMSG " + channel + " :" + saludo + "\r\n";
-
-                        send(fds[i].fd,ircMessage.c_str(),ircMessage.size(),0);
+                      
                         
+                        
+                        //
+                        //
+                      /*
+                      
+                        ssize_t bytes_read = recv(fds[i].fd, buffer, BUFFER_SIZE, 0); 
+                        std::cout << "Se recibe la password : " << buffer << std::endl;
+                      
+                        if (!password.compare(buffer))
+                        {
+                            memset(buffer, 0, sizeof(buffer));
+                            std::cout << "Password confirm successfull" << std::endl;
+                            std::string lobby_message = "<-Server-> Welcome to Lobby\n";
+                            //Rutina de creación de usuarios
+                            send(fds[i].fd, lobby_message.c_str(), lobby_message.length(), 0);
+
+                            std::string nickname_question = "<-Server-> Please enter your nickname : ";
+                            send(fds[i].fd, nickname_question.c_str(), nickname_question.length(), 0);
+                            memset(buffer, 0, sizeof(buffer));
+
+                            ssize_t bytes_read = recv(fds[i].fd, buffer, BUFFER_SIZE, 0);
+                            std::cout << "User " << buffer << " has been logged :D" << std::endl;
+                            User new_user(buffer, lobby);
+                            lobby.join_channel(buffer, new_user);
+                            //Creación de objeto usuario;
+                        }
+                        else
+                        {
+                            std::cout << "Se cierra el fd del cliente por contraseña erronea" << std::endl;
+                            close(fds[i].fd);
+                        }
+                        */
                     }
                     else
-                    {
-                        memset(buffer, 0, sizeof(buffer));
-                        recv(fds[i].fd, buffer, BUFFER_SIZE,0);
-                        for(int u = 0; u != fds.size(); u++)
-                        {
-                            if (u != i)
-                            {
-                                std::string channel = "Server";
-                                std::string saludo(buffer);
-                                std::string ircMessage = "PRIVMSG " + channel + " :" + "<OTHER> "+ saludo + "\r\n";
-                                send(fds[u].fd,ircMessage.c_str(),ircMessage.size(),0);
-                            }else
-                            {
-                                std::string channel = "Server";
-                                std::string saludo(buffer);
-                                std::string ircMessage = "PRIVMSG " + channel + " :" + "<YOU> "+ saludo + "\r\n";
-                                send(fds[u].fd,ircMessage.c_str(),ircMessage.size(),0);
-                            }
-                        }
+                    {    
                     }
                 }
             }
@@ -162,30 +145,41 @@ void generate_socket(Server *server,struct sockaddr_in& address)
             std::cerr << "Intentandolo de nuevo . . ." << std::endl;
             usleep(500000);
             //Soltar excepción y propagarla o gestionarla de alguna manera
-            //exit(0);
+            //  exit(0);
         }
-        print_server_menu(server);
-    }
+
+	this->_init_cout();
+	retval = bind(this->_socket, this->_serv_info->ai_addr, this->_serv_info->ai_addrlen);
+	if (retval == -1)
+	{
+		std::cerr << "Error al asignar la dirección al socket\n";
+		exit (0);
+	}
+
+    	retval = listen(this->_socket, max_clients);
+	if (retval == -1)
+	{
+		std::cerr << "Error al escuchar la dirección al socket\n";
+		exit (0);
+	}
 }
 
-/** @attention Main @param Argc,Port,Password @return exit mode */
-int main(int argc, char const *argv[])
+void	Server::_init_cout()
 {
-    Server server;
-    struct sockaddr_in address;
-
-
-    generate_socket(&server, address); //Generar socket
-    bind_socket(&server); //Bindear Socket
-    listen(server.server_socket,MAX_CLIENTS); 
-    main_loop(&server);
-    return (0);
+        std::cerr << "El servidor ha sido iniciado ... \n"
+        << " _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n"
+        << "| Puerto : "
+        << this->_port << "                                 |"
+        << std::endl
+        << "| Protocolo : "
+        //<< (server->ipv4 == 2 ? "Ipv4" : server->ipv4 == 1 ? "Ipv6" : "Uknown")
+        << "                              |"
+        << std::endl
+        << "| Tipo de conexión : " << (this->_hint.ai_socktype == 1 ? "Socket de conexiones" : "Uknown")
+        << "       |"
+        << std::endl
+        << " ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯\n";
 }
 
-/*
-    FLAGS POLL
-    POLLIN BUSCA DATOS DISPONIBLES PARA LEER EN LOS FDS ASIGNADOS
-    POLLOUT VUELVE EN CASO DE QUE SE PUEDA ESCRIBIR SIN BLOQUEAR EN LOS FDS ASIGNADOS
-    POLLHUP PARA AVISOS DE CIERRE DE CONEXION
-    POLLNVAL NO ES VALIDO O NO ESTÁ ABIERTO
-*/
+const int	Server::get_socket() const {return this->_socket;}
+
