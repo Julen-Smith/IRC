@@ -82,67 +82,42 @@ void main_loop(Server *server)
                 }
                 else
                 {
-                    
-                    //ssize_t bytes_read = recv(fds[i].fd, buffer, BUFFER_SIZE, 0); 
-                    
-                    
-                  
-
-
-                  
-                   // std::string format(buffer);
-
-                   // std::cout << buffer << std::endl;   
-                    //format.clear();
-                   // std::string lobby_message = "<-Server-> Welcome to Lobby\n";
-                   // send(fds[i].fd, lobby_message.c_str(), lobby_message.length(), 0);
                     if (notices[i] == false)
                     {
+
+                        //Metadata del usuario
                         notices[i] = true;
                         memset(buffer, 0, sizeof(buffer));
                         recv(fds[i].fd, buffer, BUFFER_SIZE,0);
                         std::cout << buffer << std::endl;
-
+                        //Mensaje de bienvenida al servidor
                         std::string channel = "Server";
                         std::string saludo = "Welcome to the Server Lobby.";
                         std::string ircMessage = "PRIVMSG " + channel + " :" + saludo + "\r\n";
 
-                        send(fds[1].fd,ircMessage.c_str(),ircMessage.size(),0);
+                        send(fds[i].fd,ircMessage.c_str(),ircMessage.size(),0);
                         
-                        //
-                        //
-                      /*
-                      
-                        ssize_t bytes_read = recv(fds[i].fd, buffer, BUFFER_SIZE, 0); 
-                        std::cout << "Se recibe la password : " << buffer << std::endl;
-                      
-                        if (!password.compare(buffer))
-                        {
-                            memset(buffer, 0, sizeof(buffer));
-                            std::cout << "Password confirm successfull" << std::endl;
-                            std::string lobby_message = "<-Server-> Welcome to Lobby\n";
-                            //Rutina de creación de usuarios
-                            send(fds[i].fd, lobby_message.c_str(), lobby_message.length(), 0);
-
-                            std::string nickname_question = "<-Server-> Please enter your nickname : ";
-                            send(fds[i].fd, nickname_question.c_str(), nickname_question.length(), 0);
-                            memset(buffer, 0, sizeof(buffer));
-
-                            ssize_t bytes_read = recv(fds[i].fd, buffer, BUFFER_SIZE, 0);
-                            std::cout << "User " << buffer << " has been logged :D" << std::endl;
-                            User new_user(buffer, lobby);
-                            lobby.join_channel(buffer, new_user);
-                            //Creación de objeto usuario;
-                        }
-                        else
-                        {
-                            std::cout << "Se cierra el fd del cliente por contraseña erronea" << std::endl;
-                            close(fds[i].fd);
-                        }
-                        */
                     }
                     else
-                    {    
+                    {
+                        memset(buffer, 0, sizeof(buffer));
+                        recv(fds[i].fd, buffer, BUFFER_SIZE,0);
+                        for(int u = 0; u != fds.size(); u++)
+                        {
+                            if (u != i)
+                            {
+                                std::string channel = "Server";
+                                std::string saludo(buffer);
+                                std::string ircMessage = "PRIVMSG " + channel + " :" + "<OTHER> "+ saludo + "\r\n";
+                                send(fds[u].fd,ircMessage.c_str(),ircMessage.size(),0);
+                            }else
+                            {
+                                std::string channel = "Server";
+                                std::string saludo(buffer);
+                                std::string ircMessage = "PRIVMSG " + channel + " :" + "<YOU> "+ saludo + "\r\n";
+                                send(fds[u].fd,ircMessage.c_str(),ircMessage.size(),0);
+                            }
+                        }
                     }
                 }
             }
