@@ -1,15 +1,15 @@
 #include <iostream>
 
-#include "User.hpp"
+#include "../inc/User.hpp"
 
-User::User(const std::string &nickname, Channel &channel) : rooms(channel)
+User::User(const std::string &nickname, Channel &channel) //: rooms(channel)
 {
     this->nickname = nickname;
     std::cout << "User(nickname,channel) constructor" << std::endl;
 
 }
 
-User::User(const User &obj) : rooms(obj.rooms)
+User::User(const User &obj) // : rooms(obj.rooms)
 {
     //Cambiar más adelante
     std::cout << "Guest has join the channel [ " << "Lobby"<< " ]" << std::endl;

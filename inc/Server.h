@@ -7,6 +7,7 @@
 #include <unistd.h> 
 #include <cstring>
 #include <exception>
+#include <poll.h>
 
 typedef struct server
 {

@@ -20,7 +20,7 @@ SERVER_OBJ = $(SERVER_SRCS:.cpp=.o)
 CLIENT_OBJ = $(CLIENT_SRCS:.cpp=.o)
 
 
-all : $(SERVER) $(CLIENT)
+all : $(SERVER)
 	./Server
 
 %.o : %.cpp
@@ -28,10 +28,6 @@ all : $(SERVER) $(CLIENT)
 
 $(SERVER) : $(SERVER_OBJ)
 	$(CC) $(FLAGS) -o $(SERVER) $(SERVER_OBJ)
-
-$(CLIENT) : $(CLIENT_OBJ)
-	$(CC) $(FLAGS) -o $(CLIENT) $(CLIENT_OBJ)
-
 
 clean:
 	$(RM) $(SERVER_OBJ)

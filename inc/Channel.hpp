@@ -7,23 +7,20 @@
 #include "Server.hpp"
 
 class User;
-
 class Channel
 {
     private:
-        const Server        &server;
-        std::string         room_name;
-        std::vector<User *>   channel_users;
-    public:
-        Channel(const Server&);
-        Channel(const std::string&, const Server&);
-
+        std::string room_name;
+      // Server *server;
+        std::vector<User *> channel_users;
+    public:   
+      // Channel(Server *server);
+        Channel(const std::string &room_name/* Server *server*/);
         ~Channel();
-        Channel(Channel&);
-
-        Channel& operator=(const Channel&);
+        Channel(Channel& new_channel);
+        Channel& operator=(const Channel &new_channel);
         void Welcome_message() const;
-        void join_channel(std::string, User&);
+        void join_channel(std::string buffer, User &user);
 };
 
 

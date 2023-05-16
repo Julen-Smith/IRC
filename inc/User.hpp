@@ -7,26 +7,22 @@
 #include "Server.hpp"
 
 class Channel;
-
 class User
 {
     private:
-
-        std::string                 nickname;
-        Channel                     &rooms;
-        std::vector<std::string>    message_list;
-
-    protected:
-
+        std::string nickname;
+        Channel *rooms;
+        std::vector<std::string> *message_list;
     public:
-
-        User(const std::string&, Channel&);
-        User(const User&);
-
+        User();
+        User(Channel &channel);
+        User(std::string nickname);
+        User(const std::string &nickname, Channel &channel);
         ~User();
-
-        User &operator=(User&);
-        const std::string& getName() const;
+        User(const User &obj);
+        User& operator=(User &user);
+        const std::string& getName(void) const;
 };
+
 
 #endif
