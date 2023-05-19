@@ -1,0 +1,98 @@
+#include <iostream>
+#include <string>
+#include <cstring>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <vector>
+
+#include "../inc/Server.hpp"
+#include "../inc/User.hpp"
+#include "defs.hpp"
+
+
+/*
+static void loop_client(Server &server)
+{
+}
+*/
+
+/** @attention Main loop del servidor @param none @return */
+void main_loop(Server &server)
+{
+    sockaddr_in clientes;
+    socklen_t   client_address_size;
+    int         client_fd;
+
+    client_address_size = sizeof(clientes);
+    //std::string password  = "42Urduliz";
+    server.fds.push_back(pollfd());
+    server.fds[0].fd = server.get_socket();
+    server.fds[0].events = POLLIN;
+    while (true)
+    {
+        //EVENT TO HANDLE NO SE UTILIZA
+        server.event_to_handle = poll(&server.fds[0], server.fds.size(), 0);
+        for(int i = 0; i < server.fds.size(); i++)
+        {
+            if (server.fds[i].revents & POLLIN)  //Comprobación cambios fichero
+            {
+                if (server.fds[i].fd == server.get_socket())
+                {
+                    client_fd = accept(server.get_socket(), (sockaddr *)&clientes, &client_address_size);
+                    server.fds.push_back(pollfd());
+                    server.fds.back().fd = client_fd;
+                    server.fds.back().events = POLLIN;
+                    server.notices.push_back(false);
+                }
+                else
+                {
+                    if (server.notices[i] == false)
+                    {
+                    }
+                    else
+                    {
+                        memset(server.buffer, 0, sizeof(server.buffer));
+                        recv(server.fds[i].fd, server.buffer, BUFFER_SIZE,0);
+                        for(int u = 0; u != server.fds.size(); u++)
+                        {
+                            if (u != i)
+                            {
+                                std::string channel = "Server";
+                                std::string saludo(server.buffer);
+                                std::string ircMessage = "PRIVMSG " + channel + " :" + "<OTHER> "+ saludo + "\r\n";
+                                send(server.fds[u].fd,ircMessage.c_str(),ircMessage.size(),0);
+                            }
+                            else
+                            {
+                                std::string channel = "Server";
+                                std::string saludo(server.buffer);
+                                std::string ircMessage = "PRIVMSG " + channel + " :" + "<YOU> "+ saludo + "\r\n";
+                                send(server.fds[u].fd,ircMessage.c_str(),ircMessage.size(),0);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+/** @attention Main @param Argc,Port,Password @return exit mode */
+int main(int argc, char const *argv[])
+{
+    /*
+    if (argc == 1)
+        Server	server(PORT, PASSWORD);
+    else
+        Server	server(PORT, argv[1]);
+        */
+    Server	server(PORT);
+
+
+    main_loop(server);
+    return (0);
+}
+

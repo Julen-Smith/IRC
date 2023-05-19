@@ -7,7 +7,6 @@
 # define MAX_CLIENTS 		50
 # define BUFFER_SIZE        1024
 # define TIMEOUT	        0
-# define MAIN               0
 # define PASSWORD           "42Urduliz"
 
 //MAIN ChaNNEL MSG
@@ -17,9 +16,5 @@
 # define PRIVMSG          "PRIVMSG"
 # define OTHER            "<OTHER>"
 # define YOU              "<YOU>"
-
-# define NICK             "NICK "
-# define OFF_NICK         5
-# define MSG_END          "\r\n"
 
 #endif  //DEFS_HPP

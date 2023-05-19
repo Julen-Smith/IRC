@@ -1,12 +1,10 @@
 #include <iostream>
 
-#include "../inc/User.hpp"
+#include "User.hpp"
 
-User::User(const std::string &nickname, Channel &channel) //: rooms(channel)
+User::User(const std::string &nickname, const pollfd fd) _nickname(nickname), _fd(fd)
 {
-    this->nickname = nickname;
     std::cout << "User(nickname,channel) constructor" << std::endl;
-
 }
 
 User::User(const User &obj) // : rooms(obj.rooms)

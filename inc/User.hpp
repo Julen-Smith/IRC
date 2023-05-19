@@ -10,16 +10,16 @@ class Channel;
 class User
 {
     private:
-        std::string nickname;
-        Channel *rooms;
-        std::vector<std::string> *message_list;
+        const std::string   _nickname;
+        const pollfd        _fd;
+        bool                notices;              
+
     public:
-        User();
-        User(Channel &channel);
-        User(std::string nickname);
-        User(const std::string &nickname, Channel &channel);
+        User(std::string, pollfd);
+        User(const User &);
+
         ~User();
-        User(const User &obj);
+
         User& operator=(User &user);
         const std::string& getName(void) const;
 };

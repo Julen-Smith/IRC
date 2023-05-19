@@ -1,13 +1,12 @@
 CC				= clang++
 SERVER			= Server
 CLIENT			= Client
-FLAGS			=  #-Wall -Wextra -Werror -g -fsanitize=address -g3
+FLAGS			=  -Wall -Werror -g -fsanitize=address -g3
 
 
 SERVER_SRCS = source/Server.cpp \
 			 	source/main.cpp \
 			 	source/Channel.cpp \
-			 	source/User.cpp
 
 
 CLIENT_SRCS = source/Cliente.cpp \

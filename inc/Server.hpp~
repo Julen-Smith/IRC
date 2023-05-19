@@ -12,10 +12,8 @@
 #include <arpa/inet.h>
 #include <poll.h>
 #include <vector>
-#include <sys/socket.h>
 
 #include "defs.hpp"
-#include "User.hpp"
 
 
 class Server
@@ -30,15 +28,11 @@ class Server
 		const int	get_socket() const;
 
 		std::vector<pollfd>			fds;
-		//std::vector<User *>			users;
-		std::vector<bool>			notices;
+		std::vector<bool> 			notices;
 		int							event_to_handle;
 		char						buffer[BUFFER_SIZE];
-
-		void						init_server();
-		void						accept_new_user();
-		void						enter_msg(int);
-		void						send_msg(int);
+		//std::vector<std::string> 	message_list;
+		void						enter_msg(char *);
 
 	protected:
 
@@ -49,7 +43,6 @@ class Server
 		struct sockaddr_in 	sv_socket_info;
 
 		void	_init_cout() const;
-		void	_create_new_user(ssize_t);
 };
 
 
