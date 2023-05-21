@@ -1,16 +1,11 @@
 #include <iostream>
 #include <cstring>
+#include <sstream>
 #include <unistd.h>
 
-#include "../inc/Server.hpp"
+#include "Server.hpp"
 #include "defs.hpp"
-#include "../inc/Channel.hpp"
-//#include "../inc/Server.h"
-
-//Server::Server() : max_clients(MAX_CLIENTS)
-//{
-//	std::cout << "Default Server\n";
-//}
+#include "Channel.hpp"
 
 Server::~Server() {}
 
@@ -42,15 +37,15 @@ Server::Server(const char *port) : max_clients(MAX_CLIENTS), _port(port)
 }
 
 
-/** 
+/**
  * @attention Funciones destacadas
- * socket : Crea un endpoint 
+ * socket : Crea un endpoint
  *
  *
  *
  * setsockopt :
- * 
- * @param Argc,Port,Password 
+ *
+ * @param Argc,Port,Password
  * @return Void
  * */
 void	Server::_init_cout() const
@@ -78,10 +73,10 @@ void    Server::_create_new_user(ssize_t rd_size)
     char        *end_nick;
     size_t      len;
 
-    start_nick = strnstr(this->buffer, NICK, rd_size);
-    end_nick = strnstr(start_nick, MSG_END, rd_size);
+    start_nick = strstr(this->buffer, NICK);//, rd_size);
+    end_nick = strstr(start_nick, MSG_END);//, rd_size);
     len = end_nick - start_nick - 1;
-    std::string nickname(start_nick + OFF_NICK, len); 
+    std::string nickname(start_nick + OFF_NICK, len);
     std::cout << nickname;
 
 }
@@ -91,8 +86,8 @@ void    Server::enter_msg(int client)
     char    send_buffer[BUFFER_SIZE];
     ssize_t rd_size;
 
-    this->notices[client] = true;
-    rd_size = recv(this->fds[client].fd, this->buffer, BUFFER_SIZE, 0);
+    this->users[client]->set_notices();
+    rd_size = recv(this->users[client]->fd, this->buffer, BUFFER_SIZE, 0);
 
     this->_create_new_user(rd_size);
     std::cout << this->buffer << std::endl;
@@ -102,30 +97,32 @@ void    Server::enter_msg(int client)
     this->buffer[rd_size] = 0;
 
     rd_size = sprintf(send_buffer, "%s %s : %s\r\n", PRIVMSG, MAIN_CHANNEL, WELCOME_MSG);
-    send(this->fds[client].fd, send_buffer, rd_size, 0);
+    send(this->users[client]->fd, send_buffer, rd_size, 0);
 
 }
 
 void    Server::send_msg(int client)
 {
-    char    send_buffer[BUFFER_SIZE];
-    char    client_msg[BUFFER_SIZE];
-    ssize_t rd_size;
+    char                send_buffer[BUFFER_SIZE];
+    ssize_t             rd_size;
+    std::stringstream   client_stream;
+    std::string         client_msg;
 
-    rd_size = recv(this->fds[client].fd, send_buffer, BUFFER_SIZE, 0);
+    rd_size = recv(this->users[client]->fd, send_buffer, BUFFER_SIZE, 0);
 
     if (rd_size == -1)
         exit(1);
     send_buffer[rd_size] = 0;
 
-    for(int iter = 0; iter != this->fds.size(); iter++)
+    for(int iter = 0; iter != this->users.size(); iter++)
     {
         if (iter != client)
-            rd_size = sprintf(client_msg, "%s %s :%s%s\r\n", PRIVMSG, MAIN_CHANNEL, OTHER, send_buffer);
+            client_stream << PRIVMSG << " " << MAIN_CHANNEL << " :" << OTHER << send_buffer << MSG_END;
         else
-            rd_size = sprintf(client_msg, "%s %s :%s%s\r\n", PRIVMSG, MAIN_CHANNEL, YOU, send_buffer);
-        client_msg[rd_size] = 0;
-        send(this->fds[iter].fd, client_msg, rd_size, 0);
+            client_stream << PRIVMSG << " " << MAIN_CHANNEL << " :" << YOU << send_buffer << MSG_END;
+
+        client_msg = client_stream.str();
+        send(this->users[iter]->fd, client_msg.c_str(), rd_size, 0);
     }
 }
 
@@ -134,21 +131,10 @@ void    Server::accept_new_user()
     int         client_socket;
     sockaddr_in client;
     socklen_t   size;
+    User        *new_user;
 
     client_socket = accept(this->_socket, (sockaddr *)&client, &size);
-    this->fds.push_back(pollfd());
-    this->fds.back().fd = client_socket;
-    this->fds.back().events = POLLIN;
-    this->notices.push_back(false);
-
-    //this->users.push_back(new User());
+    new_user = new User("ANON");
+    this->users.push_back(new_user);
+    new_user->set_pollfd(client_socket, POLLIN);
 }
-
-/*
-void    Server::init_server()
-{
-    server.fds.push_back(pollfd());
-    server.fds[0].fd = server.get_socket();
-    server.fds[0].events = POLLIN;
-}
-*/

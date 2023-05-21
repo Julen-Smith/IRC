@@ -2,7 +2,7 @@
 
 #include "User.hpp"
 
-User::User(const std::string &nickname, const pollfd fd) _nickname(nickname), _fd(fd)
+User::User(const std::string &nickname) : _nickname(nickname), _notices(false)
 {
     std::cout << "User(nickname,channel) constructor" << std::endl;
 }
@@ -10,6 +10,8 @@ User::User(const std::string &nickname, const pollfd fd) _nickname(nickname), _f
 User::User(const User &obj) // : rooms(obj.rooms)
 {
     //Cambiar más adelante
+    this->_notices = obj.get_notices();
+    this->_nickname = obj.get_nickname();
     std::cout << "Guest has join the channel [ " << "Lobby"<< " ]" << std::endl;
 }
 
@@ -24,7 +26,13 @@ User& User::operator=(User &user)
      return *this;
 }
 
-const std::string& User::getName(void) const
+void    User::set_pollfd(int socket, int events)
 {
-    return this->nickname;
+    this->fd = socket;
+    this->events = events;
 }
+
+const std::string&  User::get_nickname(void) const {return this->_nickname;}
+bool                User::get_notices(void) const {return this->_notices;}
+
+void                User::set_notices() {this->_notices = true; }

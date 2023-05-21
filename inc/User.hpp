@@ -3,25 +3,27 @@
 
 #include <string>
 #include <vector>
+#include <poll.h>
 
-#include "Server.hpp"
-
-class Channel;
-class User
+class User : public pollfd
 {
     private:
-        const std::string   _nickname;
-        const pollfd        _fd;
-        bool                notices;              
+        std::string _nickname;
+        bool        _notices;
 
     public:
-        User(std::string, pollfd);
+        //User();
+        User(const std::string &);
         User(const User &);
 
         ~User();
 
         User& operator=(User &user);
-        const std::string& getName(void) const;
+        const std::string&  get_nickname(void) const;
+        bool                get_notices(void) const;
+
+        void                set_pollfd(int, int);
+        void                set_notices();
 };
 
 

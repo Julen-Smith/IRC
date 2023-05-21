@@ -6,7 +6,7 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <iostream>
-#include <unistd.h> 
+#include <unistd.h>
 #include <cstring>
 #include <exception>
 #include <arpa/inet.h>
@@ -16,7 +16,6 @@
 
 #include "defs.hpp"
 #include "User.hpp"
-
 
 class Server
 {
@@ -29,9 +28,7 @@ class Server
 		const int	max_clients;
 		const int	get_socket() const;
 
-		std::vector<pollfd>			fds;
-		//std::vector<User *>			users;
-		std::vector<bool>			notices;
+		std::vector<User *>			users;
 		int							event_to_handle;
 		char						buffer[BUFFER_SIZE];
 
