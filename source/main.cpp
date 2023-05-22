@@ -27,7 +27,8 @@ void main_loop(Server &server)
     while (true)
     {
 
-        server.event_to_handle = poll(server.users[0], server.users.size(), 0);
+        for (int i = 0; i < server.users.size(); i++)
+            server.event_to_handle = poll(server.users[i], 1, 0);
         for(int client = 0; client < server.users.size(); client++)
         {
             if (server.users[client]->revents & POLLIN)  //Comprobación cambios fichero
