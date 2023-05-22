@@ -37,9 +37,7 @@ void main_loop(Server &server)
                 else
                 {
                     if (server.users[client]->get_notices() == false)
-                    {
                         server.enter_msg(client);
-                    }
                     else
                         server.send_msg(client);
                 }

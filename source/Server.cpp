@@ -78,7 +78,6 @@ void    Server::_create_new_user(ssize_t rd_size)
     len = end_nick - start_nick - 1;
     std::string nickname(start_nick + OFF_NICK, len);
     std::cout << nickname;
-
 }
 
 void    Server::enter_msg(int client)

@@ -4,7 +4,7 @@
 
 User::User(const std::string &nickname) : _nickname(nickname), _notices(false)
 {
-    std::cout << "User(nickname,channel) constructor" << std::endl;
+    std::cout << "Nickname: " << nickname << std::endl;
 }
 
 User::User(const User &obj) // : rooms(obj.rooms)
