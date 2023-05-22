@@ -28,6 +28,7 @@ class Server
 		const int	max_clients;
 		const int	get_socket() const;
 
+		std::vector<pollfd>			fds;
 		std::vector<User *>			users;
 		int							event_to_handle;
 		char						buffer[BUFFER_SIZE];

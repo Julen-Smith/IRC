@@ -5,7 +5,7 @@
 #include <vector>
 #include <poll.h>
 
-class User : public pollfd
+class User
 {
     private:
         std::string _nickname;
@@ -22,7 +22,6 @@ class User : public pollfd
         const std::string&  get_nickname(void) const;
         bool                get_notices(void) const;
 
-        void                set_pollfd(int, int);
         void                set_notices();
 };
 

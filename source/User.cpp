@@ -26,12 +26,6 @@ User& User::operator=(User &user)
      return *this;
 }
 
-void    User::set_pollfd(int socket, int events)
-{
-    this->fd = socket;
-    this->events = events;
-}
-
 const std::string&  User::get_nickname(void) const {return this->_nickname;}
 bool                User::get_notices(void) const {return this->_notices;}
 

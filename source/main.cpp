@@ -22,18 +22,19 @@ static void loop_client(Server &server)
 void main_loop(Server &server)
 {
     server.users.push_back(new User("Bot"));
-    server.users[0]->set_pollfd(server.get_socket(), POLLIN);
+    server.fds.push_back(pollfd());
+    server.fds[0].fd = server.get_socket();
+    server.fds[0].events = POLLIN;
 
     while (true)
     {
 
-        for (int i = 0; i < server.users.size(); i++)
-            server.event_to_handle = poll(server.users[i], 1, 0);
+        server.event_to_handle = poll(server.fds.data(), server.fds.size(), 0);
         for(int client = 0; client < server.users.size(); client++)
         {
-            if (server.users[client]->revents & POLLIN)  //Comprobación cambios fichero
+            if (server.fds[client].revents & POLLIN)  //Comprobación cambios fichero
             {
-                if (server.users[client]->fd == server.get_socket())
+                if (server.fds[client].fd == server.get_socket())
                     server.accept_new_user();
                 else
                 {
