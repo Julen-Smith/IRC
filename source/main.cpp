@@ -28,7 +28,6 @@ void main_loop(Server &server)
 
     while (true)
     {
-
         server.event_to_handle = poll(server.fds.data(), server.fds.size(), 0);
         for(int client = 0; client < server.users.size(); client++)
         {

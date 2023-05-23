@@ -73,8 +73,8 @@ void    Server::_create_new_user(ssize_t rd_size)
     char        *end_nick;
     size_t      len;
 
-    start_nick = strstr(this->buffer, NICK);//, rd_size);
-    end_nick = strstr(start_nick, MSG_END);//, rd_size);
+    start_nick = strnstr(this->buffer, NICK, rd_size);
+    end_nick = strnstr(start_nick, MSG_END, rd_size);
     len = end_nick - start_nick - 1;
     std::string nickname(start_nick + OFF_NICK, len);
     std::cout << nickname;
@@ -82,47 +82,51 @@ void    Server::_create_new_user(ssize_t rd_size)
 
 void    Server::enter_msg(int client)
 {
-    char    send_buffer[BUFFER_SIZE];
-    ssize_t rd_size;
+    ssize_t             rd_size;
+    std::string         client_msg;
+    std::stringstream   client_stream;
 
     this->users[client]->set_notices();
     rd_size = recv(this->fds[client].fd, this->buffer, BUFFER_SIZE, 0);
 
+    std::cout << "BUFFER: " << this->buffer << std::endl;
     this->_create_new_user(rd_size);
-    std::cout << this->buffer << std::endl;
 
     if (rd_size == -1)
         exit(0);
     this->buffer[rd_size] = 0;
 
-    rd_size = sprintf(send_buffer, "%s %s : %s\r\n", PRIVMSG, MAIN_CHANNEL, WELCOME_MSG);
-    send(this->fds[client].fd, send_buffer, rd_size, 0);
-
+    client_stream << PRIVMSG << " " << MAIN_CHANNEL << " : " << WELCOME_MSG << MSG_END;
+    client_msg = client_stream.str();
+    rd_size = send(this->fds[client].fd, client_msg.c_str(), rd_size, 0);
+    std::cout << "RD_SIZE: " << rd_size << std::endl;
 }
 
 void    Server::send_msg(int client)
 {
-    char                send_buffer[BUFFER_SIZE];
     ssize_t             rd_size;
     std::stringstream   client_stream;
     std::string         client_msg;
 
-    rd_size = recv(this->fds[client].fd, send_buffer, BUFFER_SIZE, 0);
+    rd_size = recv(this->fds[client].fd, this->buffer, BUFFER_SIZE, 0);
 
     if (rd_size == -1)
         exit(1);
-    send_buffer[rd_size] = 0;
+    this->buffer[rd_size] = 0;
+    std::cout << "SEND BUFFER: " << this->buffer << std::endl;
 
     for(int iter = 0; iter != this->users.size(); iter++)
     {
         if (iter != client)
-            client_stream << PRIVMSG << " " << MAIN_CHANNEL << " :" << OTHER << send_buffer << MSG_END;
+            client_stream << PRIVMSG << " " << MAIN_CHANNEL << " : " << OTHER << " " << this->buffer << MSG_END;
         else
-            client_stream << PRIVMSG << " " << MAIN_CHANNEL << " :" << YOU << send_buffer << MSG_END;
+            client_stream << PRIVMSG << " " << MAIN_CHANNEL << " : " << YOU << " " << this->buffer << MSG_END;
 
         client_msg = client_stream.str();
-        std::cout << client_msg;
-        send(this->fds[iter].fd, client_msg.c_str(), rd_size, 0);
+        std::cout << "START\n";
+        std::cout << "CREATED SEND MSG: " << client_msg.c_str() << std::endl;
+        std::cout << "END\n";
+        rd_size = send(this->fds[iter].fd, client_msg.c_str(), rd_size, 0);
     }
 }
 
