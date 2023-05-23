@@ -74,7 +74,11 @@ void    Server::_create_new_user(ssize_t rd_size)
     size_t      len;
 
     start_nick = strnstr(this->buffer, NICK, rd_size);
+    if (!start_nick)
+        return ;
     end_nick = strnstr(start_nick, MSG_END, rd_size);
+    if (!end_nick)
+        return ;
     len = end_nick - start_nick - 1;
     std::string nickname(start_nick + OFF_NICK, len);
     std::cout << nickname;
@@ -98,8 +102,7 @@ void    Server::enter_msg(int client)
 
     client_stream << PRIVMSG << " " << MAIN_CHANNEL << " : " << WELCOME_MSG << MSG_END;
     client_msg = client_stream.str();
-    rd_size = send(this->fds[client].fd, client_msg.c_str(), rd_size, 0);
-    std::cout << "RD_SIZE: " << rd_size << std::endl;
+    rd_size = send(this->fds[client].fd, client_msg.c_str(), client_msg.size(), 0);
 }
 
 void    Server::send_msg(int client)
@@ -113,20 +116,17 @@ void    Server::send_msg(int client)
     if (rd_size == -1)
         exit(1);
     this->buffer[rd_size] = 0;
-    std::cout << "SEND BUFFER: " << this->buffer << std::endl;
 
     for(int iter = 0; iter != this->users.size(); iter++)
     {
         if (iter != client)
-            client_stream << PRIVMSG << " " << MAIN_CHANNEL << " : " << OTHER << " " << this->buffer << MSG_END;
+            client_stream << PRIVMSG << " " << MAIN_CHANNEL << " : " << OTHER << " " << this->buffer;
         else
-            client_stream << PRIVMSG << " " << MAIN_CHANNEL << " : " << YOU << " " << this->buffer << MSG_END;
+            client_stream << PRIVMSG << " " << MAIN_CHANNEL << " : " << YOU << " " << this->buffer;
 
         client_msg = client_stream.str();
-        std::cout << "START\n";
-        std::cout << "CREATED SEND MSG: " << client_msg.c_str() << std::endl;
-        std::cout << "END\n";
-        rd_size = send(this->fds[iter].fd, client_msg.c_str(), rd_size, 0);
+        rd_size = send(this->fds[iter].fd, client_msg.c_str(), client_msg.size(), 0);
+        client_stream.str("");
     }
 }
 
