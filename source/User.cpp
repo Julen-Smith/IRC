@@ -2,7 +2,7 @@
 
 #include "User.hpp"
 
-User::User(const std::string &nickname) : _nickname(nickname), _notices(false)
+User::User(const std::string &nickname, int socket) : _nickname(nickname), _notices(false), _socket(socket)
 {
     std::cout << "Nickname: " << nickname << std::endl;
 }
@@ -28,5 +28,6 @@ User& User::operator=(User &user)
 
 const std::string&  User::get_nickname(void) const {return this->_nickname;}
 bool                User::get_notices(void) const {return this->_notices;}
+int                User::get_socket(void) const {return this->_socket;}
 
 void                User::set_notices() {this->_notices = true; }

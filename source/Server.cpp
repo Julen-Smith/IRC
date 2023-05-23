@@ -2,6 +2,7 @@
 #include <cstring>
 #include <sstream>
 #include <unistd.h>
+#include <fcntl.h>
 
 #include "Server.hpp"
 #include "defs.hpp"
@@ -97,7 +98,7 @@ void    Server::enter_msg(int client)
     this->_create_new_user(rd_size);
 
     if (rd_size == -1)
-        exit(0);
+        exit(121);
     this->buffer[rd_size] = 0;
 
     client_stream << PRIVMSG << " " << MAIN_CHANNEL << " : " << WELCOME_MSG << MSG_END;
@@ -114,7 +115,7 @@ void    Server::send_msg(int client)
     rd_size = recv(this->fds[client].fd, this->buffer, BUFFER_SIZE, 0);
 
     if (rd_size == -1)
-        exit(1);
+        return ;
     this->buffer[rd_size] = 0;
 
     for(int iter = 0; iter != this->users.size(); iter++)
@@ -126,6 +127,7 @@ void    Server::send_msg(int client)
 
         client_msg = client_stream.str();
         rd_size = send(this->fds[iter].fd, client_msg.c_str(), client_msg.size(), 0);
+        std::cout << "SEND RETURN: " << rd_size << std::endl;
         client_stream.str("");
     }
 }
@@ -139,10 +141,29 @@ void    Server::accept_new_user()
     pollfd      new_pollfd;
 
     client_socket = accept(this->_socket, (sockaddr *)&client, &size);
-    new_user = new User("ANON");
+    new_user = new User("ANON", client_socket);
     this->users.push_back(new_user);
 
     new_pollfd.fd = client_socket;
     new_pollfd.events = POLLIN;
     this->fds.push_back(new_pollfd);
 }
+
+void    Server::erase_client(int socket)
+{
+    for (std::vector<User *>::iterator it = this->users.begin(); it != this->users.end();)
+    {
+        std::cout << "YAY\n";
+        std::cout << "VALUE: " << (*it)->get_notices();
+        if ((*it)->get_socket() == socket)
+        {
+            delete *it;
+            this->users.erase(it);
+            std::cout << "USER DELETED\n";
+            return ;
+        }
+        it++;
+    }
+    std::cout << "ERASE CLIENT\n";
+}
+

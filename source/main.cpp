@@ -21,7 +21,9 @@ static void loop_client(Server &server)
 /** @attention Main loop del servidor @param none @return */
 void main_loop(Server &server)
 {
-    server.users.push_back(new User("Bot"));
+    signal(SIGPIPE, SIG_IGN);
+
+    server.users.push_back(new User("Bot", server.get_socket()));
     server.fds.push_back(pollfd());
     server.fds[0].fd = server.get_socket();
     server.fds[0].events = POLLIN;
@@ -31,6 +33,11 @@ void main_loop(Server &server)
         server.event_to_handle = poll(server.fds.data(), server.fds.size(), 0);
         for(int client = 0; client < server.users.size(); client++)
         {
+            if (server.fds[client].revents & POLLHUP)  //Comprobación cambios fichero
+            {
+                server.erase_client(server.fds[client].fd);
+                continue ;
+            }
             if (server.fds[client].revents & POLLIN)  //Comprobación cambios fichero
             {
                 if (server.fds[client].fd == server.get_socket())

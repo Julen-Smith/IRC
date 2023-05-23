@@ -37,6 +37,7 @@ class Server
 		void						accept_new_user();
 		void						enter_msg(int);
 		void						send_msg(int);
+		void    					erase_client(int);
 
 	protected:
 
