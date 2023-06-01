@@ -23,8 +23,10 @@ class User
         const std::string&  get_nickname(void) const;
         bool                get_notices(void) const;
         int                 get_socket(void) const;
-
+        
         void                set_notices(void);
+        void                set_nickname(std::string);
+
 };
 
 

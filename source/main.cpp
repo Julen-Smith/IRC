@@ -46,8 +46,10 @@ void main_loop(Server &server)
                 {
                     if (server.users[client]->get_notices() == false)
                         server.enter_msg(client);
-                    else
-                        server.send_msg(client);
+                     else
+                        std::cout << "";
+                        //server.send_msg(client);
+                        
                 }
             }
         }

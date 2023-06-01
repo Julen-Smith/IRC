@@ -21,5 +21,11 @@
 # define NICK             "NICK "
 # define OFF_NICK         5
 # define MSG_END          "\r\n"
+# define JOIN_MSG         "has joined the channel."
+
+
+
+//CONFIG FILES
+
 
 #endif  //DEFS_HPP

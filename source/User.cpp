@@ -31,3 +31,4 @@ bool                User::get_notices(void) const {return this->_notices;}
 int                User::get_socket(void) const {return this->_socket;}
 
 void                User::set_notices() {this->_notices = true; }
+void                User::set_nickname(std::string nick) { this->_nickname = nick; }
