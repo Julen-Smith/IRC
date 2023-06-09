@@ -144,14 +144,13 @@ void    Server::send_msg(int client)
         return ;
     this->buffer[rd_size] = 0;
     std::string compare(this->buffer);
-    
+    std::cout << "BUFF: " << compare << std::endl;
     int opt = command_checker(compare); 
     std::string respuesta1 = ":Server 321 : Channels Users Topic \r\n";  
     switch(opt)
     {
         case 1:            
             send(fds[client].fd,respuesta1.c_str(),respuesta1.size(),0);
-            
             for (int channels = 0; channels != this->channels.size(); channels++)
             {
                 std::string response;
@@ -165,7 +164,12 @@ void    Server::send_msg(int client)
                 std::cout << response << std::endl;
                 send(fds[client].fd,response.c_str(),response.size(),0); 
             }
-        break;   
+        break;
+       /* case 2:
+            respuesta1 = :Server
+                    353     RPL_NAMREPLY "<canal> :[[@|+]<nick> [[@|+]<nick> [...]]]"
+                    366     RPL_ENDOFNAMES "<canal> :Fin de la lista /NAMES"   
+        */
         default: 
             std::cout << "Comando no encontrado option : "<< opt << std::endl; 
     }
@@ -232,6 +236,8 @@ int Server::command_checker(std::string &cmd)
     {
         if (commands[counter] == cmd)
             return (1);
+      //  if (commands[counter] == "NAMES")
+      //      return (2);
     }
     return (0);
 }
