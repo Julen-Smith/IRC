@@ -28,6 +28,7 @@ void main_loop(Server &server)
     server.fds[0].fd = server.get_socket();
     server.fds[0].events = POLLIN;
 
+    server.generate_default_channels();
     while (true)
     {
         server.event_to_handle = poll(server.fds.data(), server.fds.size(), 0);
@@ -47,8 +48,7 @@ void main_loop(Server &server)
                     if (server.users[client]->get_notices() == false)
                         server.enter_msg(client);
                      else
-                        std::cout << "";
-                        //server.send_msg(client);
+                        server.send_msg(client);
                         
                 }
             }

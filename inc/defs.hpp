@@ -22,8 +22,8 @@
 # define OFF_NICK         5
 # define MSG_END          "\r\n"
 # define JOIN_MSG         "has joined the channel."
-
-
+# define COMMAND_LIST     "This is a placeholder to notice that the user must use some command."
+# 
 
 //CONFIG FILES
 

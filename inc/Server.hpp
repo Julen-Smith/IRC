@@ -16,7 +16,9 @@
 
 #include "defs.hpp"
 #include "User.hpp"
+#include "Channel.hpp"
 
+class Channel;
 class Server
 {
 	public:
@@ -30,6 +32,7 @@ class Server
 
 		std::vector<pollfd>			fds;
 		std::vector<User *>			users;
+		std::vector<Channel *>		channels;
 		int							event_to_handle;
 		char						buffer[BUFFER_SIZE];
 
@@ -38,6 +41,8 @@ class Server
 		void						enter_msg(int);
 		void						send_msg(int);
 		void    					erase_client(int);
+		int							command_checker(std::string &);
+		void						generate_default_channels(void);
 
 	protected:
 

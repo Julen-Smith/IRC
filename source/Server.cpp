@@ -4,12 +4,15 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <fstream>
+#include <sys/types.h>
+#include <sys/socket.h>
 
 #include "Server.hpp"
 #include "defs.hpp"
 #include "Channel.hpp"
 
 Server::~Server() {}
+
 
 Server::Server(const char *port) : max_clients(MAX_CLIENTS), _port(port)
 {
@@ -69,6 +72,8 @@ void	Server::_init_cout() const
 
 const int	Server::get_socket() const {return this->_socket;}
 
+
+
 void    Server::_create_new_user(ssize_t rd_size, int client )
 {
     char        *start_nick;
@@ -100,15 +105,9 @@ void    Server::enter_msg(int client)
     std::string         client_msg;
     std::stringstream   client_stream;
 
-    // Crea el socket
-    // Crea el socket
-
-
     this->users[client]->set_notices();
     rd_size = recv(this->fds[client].fd, this->buffer, BUFFER_SIZE, 0);
-
     this->_create_new_user(rd_size,client);
-
     if (rd_size == -1)
         exit(121);
     this->buffer[rd_size] = 0;
@@ -127,18 +126,6 @@ void    Server::enter_msg(int client)
     }
     else
         std::cout << "No se pudo abrir el archivo." << std::endl;
-        std::string userList;
-
-    for (int userPos = 0; userPos != this->users.size() ;userPos++)
-        userList = this->users.at(userPos)->get_nickname() + " ";
-
-    std::string response = "353 Bot = Lobby : Nick Peter Jorge Carlos\r\n";
-    rd_size = send(this->fds[client].fd, response.c_str(), response.size(), MSG_NOSIGNAL);
-    response += "366 Bot = Lobby : End of NAMES list\r\n";
-    std::string contextUpdate = "/context Lobby usuarios: Nick Peter Jorge Carlos";
-    std::string command = "/raw " + contextUpdate + "\r\n";
-    send(this->fds[client].fd, command.c_str(), command.size(), MSG_NOSIGNAL);
-    
 }
 
 void    Server::send_msg(int client)
@@ -147,22 +134,39 @@ void    Server::send_msg(int client)
     std::stringstream   client_stream;
     std::string         client_msg;
 
-    rd_size = recv(this->fds[client].fd, this->buffer, BUFFER_SIZE, 0);
 
+    rd_size = recv(this->fds[client].fd, this->buffer, BUFFER_SIZE, 0);
     if (rd_size == -1)
         return ;
     this->buffer[rd_size] = 0;
-
-    for(int iter = 0; iter != this->users.size(); iter++)
+    std::string compare(this->buffer);
+    
+    int opt = command_checker(compare); 
+    std::string respuesta1 = ":Server 321 : Channels Users Topic \r\n";         
+ //   std::string respuesta2 = ":Server 322 Julen #Channel_1 10 :More cock \r\n";   
+    std::string replacer;
+    std::cout << this->channels.size() << std::endl;           
+    switch(opt)
     {
-        if (iter != client)
-            client_stream << PRIVMSG << " " << MAIN_CHANNEL << " : " << OTHER << " " << this->buffer << MSG_END;
-        else
-            client_stream << PRIVMSG << " " << MAIN_CHANNEL << " : " << YOU << " " << this->buffer << MSG_END;
-
-        client_msg = client_stream.str();
-        rd_size = send(this->fds[iter].fd, client_msg.c_str(), client_msg.size(), 0);
-        client_stream.str("");
+        case 1:            
+            send(fds[client].fd,respuesta1.c_str(),respuesta1.size(),0);
+            
+            for (int channels = 0; channels != this->channels.size(); channels++)
+            {
+                replacer = this->users.at(client)->get_nickname();
+                replacer.erase(remove(replacer.begin(), replacer.end(), '\n'), replacer.end());
+                std::cout << "Replacer : " << replacer << std::endl;
+                std::string response;
+                std::string message = ":Server 322 " + replacer + " " + this->channels.at(channels)->get_name() + " ";
+                message += std::to_string(this->channels.at(channels)->get_users_size()) + " ";
+                message += this->channels.at(channels)->get_topic();
+                response.append(message);
+                std::cout << response << std::endl;
+                send(fds[client].fd,response.c_str(),response.size(),0); 
+            }
+        break;   
+        default: 
+            std::cout << "Comando no encontrado option : "<< opt << std::endl; 
     }
 }
 
@@ -195,5 +199,39 @@ void    Server::erase_client(int socket)
         }
         it++;
     }
+}
+
+void Server::generate_default_channels()
+{
+    Channel * lobby = new Channel("#Lobby","Sala principal del servidor");
+    Channel * lukas = new Channel("#La_Guarida_de_Lukas","El mismo la ha denominado así quien sabe que podrías encontrarte dentro.");
+    Channel * test_room = new Channel("#Test_Room","Todas las salas son de prueba, pero ponerle un nombre a una hace que lo sea más.");
+    Channel * AAAA = new Channel("#AAAA","Así es, AAAA.");
+
+    this->channels.push_back(lobby);
+    this->channels.push_back(lukas);
+    this->channels.push_back(AAAA);
+    this->channels.push_back(test_room);
+}
+
+int Server::command_checker(std::string &cmd)
+{
+    std::string commands[4]=
+    {
+        "INVITE",
+        "NAMES",
+        "MODE",
+        "LIST"
+    };
+    cmd.erase(remove(cmd.begin(), cmd.end(), '\r'), cmd.end());
+    cmd.erase(remove(cmd.begin(), cmd.end(), '\n'), cmd.end());
+    cmd.erase(remove(cmd.begin(), cmd.end(), ' '), cmd.end());
+
+    for(int counter = 0; counter < 4; counter++)
+    {
+        if (commands[counter] == cmd)
+            return (1);
+    }
+    return (0);
 }
 
