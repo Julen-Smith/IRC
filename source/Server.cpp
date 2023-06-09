@@ -91,6 +91,9 @@ void    Server::_create_new_user(ssize_t rd_size, int client )
         return ;
     len = end_nick - start_nick - 1;
     std::string nickname(start_nick + OFF_NICK, len);
+    nickname.erase(remove(nickname.begin(), nickname.end(), '\r'), nickname.end());
+    nickname.erase(remove(nickname.begin(), nickname.end(), '\n'), nickname.end());
+    nickname.erase(remove(nickname.begin(), nickname.end(), ' '), nickname.end());
     this->users.at(client)->set_nickname(nickname);
     string_builder << PRIVMSG << " " << MAIN_CHANNEL << " : " << nickname << " " << JOIN_MSG << MSG_END;
     server_stream = string_builder.str();
@@ -128,6 +131,7 @@ void    Server::enter_msg(int client)
         std::cout << "No se pudo abrir el archivo." << std::endl;
 }
 
+
 void    Server::send_msg(int client)
 {
     ssize_t             rd_size;
@@ -142,10 +146,7 @@ void    Server::send_msg(int client)
     std::string compare(this->buffer);
     
     int opt = command_checker(compare); 
-    std::string respuesta1 = ":Server 321 : Channels Users Topic \r\n";         
- //   std::string respuesta2 = ":Server 322 Julen #Channel_1 10 :More cock \r\n";   
-    std::string replacer;
-    std::cout << this->channels.size() << std::endl;           
+    std::string respuesta1 = ":Server 321 : Channels Users Topic \r\n";  
     switch(opt)
     {
         case 1:            
@@ -153,14 +154,14 @@ void    Server::send_msg(int client)
             
             for (int channels = 0; channels != this->channels.size(); channels++)
             {
-                replacer = this->users.at(client)->get_nickname();
-                replacer.erase(remove(replacer.begin(), replacer.end(), '\n'), replacer.end());
-                std::cout << "Replacer : " << replacer << std::endl;
                 std::string response;
-                std::string message = ":Server 322 " + replacer + " " + this->channels.at(channels)->get_name() + " ";
+                std::string message = ":Server 322 ";
+                message += this->users.at(client)->get_nickname() + " ";
+                message += this->channels.at(channels)->get_name() + " ";
                 message += std::to_string(this->channels.at(channels)->get_users_size()) + " ";
-                message += this->channels.at(channels)->get_topic();
+                message += this->channels.at(channels)->get_topic() + MSG_END;
                 response.append(message);
+                std::cout.width(response.size());
                 std::cout << response << std::endl;
                 send(fds[client].fd,response.c_str(),response.size(),0); 
             }
@@ -204,9 +205,9 @@ void    Server::erase_client(int socket)
 void Server::generate_default_channels()
 {
     Channel * lobby = new Channel("#Lobby","Sala principal del servidor");
-    Channel * lukas = new Channel("#La_Guarida_de_Lukas","El mismo la ha denominado así quien sabe que podrías encontrarte dentro.");
-    Channel * test_room = new Channel("#Test_Room","Todas las salas son de prueba, pero ponerle un nombre a una hace que lo sea más.");
-    Channel * AAAA = new Channel("#AAAA","Así es, AAAA.");
+    Channel * lukas = new Channel("#La_Guarida_de_Lukas","El mismo la ha denominado asi quien sabe que podrias encontrarte dentro.");
+    Channel * test_room = new Channel("#Test_Room","Todas las salas son de prueba, pero ponerle un nombre a una hace que lo sea mas.");
+    Channel * AAAA = new Channel("#AAAA","Asii es, AAAA.");
 
     this->channels.push_back(lobby);
     this->channels.push_back(lukas);
