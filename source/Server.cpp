@@ -6,6 +6,7 @@
 #include <fstream>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <cstdarg>
 
 #include "Server.hpp"
 #include "defs.hpp"
@@ -130,7 +131,20 @@ void    Server::enter_msg(int client)
     else
         std::cout << "No se pudo abrir el archivo." << std::endl;
 }
-
+void    Server::build_message_and_send(std::string code,int client,int nbr_strings, ...)
+{   
+    va_list args;
+    va_start(args, nbr_strings);
+    std::string builder = ":Server " + code + " ";
+    for (int i = 0; i < nbr_strings; ++i)
+    {
+        std::string str = va_arg(args, const char*);
+        builder += str + " ";
+    }
+    builder += MSG_END;
+    send(fds[client].fd,builder.c_str(),builder.size(),0);
+    va_end(args); 
+}
 
 void    Server::send_msg(int client)
 {
@@ -153,23 +167,37 @@ void    Server::send_msg(int client)
             send(fds[client].fd,respuesta1.c_str(),respuesta1.size(),0);
             for (int channels = 0; channels != this->channels.size(); channels++)
             {
-                std::string response;
-                std::string message = ":Server 322 ";
-                message += this->users.at(client)->get_nickname() + " ";
-                message += this->channels.at(channels)->get_name() + " ";
-                message += std::to_string(this->channels.at(channels)->get_users_size()) + " ";
-                message += this->channels.at(channels)->get_topic() + MSG_END;
-                response.append(message);
-                std::cout.width(response.size());
-                std::cout << response << std::endl;
-                send(fds[client].fd,response.c_str(),response.size(),0); 
+                build_message_and_send("322",client,4,
+                this->users.at(client)->get_nickname().c_str(),
+                this->channels.at(channels)->get_name().c_str(),
+                std::to_string(this->channels.at(channels)->get_users_size()).c_str(),
+                this->channels.at(channels)->get_topic().c_str()
+                );
             }
+            build_message_and_send("323",client,0);
         break;
-       /* case 2:
+        case 2:
+            std::cout << "Case 2 placeholder" << std::endl;
+            break;
+        /*  
+            DISPLAY LIST O NICKNAMES IN THE RIGHT SECTION OF LIME
             respuesta1 = :Server
                     353     RPL_NAMREPLY "<canal> :[[@|+]<nick> [[@|+]<nick> [...]]]"
                     366     RPL_ENDOFNAMES "<canal> :Fin de la lista /NAMES"   
         */
+       case 3:
+            std::cout << "Case 3 placeholder" << std::endl;
+            break;
+            /*
+                CHANNEL CONFIGS
+            */
+        case 4:
+            std::cout << "Case 4 placeholder" << std::endl;
+            break;
+            /*
+                MODE 
+            */
+
         default: 
             std::cout << "Comando no encontrado option : "<< opt << std::endl; 
     }
@@ -221,24 +249,22 @@ void Server::generate_default_channels()
 
 int Server::command_checker(std::string &cmd)
 {
-    std::string commands[4]=
+    std::string commands[5]=
     {
         "INVITE",
         "NAMES",
         "MODE",
-        "LIST"
+        "LIST",
+        "JOIN",
     };
     cmd.erase(remove(cmd.begin(), cmd.end(), '\r'), cmd.end());
     cmd.erase(remove(cmd.begin(), cmd.end(), '\n'), cmd.end());
     cmd.erase(remove(cmd.begin(), cmd.end(), ' '), cmd.end());
-
-    for(int counter = 0; counter < 4; counter++)
-    {
-        if (commands[counter] == cmd)
-            return (1);
-      //  if (commands[counter] == "NAMES")
-      //      return (2);
-    }
+    cmd.erase(remove(cmd.begin(), cmd.end(), '#'), cmd.end());
+    if (cmd == "LIST")
+        return (1);
+    if (cmd == "JOIN")
+        std::cout << "Yayyy" << std::endl;//return (2);
     return (0);
 }
 

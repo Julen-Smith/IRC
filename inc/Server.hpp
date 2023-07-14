@@ -43,6 +43,7 @@ class Server
 		void    					erase_client(int);
 		int							command_checker(std::string &);
 		void						generate_default_channels(void);
+		void    					build_message_and_send(std::string,int,int, ...);
 
 	protected:
 

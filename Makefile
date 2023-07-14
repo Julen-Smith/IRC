@@ -1,7 +1,7 @@
 CC				= clang++
 SERVER			= Server
 CLIENT			= Client
-FLAGS			=  -Wall -Werror -g -fsanitize=address -g3
+FLAGS			=  -Wall -Werror -g -fsanitize=address -g3 -std=c++98
 
 
 SERVER_SRCS = source/Server.cpp \
