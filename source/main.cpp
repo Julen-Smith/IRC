@@ -48,8 +48,7 @@ void main_loop(Server &server)
                     if (server.users[client]->get_notices() == false)
                         server.enter_msg(client);
                      else
-                        server.send_msg(client);
-                        
+                        server.manage_response(client);     
                 }
             }
         }
@@ -67,7 +66,6 @@ int main(int argc, char const *argv[])
         Server	server(PORT, argv[1]);
         */
     Server	server(PORT);
-
 
     main_loop(server);
     return (0);

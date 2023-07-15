@@ -12,7 +12,10 @@
 #include <arpa/inet.h>
 #include <poll.h>
 #include <vector>
-#include <sys/socket.h>
+#include <sstream>
+#include <fcntl.h>
+#include <fstream>
+#include <cstdarg>
 
 #include "defs.hpp"
 #include "User.hpp"
@@ -39,11 +42,14 @@ class Server
 		void						init_server();
 		void						accept_new_user();
 		void						enter_msg(int);
-		void						send_msg(int);
+		void						manage_response(int);
 		void    					erase_client(int);
 		int							command_checker(std::string &);
 		void						generate_default_channels(void);
 		void    					build_message_and_send(std::string,int,int, ...);
+		int							check_channel(std::string&);
+		std::string&				response_cleaner(std::string&);
+		bool						contains(std::string&, const char *);
 
 	protected:
 
@@ -56,6 +62,7 @@ class Server
 		void	_init_cout() const;
 		void	_create_new_user(ssize_t, int);
 };
+
 
 
 #endif //SERVER_HPP

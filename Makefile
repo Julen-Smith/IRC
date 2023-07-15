@@ -4,7 +4,11 @@ CLIENT			= Client
 FLAGS			=  -Wall -Werror -g -fsanitize=address -g3 -std=c++98
 
 
-SERVER_SRCS = source/Server.cpp \
+SERVER_SRCS =   source/Server/Server.cpp \
+				source/Server/ServerCommandManager.cpp \
+				source/Server/ServerUserManager.cpp \
+				source/Server/ServerChannelManager.cpp \
+				source/Server/ServerUtils.cpp \
 			 	source/main.cpp \
 			 	source/Channel.cpp \
 			 	source/User.cpp
