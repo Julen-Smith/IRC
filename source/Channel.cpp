@@ -33,6 +33,15 @@ void Channel::join_channel(std::string buffer, User &user)
    // std::cout << "User " << this->channel_users.back()->getName() << " has join the channel" << std::endl;
 }
 
+std::string Channel::get_user_list() const
+{
+    std::string user_list;
+    
+    for (int i = 0; i < this->_users.size() - 1; i++)
+        user_list += this->_users.at(i)->get_nickname() + " ";
+    return (user_list);
+}
+
 void    Channel::add_user(const User *user)
 {
     this->_users.push_back(user);

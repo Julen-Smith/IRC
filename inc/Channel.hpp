@@ -23,11 +23,13 @@ class Channel
 
         const std::string& get_name() const;
         const std::string& get_topic() const;
+        std::string get_user_list() const;
         int     get_users_size() const;
         void    welcome_msg() const;
         void    join_channel(std::string buffer, User &user);
         void    add_user(const User *);
         void    delete_user(const std::string &);
+       
 };
 
 

@@ -46,10 +46,14 @@ class Server
 		void    					erase_client(int);
 		int							command_checker(std::string &);
 		void						generate_default_channels(void);
-		void    					build_message_and_send(std::string,int,int, ...);
+		void    					build_message_and_send(std::string,int,std::string, std::string,std::string, int, ...);
 		int							check_channel(std::string&);
 		std::string&				response_cleaner(std::string&);
 		bool						contains(std::string&, const char *);
+		
+		//commands
+		void						LIST(int);
+		void						JOIN(int, int);
 
 	protected:
 

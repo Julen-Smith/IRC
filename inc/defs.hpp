@@ -1,6 +1,7 @@
 #ifndef DEFS_HPP
 # define DEFS_HPP
 
+
 # define PORT			    "4242"
 # define SOCKET_ERROR 		"Error al crear el socket"
 # define SOCKET_PREF_ERROR 	"Error al setear las preferencias del socket"
@@ -23,7 +24,12 @@
 # define MSG_END          "\r\n"
 # define JOIN_MSG         "has joined the channel."
 # define COMMAND_LIST     "This is a placeholder to notice that the user must use some command."
-# 
+
+// MODES
+ 
+ #define USR_RPL "USR_RPL"
+ #define SRV_RPL "SRV_RPL"
+ #define NON_NUMERIC "NON_NUMERIC"
 
 //CONFIG FILES
 

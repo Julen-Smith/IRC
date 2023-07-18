@@ -10,9 +10,25 @@ void Server::generate_default_channels()
     Channel * AAAA = new Channel("#AAAA","Asii es, AAAA.");
 
     this->channels.push_back(lobby);
+    this->channels.at(0)->add_user(new User("Dummy1",999));
+    this->channels.at(0)->add_user(new User("Dummy2",998));
+    this->channels.at(0)->add_user(new User("Dummy3",997));
+    this->channels.at(0)->add_user(new User("Dummy4",996));
     this->channels.push_back(lukas);
+    this->channels.at(1)->add_user(new User("Dummy1",995));
+    this->channels.at(1)->add_user(new User("Dummy2",994));
+    this->channels.at(1)->add_user(new User("Dummy3",993));
+    this->channels.at(1)->add_user(new User("Dummy4",992));
     this->channels.push_back(AAAA);
+    this->channels.at(2)->add_user(new User("Dummy1",991));
+    this->channels.at(2)->add_user(new User("Dummy2",990));
+    this->channels.at(2)->add_user(new User("Dummy3",989));
+    this->channels.at(2)->add_user(new User("Dummy4",988));
     this->channels.push_back(test_room);
+    this->channels.at(3)->add_user(new User("Dummy1",987));
+    this->channels.at(3)->add_user(new User("Dummy2",986));
+    this->channels.at(3)->add_user(new User("Dummy3",985));
+    this->channels.at(3)->add_user(new User("Dummy4",984));
 }
 
 int Server::check_channel(std::string& validation)
@@ -24,7 +40,6 @@ int Server::check_channel(std::string& validation)
     {
         std::string placeholder(this->channels[i]->get_name());
         placeholder = response_cleaner(placeholder);
-        std::cout << validation <<" : "<< placeholder << std::endl;
         if (validation == placeholder)
             return (i);
     }
