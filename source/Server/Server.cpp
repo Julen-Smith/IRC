@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "Server.hpp"
 #include "defs.hpp"
 #include "Channel.hpp"
@@ -13,7 +14,7 @@ Server::Server(const char *port) : max_clients(MAX_CLIENTS), _port(port)
     if (this->_socket == -1)
     {
         std::cout << SOCKET_ERROR << std::endl;
-        exit (0);
+        exit(1);
     }
     int option = 1;
     while (setsockopt(this->_socket,SOL_SOCKET,SO_REUSEADDR, &option, sizeof(option)) < 0)
@@ -24,7 +25,7 @@ Server::Server(const char *port) : max_clients(MAX_CLIENTS), _port(port)
     }
     if (bind(this->_socket, (sockaddr *) &this->sv_socket_info, sizeof(sv_socket_info)) < 0) {
         std::cerr << "Error al asignar la dirección al socket\n";
-        exit (0);
+        exit(1);
     }
     listen(this->_socket,MAX_CLIENTS);
     _init_cout();
@@ -33,16 +34,20 @@ Server::Server(const char *port) : max_clients(MAX_CLIENTS), _port(port)
 const int	Server::get_socket() const {return this->_socket;}
 Server::~Server() {}
 
-void    Server::enter_msg(int client)
+void    Server::enter_msg(int clientIndex)
 {
+    char                buffer[BUFFER_SIZE];
     ssize_t             rd_size;
     std::string         client_msg;
     std::stringstream   client_stream;
     std::string         line;
 
-    this->users[client]->set_notices();
-    rd_size = recv(this->fds[client].fd, this->buffer, BUFFER_SIZE, 0);
-    this->_create_new_user(rd_size,client);
+    this->users[clientIndex]->set_notices();
+
+    //Recibir datos del usuario y crear una nueva instancia
+    rd_size = recv(this->fds[clientIndex].fd, buffer, BUFFER_SIZE, 0);
+    this->_create_new_user(rd_size, clientIndex, buffer);
+
     if (rd_size == -1)
         exit(121);
     this->buffer[rd_size] = 0;
@@ -51,7 +56,7 @@ void    Server::enter_msg(int client)
         while (std::getline(inputFile, line)) {
             client_stream << PRIVMSG << " " << MAIN_CHANNEL << " : " << line << MSG_END;
             client_msg = client_stream.str();
-            rd_size = send(this->fds[client].fd, client_msg.c_str(), client_msg.size(), 0);
+            rd_size = send(this->fds[clientIndex].fd, client_msg.c_str(), client_msg.size(), 0);
             client_stream.str("");
             client_msg = "";
         }

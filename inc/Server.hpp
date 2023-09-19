@@ -64,7 +64,7 @@ class Server
 		struct sockaddr_in 	sv_socket_info;
 
 		void	_init_cout() const;
-		void	_create_new_user(ssize_t, int);
+		void	_create_new_user(ssize_t, int, std::string);
 };
 
 

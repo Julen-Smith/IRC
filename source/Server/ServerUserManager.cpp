@@ -1,33 +1,50 @@
 #include "Server.hpp"
 #include "defs.hpp"
 #include "Channel.hpp"
+#include "defs.hpp"
 
-void    Server::_create_new_user(ssize_t rd_size, int client )
+static std::string  parse_string(std::string source, size_t start, size_t end) {
+    return source.substr(start, end);
+}
+
+static bool erase_back_match(std::string &source, const std::string &to_erase) {
+
+    size_t  erase_len = 0;
+    size_t  source_len = source.size();
+    
+    for (int i = 0; i < to_erase.size(); i++) {
+        if (source.find(to_erase[i]) != -1)
+            erase_len++;
+    }
+    if (erase_len)
+    {
+        source.erase(source_len - erase_len, source_len);
+        return true;
+    }
+    return false;        
+}
+
+void    Server::_create_new_user(ssize_t rd_size, int clientIndex, std::string buffer)
 {
-    char        *start_nick;
-    char        *end_nick;
-    size_t      len;
     std::stringstream   string_builder;
     std::string         server_stream;
 
-    //Falta parsear más data
-    start_nick = strnstr(this->buffer, NICK, rd_size);
-    if (!start_nick)
-        return ;
-    end_nick = strnstr(start_nick, MSG_END, rd_size);
-    if (!end_nick)
-        return ;
-    len = end_nick - start_nick - 1;
-    std::string nickname(start_nick + OFF_NICK, len);
-    nickname.erase(remove(nickname.begin(), nickname.end(), '\r'), nickname.end());
-    nickname.erase(remove(nickname.begin(), nickname.end(), '\n'), nickname.end());
-    nickname.erase(remove(nickname.begin(), nickname.end(), ' '), nickname.end());
-    this->users.at(client)->set_nickname(nickname);
+    //parsear el nombre del usuario
+    std::string nickname = parse_string(buffer, buffer.find(NICK), buffer.find(MSG_END));
+    erase_back_match(nickname, MSG_END_SPACE);
+
+    //asignar nombre de usuario
+    this->users[clientIndex]->set_nickname(nickname);
+
+    //contruir mensaje de usuario nuevo al resto presente
     string_builder << PRIVMSG << " " << MAIN_CHANNEL << " : " << nickname << " " << JOIN_MSG << MSG_END;
     server_stream = string_builder.str();
-    for(int cli = 0; cli != this->users.size(); cli++)
-        if (cli != client)
-            send(this->fds[client].fd, server_stream.c_str(),server_stream.size(), 0);
+
+    //mandar el mensaje
+    for(int cli = 0; cli != this->users.size(); cli++) {
+        if (cli != clientIndex)
+            send(this->fds[clientIndex].fd, server_stream.c_str(),server_stream.size(), 0);
+    }
 }
 
 void    Server::accept_new_user()
@@ -39,7 +56,7 @@ void    Server::accept_new_user()
     pollfd      new_pollfd;
 
     client_socket = accept(this->_socket, (sockaddr *)&client, &size);
-    new_user = new User("ANON", client_socket);
+    new_user = new User(DEFAULT_USER, client_socket);
     this->users.push_back(new_user);
 
     new_pollfd.fd = client_socket;

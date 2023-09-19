@@ -22,6 +22,7 @@
 # define NICK             "NICK "
 # define OFF_NICK         5
 # define MSG_END          "\r\n"
+# define MSG_END_SPACE    "\r\n "
 # define JOIN_MSG         "has joined the channel."
 # define COMMAND_LIST     "This is a placeholder to notice that the user must use some command."
 
@@ -30,6 +31,11 @@
  #define USR_RPL "USR_RPL"
  #define SRV_RPL "SRV_RPL"
  #define NON_NUMERIC "NON_NUMERIC"
+
+// USERS
+//
+# define DEFAULT_USER "ANON"
+
 
 //CONFIG FILES
 
