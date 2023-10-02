@@ -13,6 +13,7 @@
 #include <poll.h>
 #include <vector>
 #include <sstream>
+#include <map>
 #include <fcntl.h>
 #include <fstream>
 #include <cstdarg>
@@ -36,6 +37,12 @@ class Server
 		std::vector<pollfd>			fds;
 		std::vector<User *>			users;
 		std::vector<Channel *>		channels;
+		
+		//CALLBACK MAP
+		typedef void (Server::*MemberFunction)(std::string, int);
+		std::map<std::string, MemberFunction> callback_map; 
+		std::map<std::string, MemberFunction>::iterator it; 
+
 		int							event_to_handle;
 		char						buffer[BUFFER_SIZE];
 
@@ -50,6 +57,7 @@ class Server
 		int							check_channel(std::string&);
 		std::string&				response_cleaner(std::string&);
 		bool						contains(std::string&, const char *);
+		void						tokenizer(const char *, int);
 		
 		//commands
 		void						LIST(int);
@@ -65,6 +73,8 @@ class Server
 
 		void	_init_cout() const;
 		void	_create_new_user(ssize_t, int, std::string);
+		void	test_create_new_user(std::string, int);
+		void	send_intro(ssize_t, int);
 };
 
 

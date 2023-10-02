@@ -7,6 +7,9 @@ static std::string  parse_string(std::string source, size_t start, size_t end) {
     return source.substr(start, end);
 }
 
+//Borra el sufijo pasado como comando
+//source -> string origen.
+//to_erase -> string key, con los carcateres a borrar.
 static bool erase_back_match(std::string &source, const std::string &to_erase) {
 
     size_t  erase_len = 0;

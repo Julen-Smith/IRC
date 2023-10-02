@@ -33,9 +33,6 @@ bool Server::contains(std::string& ref, const char *check)
     return (false);
 }
 
-
-
-
 void    Server::erase_client(int socket)
 {
     for (std::vector<User *>::iterator it = this->users.begin(); it != this->users.end();)
@@ -49,6 +46,3 @@ void    Server::erase_client(int socket)
         it++;
     }
 }
-
-
-

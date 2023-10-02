@@ -1,6 +1,7 @@
 #include "Server.hpp"
 #include "defs.hpp"
 #include "Channel.hpp"
+#include <string.h>
 
 int Server::command_checker(std::string &cmd)
 {
@@ -18,6 +19,8 @@ int Server::command_checker(std::string &cmd)
         return (1);
     if (contains(cmd,"JOIN"))
         return (2);
+
+    std::cout << "Comando: " << cmd << " \nLongitud del comnado: " << strlen(cmd.c_str());
     return (0);
 }
 
@@ -27,10 +30,20 @@ std::string& Server::response_cleaner(std::string& command)
     //command.erase(remove(command.begin(), command.end(), '\n'), command.end());
     //command.erase(remove(command.begin(), command.end(), ' '), command.end());
     //command.erase(remove(command.begin(), command.end(), '#'), command.end());  
+    
+    //TODO check command length is != 0
+    
+    std::cout << "Command start: " << command << " Command length: " << strlen(command.c_str()) << std::endl; 
+    std::string::reverse_iterator   it;
+    for (it = command.rbegin(); it != command.rend(); it++) {
+        if (*it == '\r' || *it == '\n')
+            command.pop_back();
+        else
+            break ;
+    }
+    std::cout << "Command after: " << command << "Command length: " << strlen(command.c_str()) << std::endl;
     return (command);
 }
-
-
 
 void    Server::build_message_and_send(std::string code,int client,std::string user, std::string reply_mode,
 std::string reply, int nbr_strings, ...)
