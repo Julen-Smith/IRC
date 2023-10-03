@@ -33,15 +33,15 @@ void Server::generate_default_channels()
 
 int Server::check_channel(std::string& validation)
 {
-    int room_index = -1;
-
-    validation = response_cleaner(validation.erase(0,4));
+    erase_match(validation, MSG_END_SPACE);
+    std::cout << "Validation: " << validation << std::endl;
     for(int i = 0; i < this->channels.size(); i++)
     {
         std::string placeholder(this->channels[i]->get_name());
-        placeholder = response_cleaner(placeholder);
+        std::cout << "Place holder: " << validation << std::endl;
+        std::cout << "equal validation: " << (validation == placeholder) << std::endl;
         if (validation == placeholder)
             return (i);
     }
-    return room_index;
+    return BAD_ROOM;
 }

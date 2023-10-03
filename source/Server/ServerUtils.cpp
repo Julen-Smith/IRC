@@ -19,28 +19,26 @@ void	Server::_init_cout() const
         << " ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯ ¯\n";
 }
 
-bool Server::contains(std::string& ref, const char *check)
-{
-    size_t found = 0;
-
-    if (!ref.empty())
-    {
-        ref = response_cleaner(ref);
-        found = ref.find(check);
-        if (found != std::string::npos)
-            return true;
-    }
-    return (false);
-}
-
 void    Server::erase_client(int socket)
 {
     for (std::vector<User *>::iterator it = this->users.begin(); it != this->users.end();)
     {
         if ((*it)->get_socket() == socket)
         {
+            std::cout << "Erase client\n";
             delete *it;
             this->users.erase(it);
+            return ;
+        }
+        it++;
+    }
+
+    for (std::vector<pollfd>::iterator it = this->fds.begin(); it != this->fds.end();)
+    {
+        if (it->fd == socket)
+        {
+            std::cout << "Erase client\n";
+            this->fds.erase(it);
             return ;
         }
         it++;

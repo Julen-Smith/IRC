@@ -17,7 +17,7 @@ User::User(const User &obj) // : rooms(obj.rooms)
 
 User::~User()
 {
-    std::cout << "User has been deleted." << std::endl;
+    std::cout << " - User " << this->_nickname << " has been deleted." << std::endl;
 }
 
 User& User::operator=(User &user)

@@ -38,6 +38,7 @@
 
 
 //CONFIG FILES
+# define BAD_ROOM -1
 
 
 #endif  //DEFS_HPP

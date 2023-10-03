@@ -6,7 +6,10 @@
 
 Server::Server(const char *port) : max_clients(MAX_CLIENTS), _port(port)
 {
-    this->callback_map["NICK"] = &Server::test_create_new_user;
+    this->callback_map["NICK"] = &Server::nick_command;
+    this->callback_map["USER"] = &Server::user_command;
+    this->callback_map["LIST"] = &Server::list_command;
+    this->callback_map["JOIN"] = &Server::join_command;
 
    this->sv_socket_info.sin_port = htons(4242);
    this->sv_socket_info.sin_family = AF_INET; 
@@ -38,52 +41,67 @@ Server::~Server() {}
 //Borra el sufijo pasado como comando
 //source -> string origen.
 //to_erase -> string key, con los carcateres a borrar.
-static bool erase_back_match(std::string &source, const std::string &to_erase) {
-
-    size_t  erase_len = 0;
-    size_t  source_len = source.size();
+void Server::erase_match(std::string &source, const std::string &to_erase) {
+    std::string::reverse_iterator    it;
     
-    //for (int i = 0; i < to_erase.size(); i++) {
-    while (1) {
-        if (source.find(to_erase[i]) != -1)
-            erase_len++;
+    for (it = source.rbegin(); it != source.rend(); it++) {
+        if (to_erase.find(*it) != -1)
+            source.pop_back();
     }
-    if (erase_len)
-    {
-        source.erase(source_len - erase_len, source_len);
-        return true;
-    }
-    return false;        
 }
 
 # define SPACE ' '
 
+std::istream&    Server::get_token(
+    std::stringstream &key_stream,
+    std::string &token,
+    char delimiter,
+    const std::string &to_erase) {
+
+    std::istream &res = std::getline(key_stream, token, delimiter);
+    if (res)
+        erase_match(token, to_erase);
+    return res;
+}
+
 // Tokenizer acepta como parametro un buffer de chars, utilizando getline 
-void Server::tokenizer(const char *buffer, int user_index) {
+void Server::tokenizer(int user_index, const char *buffer) {
 
     std::stringstream   input(buffer);
     std::string         token;
 
-    std::cout << "Tokenizer\n";
     this->it = this->callback_map.end();
-    while (std::getline(input, token, SPACE)) {
-        erase_back_match(token, MSG_END_SPACE);
-        if (this->it != this->callback_map.end())
-            (this->*(it->second))(token, 1);
-
+    while (get_token(input, token, SPACE, MSG_END_SPACE)) {
         this->it = this->callback_map.find(token);
+
+        if (this->it != this->callback_map.end())
+            (this->*(it->second))(input, 1);
     }
 }
 
 const int	Server::get_socket() const {return this->_socket;}
 
-void    Server::test_create_new_user(std::string nickname, int clientIndex) {
+void    Server::user_command(std::stringstream &key_stream, int client_index) {
+    std::string login;
+    std::string tmp;
+    std::string realname;
+
+    get_token(key_stream, login, SPACE, MSG_END_SPACE);
+    get_token(key_stream, tmp, SPACE, MSG_END_SPACE);
+    get_token(key_stream, tmp, SPACE, MSG_END_SPACE);
+    get_token(key_stream, realname, SPACE, MSG_END_SPACE);
+    std::cout << "User command\n" << " - login: " << login << "\n - realname: " << realname << std::endl;
+}
+
+void    Server::nick_command(std::stringstream &key_stream, int client_index) {
     std::stringstream   string_builder;
     std::string         server_stream;
+    std::string         nickname;
 
     //asignar nombre de usuario
-    this->users[clientIndex]->set_nickname(nickname);
-    std::cout << "test create new user: " << nickname << std::endl;
+    get_token(key_stream, nickname, SPACE, MSG_END_SPACE);
+    std::cout << "Nick command\n" << " - nickname: " << nickname << std::endl;
+    this->users[client_index]->set_nickname(nickname);
 
     //contruir mensaje de usuario nuevo al resto presente
     string_builder << PRIVMSG << " " << MAIN_CHANNEL << " : " << nickname << " " << JOIN_MSG << MSG_END;
@@ -91,17 +109,18 @@ void    Server::test_create_new_user(std::string nickname, int clientIndex) {
 
     //mandar el mensaje
     for(int cli = 0; cli != this->users.size(); cli++) {
-        if (cli != clientIndex)
-            send(this->fds[clientIndex].fd, server_stream.c_str(),server_stream.size(), 0);
+        if (cli != client_index)
+            send(this->fds[client_index].fd, server_stream.c_str(),server_stream.size(), 0);
     }
 }
 
-void Server::send_intro(ssize_t rd_size, int client_index) {
+void Server::send_intro(int client_index) {
 
     std::ifstream       inputFile("inc/Server.info");
     std::string         line;
     std::string         client_msg;
     std::stringstream   client_stream;
+    ssize_t             rd_size;
 
     if (inputFile.is_open()) {
         while (std::getline(inputFile, line)) {
@@ -117,21 +136,24 @@ void Server::send_intro(ssize_t rd_size, int client_index) {
         std::cout << "No se pudo abrir el archivo." << std::endl;
 }
 
+bool Server::read_socket(int client_index, char buffer[BUFFER_SIZE]) {
+    ssize_t read_size;
+
+    read_size = recv(this->fds[client_index].fd, buffer, BUFFER_SIZE, 0);
+    if (read_size == -1)
+        return true;
+    this->buffer[read_size] = 0;
+    return false;
+}
+
 void    Server::enter_msg(int client_index)
 {
     char                buffer[BUFFER_SIZE];
-    ssize_t             rd_size;
-    std::string         line;
 
     this->users[client_index]->set_notices();
-
     //Recibir datos del usuario y crear una nueva instancia
-    rd_size = recv(this->fds[client_index].fd, buffer, BUFFER_SIZE, 0);
-    if (rd_size == -1)
+    if (this->read_socket(client_index, buffer))
         exit(121);
-
-    this->buffer[rd_size] = 0;
-    tokenizer(buffer, client_index);
-    send_intro(rd_size, client_index);
+    this->tokenizer(client_index, buffer);
+    this->send_intro(client_index);
 }
-
