@@ -55,12 +55,10 @@ void    Server::accept_new_user()
     int         client_socket;
     sockaddr_in client;
     socklen_t   size;
-    User        *new_user;
     pollfd      new_pollfd;
 
     client_socket = accept(this->_socket, (sockaddr *)&client, &size);
-    new_user = new User(DEFAULT_USER, client_socket);
-    this->users.push_back(new_user);
+    this->add_unvalidated_user(client_socket);
 
     new_pollfd.fd = client_socket;
     new_pollfd.events = POLLIN;

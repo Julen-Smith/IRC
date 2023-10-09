@@ -23,6 +23,7 @@
 # define OFF_NICK         5
 # define MSG_END          "\r\n"
 # define MSG_END_SPACE    "\r\n "
+# define SPACE            ' '
 # define JOIN_MSG         "has joined the channel."
 # define COMMAND_LIST     "This is a placeholder to notice that the user must use some command."
 
@@ -35,6 +36,9 @@
 // USERS
 //
 # define DEFAULT_USER "ANON"
+# define USER_ACTIVE        true
+# define USER_INACTIVE      false
+# define BAD_USER_PARAMETER false
 
 
 //CONFIG FILES

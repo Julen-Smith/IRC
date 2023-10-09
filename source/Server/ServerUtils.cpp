@@ -44,3 +44,48 @@ void    Server::erase_client(int socket)
         it++;
     }
 }
+
+void    Server::add_unvalidated_user(int client_socket) {
+    CreateUser  *unvalidated_user;
+
+    unvalidated_user = new CreateUser(client_socket);
+    this->unvalidated_users[client_socket] = unvalidated_user;
+}
+
+bool	Server::delete_unvalidated_user(int client_socket) {
+    unvalidated_user    user;
+
+    user = this->unvalidated_users.find(client_socket);
+    if (user != this->unvalidated_users.end()) {
+        this->unvalidated_users.erase(user);
+        return false;
+    }
+    return true;
+}
+
+bool    Server::check_unvalidated_user(int client_socket) {
+    unvalidated_user    user;
+
+    user = this->unvalidated_users.find(client_socket);
+    if (user != this->unvalidated_users.end())
+        return true;
+    return false;
+}
+
+Server::validated_user  Server::get_user_by_nickname(const std::string &nickname) {
+    validated_user    user;
+
+    for (user = this->users.begin(); user != this->users.end(); user++) {
+        if ((*user)->get_nickname() == nickname)
+            return user;
+    }
+    return user;
+}
+
+bool Server::check_validated_user(Server::validated_user user) {
+    if (user == this->users.end())
+        return BAD_USER_PARAMETER;
+    if ((*user)->get_notices())
+        return USER_ACTIVE;
+    return USER_INACTIVE;
+}

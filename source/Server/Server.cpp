@@ -81,38 +81,6 @@ void Server::tokenizer(int user_index, const char *buffer) {
 
 const int	Server::get_socket() const {return this->_socket;}
 
-void    Server::user_command(std::stringstream &key_stream, int client_index) {
-    std::string login;
-    std::string tmp;
-    std::string realname;
-
-    get_token(key_stream, login, SPACE, MSG_END_SPACE);
-    get_token(key_stream, tmp, SPACE, MSG_END_SPACE);
-    get_token(key_stream, tmp, SPACE, MSG_END_SPACE);
-    get_token(key_stream, realname, SPACE, MSG_END_SPACE);
-    std::cout << "User command\n" << " - login: " << login << "\n - realname: " << realname << std::endl;
-}
-
-void    Server::nick_command(std::stringstream &key_stream, int client_index) {
-    std::stringstream   string_builder;
-    std::string         server_stream;
-    std::string         nickname;
-
-    //asignar nombre de usuario
-    get_token(key_stream, nickname, SPACE, MSG_END_SPACE);
-    std::cout << "Nick command\n" << " - nickname: " << nickname << std::endl;
-    this->users[client_index]->set_nickname(nickname);
-
-    //contruir mensaje de usuario nuevo al resto presente
-    string_builder << PRIVMSG << " " << MAIN_CHANNEL << " : " << nickname << " " << JOIN_MSG << MSG_END;
-    server_stream = string_builder.str();
-
-    //mandar el mensaje
-    for(int cli = 0; cli != this->users.size(); cli++) {
-        if (cli != client_index)
-            send(this->fds[client_index].fd, server_stream.c_str(),server_stream.size(), 0);
-    }
-}
 
 void Server::send_intro(int client_index) {
 

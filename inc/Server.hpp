@@ -22,6 +22,22 @@
 #include "User.hpp"
 #include "Channel.hpp"
 
+class CreateUser
+{
+    public:
+        int         socket;
+        std::string nickname;
+        std::string login_name;
+        std::string real_name;
+
+        CreateUser(int client_socket) : socket(client_socket) {}
+        ~CreateUser() {}
+
+    protected:
+
+    private:
+};
+
 class Channel;
 class Server
 {
@@ -37,11 +53,17 @@ class Server
 		std::vector<pollfd>			fds;
 		std::vector<User *>			users;
 		std::vector<Channel *>		channels;
+		typedef std::vector<User *>::iterator	validated_user;
 		
 		//CALLBACK MAP
 		typedef void (Server::*MemberFunction)(std::stringstream&, int);
 		std::map<std::string, MemberFunction> callback_map; 
 		std::map<std::string, MemberFunction>::iterator it; 
+
+		typedef	std::map<int, CreateUser *>				unvalidated_user_map;
+		typedef	std::map<int, CreateUser *>::iterator	unvalidated_user;
+		unvalidated_user_map							unvalidated_users;
+		//std::map<int, CreateUser *>::iterator	unvalidate_user_it;
 
 		int							event_to_handle;
 		char						buffer[BUFFER_SIZE];
@@ -57,12 +79,21 @@ class Server
 		void						tokenizer(int, const char *);
 		bool						read_socket(int,  char [BUFFER_SIZE]);
 		void						erase_match(std::string &source, const std::string &to_erase);
+
+		//current user methods
+		validated_user				get_user_by_nickname(const std::string &);
+		bool 						check_validated_user(Server::validated_user);
 		
 		//commands
 		void						list_command(std::stringstream&, int);
 		void						join_command(std::stringstream&, int);
 		void						nick_command(std::stringstream&, int);
 		void						user_command(std::stringstream&, int);
+
+		//unvalidated user methods
+		bool						check_unvalidated_user(int);
+		void						add_unvalidated_user(int);
+		bool						delete_unvalidated_user(int);
 
 	protected:
 

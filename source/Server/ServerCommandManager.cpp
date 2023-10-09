@@ -70,12 +70,62 @@ void    Server::join_command(std::stringstream &key_stream, int client_index) {
     this->channels.at(room_index)->add_user(this->users.at(client_index));
 }
 
+void    Server::user_command(std::stringstream &key_stream, int client_index) {
+    std::string login;
+    std::string tmp;
+    std::string realname;
+
+    get_token(key_stream, login, SPACE, MSG_END_SPACE);
+    get_token(key_stream, tmp, SPACE, MSG_END_SPACE);
+    get_token(key_stream, tmp, SPACE, MSG_END_SPACE);
+    get_token(key_stream, realname, SPACE, MSG_END_SPACE);
+    std::cout << "User command\n" << " - login: " << login << "\n - realname: " << realname << std::endl;
+}
+
+void    Server::nick_command(std::stringstream &key_stream, int client_index) {
+    int                 client_socket;
+    std::stringstream   string_builder;
+    std::string         server_stream;
+    std::string         nickname;
+    validated_user      user;
+
+    client_socket = this->fds[client_index].fd;
+    //TODO check if the user exists, input the client socket
+    if (check_unvalidated_user(client_socket)) {
+        user = this->get_user_by_nickname(nickname);
+        if (check_validated_user(user))
+            close(client_socket);
+        else {
+            this->users.erase(user);
+            this->unvalidated_users[client_socket]->nickname = nickname;
+        }
+    }
+        std::cout << "asdf" << std::endl;
+    std::cout << "idfnfg" << std::endl;
+
+    //asignar nombre de usuario
+    get_token(key_stream, nickname, SPACE, MSG_END_SPACE);
+    std::cout << "Nick command\n" << " - nickname: " << nickname << std::endl;
+    this->users[client_index]->set_nickname(nickname);
+
+    //contruir mensaje de usuario nuevo al resto presente
+    string_builder << PRIVMSG << " " << MAIN_CHANNEL << " : " << nickname << " " << JOIN_MSG << MSG_END;
+    server_stream = string_builder.str();
+
+    //mandar el mensaje
+    for(int cli = 0; cli != this->users.size(); cli++) {
+        if (cli != client_index)
+            send(this->fds[client_index].fd, server_stream.c_str(),server_stream.size(), 0);
+    }
+}
+
 void    Server::manage_response(int client_index) {
     char    buffer[BUFFER_SIZE];
 
     //recibir el mensaje de un usuario
     if (this->read_socket(client_index, buffer))
         return ;
+
     this->tokenizer(client_index, buffer);
 }
     //        else
