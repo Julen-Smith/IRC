@@ -11,6 +11,8 @@ Server::Server(const char *port) : max_clients(MAX_CLIENTS), _port(port)
     this->callback_map["LIST"] = &Server::list_command;
     this->callback_map["JOIN"] = &Server::join_command;
     this->callback_map["OPER"] = &Server::oper_command;
+    this->callback_map["MODE"] = &Server::mode_command;
+    this->callback_map["QUIT"] = &Server::quit_command;
 
    priv_list[0].user = "admin";
    priv_list[0].password = "admin";
@@ -46,47 +48,23 @@ Server::Server(const char *port) : max_clients(MAX_CLIENTS), _port(port)
 //  DESTRUCTOR
 Server::~Server() {}
 
-//Borra el sufijo pasado como comando
-//source -> string origen.
-//to_erase -> string key, con los carcateres a borrar.
-void Server::erase_match(std::string &source, const std::string &to_erase) {
-    std::string::reverse_iterator    it;
-    
-    for (it = source.rbegin(); it != source.rend(); it++) {
-        if (to_erase.find(*it) != -1)
-            source.pop_back();
-    }
-}
-
-std::istream&    Server::get_token(
-    std::stringstream &key_stream,
-    std::string &token,
-    char delimiter,
-    const std::string &to_erase) {
-
-    std::istream &res = std::getline(key_stream, token, delimiter);
-    if (res)
-        erase_match(token, to_erase);
-    return res;
-}
-
 // Tokenizer acepta como parametro un buffer de chars, utilizando getline 
-void Server::tokenizer(int client_index, const char *buffer) {
-
-    std::stringstream   input(buffer);
+void Server::tokenizer(Message &msg) {
     std::string         token;
 
     this->it = this->callback_map.end();
-    while (get_token(input, token, SPACE, MSG_END_SPACE)) {
+    while (true) {
+        msg >> token;
+        if (msg.ss.eof())
+            break ;
         this->it = this->callback_map.find(token);
 
         if (this->it != this->callback_map.end())
-            (this->*(it->second))(input, client_index);
+            (this->*(it->second))(msg);
     }
 }
 
 const int	Server::get_socket() const {return this->_socket;}
-
 
 void Server::send_intro(int client_index) {
 
@@ -110,26 +88,15 @@ void Server::send_intro(int client_index) {
         std::cout << "No se pudo abrir el archivo." << std::endl;
 }
 
-bool Server::read_socket(int client_index, char buffer[BUFFER_SIZE]) {
+bool Server::read_socket(Message &msg) {
     ssize_t read_size;
 
-    read_size = recv(this->fds[client_index].fd, buffer, BUFFER_SIZE, 0);
+    read_size = recv(msg.client_socket, msg.buffer, BUFFER_SIZE, 0);
     if (read_size == -1) {
         std::cerr << "Error: read socket failed\n";
         return true;
     }
-    this->buffer[read_size] = 0;
+    msg.buffer[read_size] = 0;
+    msg.load_stream();
     return false;
-}
-
-void    Server::enter_msg(int client_index)
-{
-    char                buffer[BUFFER_SIZE];
-
-    this->users[client_index]->set_notices();
-    //Recibir datos del usuario y crear una nueva instancia
-    if (this->read_socket(client_index, buffer))
-        exit(121);
-    this->tokenizer(client_index, buffer);
-    this->send_intro(client_index);
 }

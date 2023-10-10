@@ -49,8 +49,14 @@
 # define ERR_PASSWDMISMATCH "464 "
 
 //RESPONSE COMMANDS
-# define RPL_WELCOME "001 "
+# define RPL_WELCOME "001"
 # define WELCOME    "Welcome to the Internet Relay Network "
+# define RPL_LIST "322 "
+# define RPL_LISTEND "323 "
+# define LISTEND ":End of LIST\r\n"
+
+# define RPL_TOPIC "332 "
+
 # define RPL_YOUREOPER "381 "
 
 

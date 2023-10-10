@@ -7,7 +7,7 @@ User::User(const std::string &nickname, int socket) : _nickname(nickname), _noti
     std::cout << "Nickname: " << nickname << std::endl;
 }
 
-User::User(CreateUser *unva_user) : _nickname(unva_user->nickname), _notices(true), _socket(unva_user->socket) {
+User::User(UnvalidatedUser *unva_user) : _nickname(unva_user->nickname), _notices(true), _socket(unva_user->socket) {
     this->_login_name = unva_user->login_name;
     this->_level = unva_user->level;
     this->_realname = unva_user->realname;

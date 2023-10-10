@@ -5,7 +5,7 @@
 #include <vector>
 #include <poll.h>
 
-#include "CreateUser.hpp"
+#include "UnvalidatedUser.hpp"
 
 class User
 {
@@ -17,7 +17,7 @@ class User
     public:
         //User();
         User(const std::string &, int);
-        User(CreateUser *);
+        User(UnvalidatedUser *);
         User(const User &);
 
         ~User();

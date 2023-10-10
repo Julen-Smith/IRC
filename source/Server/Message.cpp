@@ -4,27 +4,28 @@ Message::Message(){}
 
 Message::~Message(){}
 
-void    Message::to_string(void) {
-    this->message = this->ss.str();
+size_t  Message::get_res_size() const { return this->res_size; }
+
+void    Message::load_stream() { 
+    this->ss.clear();
+    this->ss << this->buffer;
 }
 
-void    Message::clean() {
-    this->ss.str();
-    this->message.clear();
-}
-
-size_t  Message::get_size() {
-    if (this->modified == NOT_MODIFIED)
-        return this->size;
-
-    this->to_string();
-    return this->message.size();
+const char    *Message::get_res_str() {
+    this->res_string = this->res.str();
+    this->res_size = this->res_string.size();
+    return this->res_string.c_str();
 }
 
 void    Message::push_bucket(std::string src) { this->bucket.push(src); }
 std::string    Message::pop_bucket() { return this->bucket.top(); }
 
-std::istream&   operator<< (std::istream& stream, Message &src) {
-   src.ss << stream;
-   return stream;
+Message&   operator<< (Message &instance, std::string &input) {
+   instance.ss << input;
+   return instance;
+}
+
+Message&   operator>> (Message &instance, std::string &output) {
+   instance.ss >> output;
+   return instance;
 }

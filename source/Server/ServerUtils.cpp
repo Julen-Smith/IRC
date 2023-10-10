@@ -46,9 +46,9 @@ void    Server::erase_client(int socket)
 }
 
 void    Server::add_unvalidated_user(int client_socket) {
-    CreateUser  *unvalidated_user;
+    UnvalidatedUser  *unvalidated_user;
 
-    unvalidated_user = new CreateUser(client_socket);
+    unvalidated_user = new UnvalidatedUser(client_socket);
     this->unvalidated_users[client_socket] = unvalidated_user;
 }
 
@@ -72,14 +72,14 @@ bool    Server::check_unvalidated_user(int client_socket) {
     return false;
 }
 
-Server::validated_user  Server::get_user_by_nickname(const std::string &nickname) {
+User    *Server::get_user_by_nickname(const std::string &nickname) {
     validated_user    user;
 
     for (user = this->users.begin(); user != this->users.end(); user++) {
         if ((*user)->get_nickname() == nickname)
-            return user;
+            return (*user);
     }
-    return user;
+    return NULL;
 }
 
 bool Server::check_validated_user(Server::validated_user user) {

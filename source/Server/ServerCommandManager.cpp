@@ -11,7 +11,7 @@ std::string reply, int nbr_strings, ...)
 
     va_start(args, nbr_strings);
     if (reply_mode == USR_RPL)
-        builder = ":" + user + " " + code + " ";
+        builder = code + " ";
     else if (reply_mode == SRV_RPL)
         builder = ":"+ code + " " + reply + " ";
     for (int i = 0; i < nbr_strings; ++i)
@@ -24,50 +24,55 @@ std::string reply, int nbr_strings, ...)
     va_end(args); 
 }
 
-
-void    Server::list_command(std::stringstream &key_sream, int client_index)
-{
-    build_message_and_send("321", client_index,"Server",USR_RPL, "", 0);       
-    for (int channels = 0; channels != this->channels.size(); channels++)
-    {
-        build_message_and_send("322",client_index,"Server",USR_RPL,"",
-        4,
-        this->users.at(client_index)->get_nickname().c_str(),
-        this->channels.at(channels)->get_name().c_str(),
-        std::to_string(this->channels.at(channels)->get_users_size()).c_str(),
-        this->channels.at(channels)->get_topic().c_str()
-        );
-    }
-    build_message_and_send("323",client_index,"Server",USR_RPL, "", 0);
+std::string Server::get_nickname_by_socket(int client_socket) {
+    return this->get_user_by_socket(client_socket)->get_nickname();
 }
 
-void    Server::join_command(std::stringstream &key_stream, int client_index) {
+
+void    Server::list_command(Message &msg) {
+
+    for (int i = 0; i != this->channels.size(); i++)
+    {
+        msg.res << RPL_LIST;
+        msg.res << this->get_nickname_by_socket(msg.client_socket);
+        msg.res << " " << this->channels[i]->get_name() << " " << this->channels[i]->get_users_size();
+        msg.res << " :" << this->channels[i]->get_topic() << MSG_END;
+    }
+    msg.res << RPL_LISTEND << LISTEND;
+    send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+}
+
+void    Server::join_command(Message &msg) {
 
     std::string room_name;
     std::string nickname;
     int         room_index;
 
-    get_token(key_stream, room_name, ' ', MSG_END_SPACE);
+    msg >> room_name;
     room_index = check_channel(room_name);
     if (room_index == BAD_ROOM)
         return ;
 
     std::cout << "join command\n - room name: " << room_name << "\nroom index: " << room_index << std::endl;
-    nickname = this->users.at(client_index)->get_nickname(); 
+    nickname = this->users.at(msg.client_index)->get_nickname(); 
 
-    build_message_and_send("JOIN",client_index,
-    nickname,
-    USR_RPL,
-    "",1, this->channels[room_index]->get_name().c_str());
-    build_message_and_send("332",client_index,"",SRV_RPL,
-    "RPL_TOPIC", 1, this->channels[room_index]->get_name().c_str()," :Bienvenido");
+    //build_message_and_send("JOIN",msg.client_index,
+    //nickname,
+    //USR_RPL,
+    //"",1, this->channels[room_index]->get_name().c_str());
+    //build_message_and_send("332",msg.client_index,"",SRV_RPL,
+    //"RPL_TOPIC", 1, this->channels[room_index]->get_name().c_str()," :Bienvenido");
     //hacer función que devuelva usuarios dentro del channel
-    build_message_and_send("353",client_index,"",SRV_RPL,
-    "RPL_TOPIC", 1, this->channels[room_index]->get_name().c_str()," :",
-    this->channels.at(room_index)->get_user_list().c_str()); 
-    build_message_and_send("366",client_index,"",SRV_RPL,
-    "RPL_ENDOFNAMES", 1, this->channels[room_index]->get_name().c_str()," :Fin de la lista de nombres");
-    this->channels.at(room_index)->add_user(this->users.at(client_index));
+    //build_message_and_send("353",msg.client_index,"",SRV_RPL,
+    //"RPL_TOPIC", 1, this->channels[room_index]->get_name().c_str()," :",
+    //this->channels.at(room_index)->get_user_list().c_str()); 
+    //build_message_and_send("366",msg.client_index,"",SRV_RPL,
+    //"RPL_ENDOFNAMES", 1, this->channels[room_index]->get_name().c_str()," :Fin de la lista de nombres");
+    //this->channels.at(room_index)->add_user(this->users.at(msg.client_index));
+    msg.res.clear();
+    msg.res << "JOIN " << room_name << MSG_END;
+    msg.res << RPL_TOPIC << room_name << " :fumando bolardos\r\n";
+    send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
 }
 
 void    Server::notice_new_user(User *user, int client_index) {
@@ -85,34 +90,40 @@ void    Server::notice_new_user(User *user, int client_index) {
     }
 }
 
-void    Server::user_command(std::stringstream &key_stream, int client_index) {
-    Server::unvalidated_user    unva_user;
-    CreateUser  *               created_user;
-    std::string                 holder;
-    int                         client_socket;
-    User    *user;
+void    Server::quit_command(Message &msg) {
+    close(msg.client_socket);
+}
 
-    client_socket = this->fds[client_index].fd;
-    unva_user = this->unvalidated_users.find(client_socket);
+void    Server::mode_command(Message &msg) {
+    (void)msg;
+    std::cout << "FUMADA\r\n";
+}
+
+void    Server::user_command(Message &msg) {
+    unvalidated_user    unva_user;
+    UnvalidatedUser     *created_user;
+    User                *user;
+
+    unva_user = this->unvalidated_users.find(msg.client_socket);
     created_user = unva_user->second;
 
     //LOGINNAME
-    get_token(key_stream, holder, SPACE, MSG_END_SPACE);
-    created_user->login_name = holder;
+    msg >> created_user->login_name;
     //LEVEL -> casteo a integer
-    get_token(key_stream, holder, SPACE, MSG_END_SPACE);
-    created_user->level = holder;
+    msg >> created_user->level;
 
-    //UNUSED
-    get_token(key_stream, holder, SPACE, MSG_END_SPACE);
-    //REALNAME
-    get_token(key_stream, holder, SPACE, MSG_END_SPACE);
-    created_user->realname = holder;
+    msg >> created_user->realname;
+    msg >> created_user->realname;
 
     user = new User(unva_user->second);
     this->users.push_back(user);
-    this->send_intro(client_index);
-    notice_new_user(user, client_index);
+    msg.res.clear();
+    msg.res << RPL_WELCOME;
+    msg.res << WELCOME << " ";
+    msg.res << user->get_nickname() << "!" << "paco@yahoo\r\n";
+    send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+    this->send_intro(msg.client_index);
+    notice_new_user(user, msg.client_index);
     
     std::cout << "User command\n" << " - login: " << user->_login_name << "\n - realname: " << user->_realname << std::endl;
 
@@ -128,15 +139,20 @@ User *  Server::get_user_by_socket(int client_socket) {
     return NULL;
 }
 
-bool    Server::check_operator(const std::string &user, const std::string &password, int client_socket) {
+bool    Server::check_operator(Message &msg) {
     User    *current_user;
+    std::string     user;
+    std::string     password;
+
+    msg >> user;
+    msg >> password;
 
     current_user = NULL;
     for (int i = 0; i < 2; i++) {
         if (user == this->priv_list[i].user
         && password == this->priv_list[i].password) {
 
-            current_user = this->get_user_by_socket(client_socket);
+            current_user = this->get_user_by_socket(msg.client_socket);
             current_user->_level = priv_list[i].level;
             return true;
         }
@@ -144,76 +160,75 @@ bool    Server::check_operator(const std::string &user, const std::string &passw
     return false;
 }
 
-void    Server::oper_command(std::stringstream& key_stream, int client_index) {
-    std::string user;
-    std::string password;
-    std::string builder;
-    std::stringstream   response;
-    int         client_socket;
+void    Server::oper_command(Message& msg) {
 
-    client_socket = this->fds[client_index].fd;
-    get_token(key_stream, user, SPACE, MSG_END_SPACE);
-    get_token(key_stream, password, SPACE, MSG_END_SPACE);
-
-    if (check_operator(user, password, client_socket))
-        response << RPL_YOUREOPER << ":You are now an IRC operator\r\n";
+    if (check_operator(msg))
+        msg.res << RPL_YOUREOPER << ":You are now an IRC operator\r\n";
     else
-        response << ERR_PASSWDMISMATCH << ":Password incorrect\r\n";
+        msg.res << ERR_PASSWDMISMATCH << ":Password incorrect\r\n";
 
-    builder = response.str();
-    send(client_socket, builder.c_str(), builder.size(), 0);
+    send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
 }
 
-void    Server::kick_command(std::stringstream &key_stream, int client_index) {
-    std::string         nickname;
-    std::stringstream   response;
-    std::string         builder;
-    int                 client_socket;
+void    Server::kick_command(Message &msg) {
 
-    client_socket = this->fds[client_index].fd;
-    get_token(key_stream, nickname, SPACE, MSG_END_SPACE);
+    std::string nickname;
 
+    nickname = msg.pop_bucket();
     std::cout << "Kick command:\n - nickname: " << nickname << std::endl;
 
-    response << ERR_NICKNAMEINUSE << nickname << " :nickname is already in use\r\n";
-    builder = response.str();
-
-    send(client_socket, builder.c_str(), builder.size(), 0);
-    close(client_socket);
+    send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+    close(msg.client_socket);
 }
 
-void    Server::nick_command(std::stringstream &key_stream, int client_index) {
-    std::stringstream   holder;
-    int                 client_socket;
-    std::string         nickname;
-    validated_user      user;
+bool    Server::delete_user_by_socket(int client_socket) {
+    validated_user  user;
 
-    get_token(key_stream, nickname, SPACE, MSG_END_SPACE);
-    client_socket = this->fds[client_index].fd;
-    //TODO check if the user exists, input the client socket
-    user = this->get_user_by_nickname(nickname);
-    this->unvalidated_users[client_socket]->nickname = nickname;
+    user = this->users.begin();
+    for (; user != this->users.end(); user++) {
+        if ((*user)->get_socket() == client_socket) {
+            this->users.erase(user);
+            return true;
+        }
+    }
+    return false;
+}
 
-    std::cout << "Nick command:\n - nickname: " << nickname << std::endl;
-    if (user == this->users.end())
+void    Server::nick_command(Message &msg) {
+    UnvalidatedUser *unva_user;
+    User            *user;
+
+    unva_user = this->unvalidated_users[msg.client_socket];
+    msg >> unva_user->nickname;
+    user = this->get_user_by_nickname(unva_user->nickname);
+
+    std::cout << "Nick command:\n - nickname: " << unva_user->nickname << std::endl;
+    if (!user)
         return ;
-    //TODO kick and erase unvalidated user
-    else if ((*user)->get_notices() == true) {
-        holder << nickname;
-        kick_command(holder, client_index);
-        this->delete_unvalidated_user(client_socket);
+
+    else if (user->get_notices() == true) {
+        msg.push_bucket(unva_user->nickname);
+        msg.res.clear();
+        msg.res << ERR_NICKNAMEINUSE;
+        msg.res << unva_user->nickname;
+        msg.res << ": nickname is already in use\r\n";
+        kick_command(msg);
+
+        this->delete_unvalidated_user(msg.client_socket);
         return ;
     }
-    this->users.erase(user);
-    return ;
+    this->delete_user_by_socket(user->get_socket());
 }
 
 void    Server::manage_response(int client_index) {
-    char    buffer[BUFFER_SIZE];
+    Message msg;
 
-    if (this->read_socket(client_index, buffer))
+    msg.client_index = client_index;
+    msg.client_socket = this->fds[client_index].fd;
+
+    if (this->read_socket(msg))
         return ;
-    this->tokenizer(client_index, buffer);
+    this->tokenizer(msg);
 }
 
 

@@ -1,9 +1,9 @@
-#ifndef CREATEUSER_HPP
-#define CREATEUSER_HPP
+#ifndef UNVALIDATEDUSER_HPP
+#define UNVALIDATEDUSER_HPP
 
 #include <string>
 
-class CreateUser
+class UnvalidatedUser
 {
     public:
         int         socket;
@@ -12,12 +12,12 @@ class CreateUser
         std::string realname;
         std::string level;
 
-        CreateUser(int client_socket) : socket(client_socket) {}
-        ~CreateUser() {}
+        UnvalidatedUser(int client_socket) : socket(client_socket) {}
+        ~UnvalidatedUser() {}
 
     protected:
 
     private:
 };
 
-#endif //CREATEUSER_HPP
+#endif //UNVALIDATEDUSER_HPP

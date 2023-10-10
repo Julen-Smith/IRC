@@ -33,7 +33,7 @@ void Server::generate_default_channels()
 
 int Server::check_channel(std::string& validation)
 {
-    erase_match(validation, MSG_END_SPACE);
+    //erase_match(validation, MSG_END_SPACE);
     std::cout << "Validation: " << validation << std::endl;
     for(int i = 0; i < this->channels.size(); i++)
     {
