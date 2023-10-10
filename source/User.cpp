@@ -2,9 +2,15 @@
 
 #include "User.hpp"
 
-User::User(const std::string &nickname, int socket) : _nickname(nickname), _notices(false), _socket(socket)
+User::User(const std::string &nickname, int socket) : _nickname(nickname), _notices(true), _socket(socket)
 {
     std::cout << "Nickname: " << nickname << std::endl;
+}
+
+User::User(CreateUser *unva_user) : _nickname(unva_user->nickname), _notices(true), _socket(unva_user->socket) {
+    this->_login_name = unva_user->login_name;
+    this->_level = unva_user->level;
+    this->_realname = unva_user->realname;
 }
 
 User::User(const User &obj) // : rooms(obj.rooms)

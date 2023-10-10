@@ -9,6 +9,7 @@ SERVER_SRCS =   source/Server/Server.cpp \
 				source/Server/ServerUserManager.cpp \
 				source/Server/ServerChannelManager.cpp \
 				source/Server/ServerUtils.cpp \
+			 	source/Server/Message.cpp \
 			 	source/main.cpp \
 			 	source/Channel.cpp \
 			 	source/User.cpp

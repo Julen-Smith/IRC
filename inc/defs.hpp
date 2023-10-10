@@ -44,5 +44,14 @@
 //CONFIG FILES
 # define BAD_ROOM -1
 
+//ERROR_COMMANDS
+# define ERR_NICKNAMEINUSE "433 "
+# define ERR_PASSWDMISMATCH "464 "
+
+//RESPONSE COMMANDS
+# define RPL_WELCOME "001 "
+# define WELCOME    "Welcome to the Internet Relay Network "
+# define RPL_YOUREOPER "381 "
+
 
 #endif  //DEFS_HPP

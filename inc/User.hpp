@@ -5,6 +5,8 @@
 #include <vector>
 #include <poll.h>
 
+#include "CreateUser.hpp"
+
 class User
 {
     private:
@@ -15,6 +17,7 @@ class User
     public:
         //User();
         User(const std::string &, int);
+        User(CreateUser *);
         User(const User &);
 
         ~User();
@@ -27,6 +30,9 @@ class User
         void                set_notices(void);
         void                set_nickname(std::string);
 
+        std::string             _login_name;
+        std::string             _realname;
+        std::string             _level;
 };
 
 

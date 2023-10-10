@@ -28,11 +28,16 @@ void main_loop(Server &server)
     server.fds[0].fd = server.get_socket();
     server.fds[0].events = POLLIN;
 
+    server.users.push_back(new User("nickname", 8));
+    server.fds.push_back(pollfd());
+    server.fds[1].fd = 8;
+    server.fds[1].events = POLLIN;
+
     server.generate_default_channels();
     while (true)
     {
         server.event_to_handle = poll(server.fds.data(), server.fds.size(), 0);
-        for(int client = 0; client < server.users.size(); client++)
+        for(int client = 0; client < server.fds.size(); client++)
         {
             if (server.fds[client].revents & POLLHUP)  //Erase client
             {
@@ -44,12 +49,7 @@ void main_loop(Server &server)
                 if (server.fds[client].fd == server.get_socket())
                     server.accept_new_user();
                 else
-                {
-                    if (server.users[client]->get_notices() == false)
-                        server.enter_msg(client);
-                     else
-                        server.manage_response(client);     
-                }
+                    server.manage_response(client);     
             }
         }
     }

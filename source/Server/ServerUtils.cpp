@@ -83,8 +83,6 @@ Server::validated_user  Server::get_user_by_nickname(const std::string &nickname
 }
 
 bool Server::check_validated_user(Server::validated_user user) {
-    if (user == this->users.end())
-        return BAD_USER_PARAMETER;
     if ((*user)->get_notices())
         return USER_ACTIVE;
     return USER_INACTIVE;

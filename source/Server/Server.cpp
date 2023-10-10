@@ -10,6 +10,14 @@ Server::Server(const char *port) : max_clients(MAX_CLIENTS), _port(port)
     this->callback_map["USER"] = &Server::user_command;
     this->callback_map["LIST"] = &Server::list_command;
     this->callback_map["JOIN"] = &Server::join_command;
+    this->callback_map["OPER"] = &Server::oper_command;
+
+   priv_list[0].user = "admin";
+   priv_list[0].password = "admin";
+   priv_list[0].level = "3";
+   priv_list[1].user = "operator";
+   priv_list[1].password = "operator";
+   priv_list[1].level = "1";
 
    this->sv_socket_info.sin_port = htons(4242);
    this->sv_socket_info.sin_family = AF_INET; 
@@ -50,8 +58,6 @@ void Server::erase_match(std::string &source, const std::string &to_erase) {
     }
 }
 
-# define SPACE ' '
-
 std::istream&    Server::get_token(
     std::stringstream &key_stream,
     std::string &token,
@@ -65,7 +71,7 @@ std::istream&    Server::get_token(
 }
 
 // Tokenizer acepta como parametro un buffer de chars, utilizando getline 
-void Server::tokenizer(int user_index, const char *buffer) {
+void Server::tokenizer(int client_index, const char *buffer) {
 
     std::stringstream   input(buffer);
     std::string         token;
@@ -75,7 +81,7 @@ void Server::tokenizer(int user_index, const char *buffer) {
         this->it = this->callback_map.find(token);
 
         if (this->it != this->callback_map.end())
-            (this->*(it->second))(input, 1);
+            (this->*(it->second))(input, client_index);
     }
 }
 
@@ -108,8 +114,10 @@ bool Server::read_socket(int client_index, char buffer[BUFFER_SIZE]) {
     ssize_t read_size;
 
     read_size = recv(this->fds[client_index].fd, buffer, BUFFER_SIZE, 0);
-    if (read_size == -1)
+    if (read_size == -1) {
+        std::cerr << "Error: read socket failed\n";
         return true;
+    }
     this->buffer[read_size] = 0;
     return false;
 }

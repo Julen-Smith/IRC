@@ -22,21 +22,12 @@
 #include "User.hpp"
 #include "Channel.hpp"
 
-class CreateUser
+typedef struct s_privilege
 {
-    public:
-        int         socket;
-        std::string nickname;
-        std::string login_name;
-        std::string real_name;
-
-        CreateUser(int client_socket) : socket(client_socket) {}
-        ~CreateUser() {}
-
-    protected:
-
-    private:
-};
+	std::string user;
+	std::string password;
+	std::string level;
+}	t_privilege;
 
 class Channel;
 class Server
@@ -65,6 +56,9 @@ class Server
 		unvalidated_user_map							unvalidated_users;
 		//std::map<int, CreateUser *>::iterator	unvalidate_user_it;
 
+		//privilege structure
+		t_privilege					priv_list[2];
+
 		int							event_to_handle;
 		char						buffer[BUFFER_SIZE];
 
@@ -79,12 +73,19 @@ class Server
 		void						tokenizer(int, const char *);
 		bool						read_socket(int,  char [BUFFER_SIZE]);
 		void						erase_match(std::string &source, const std::string &to_erase);
+		bool    					check_operator(const std::string &user, const std::string &password, int client_socket);
+		User						*get_user_by_socket(int client_socket);
 
-		//current user methods
+		//validated user
+		bool 						add_unva_user(int client_index);
+		bool						add_validated_user(int client_index);
 		validated_user				get_user_by_nickname(const std::string &);
 		bool 						check_validated_user(Server::validated_user);
+		void    					notice_new_user(User *user, int client_index);
 		
 		//commands
+		void						oper_command(std::stringstream&, int);
+		void						kick_command(std::stringstream&, int);
 		void						list_command(std::stringstream&, int);
 		void						join_command(std::stringstream&, int);
 		void						nick_command(std::stringstream&, int);
