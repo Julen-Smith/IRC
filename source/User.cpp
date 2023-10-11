@@ -33,6 +33,7 @@ User& User::operator=(User &user)
 }
 
 const std::string&  User::get_nickname(void) const {return this->_nickname;}
+const std::string&  User::get_login_name(void) const {return this->_login_name;}
 bool                User::get_notices(void) const {return this->_notices;}
 int                User::get_socket(void) const {return this->_socket;}
 

@@ -50,17 +50,24 @@ Server::~Server() {}
 
 // Tokenizer acepta como parametro un buffer de chars, utilizando getline 
 void Server::tokenizer(Message &msg) {
-    std::string         token;
 
-    this->it = this->callback_map.end();
-    while (true) {
-        msg >> token;
-        if (msg.ss.eof())
-            break ;
+    Message::command  command;
+    std::string       token;
+    
+    msg.get_commands();
+    for (command = msg.commands->begin(); command != msg.commands->end(); command++) {
+        msg.get_params();
+        token = msg.params->front();
         this->it = this->callback_map.find(token);
+        msg.params->pop_front();
 
         if (this->it != this->callback_map.end())
             (this->*(it->second))(msg);
+        else
+            std::cerr << "Error: invalid commnad -> " << token << std::endl;
+
+        delete msg.params;
+
     }
 }
 
@@ -97,6 +104,5 @@ bool Server::read_socket(Message &msg) {
         return true;
     }
     msg.buffer[read_size] = 0;
-    msg.load_stream();
     return false;
 }

@@ -77,6 +77,10 @@ class Server
 		////void						erase_match(std::string &source, const std::string &to_erase);
 		bool    					check_operator(Message &msg);
 
+		//channel getters
+		Channel						*get_channel_by_name(const std::string &name) const;
+		Channel    					*create_channel(const User *user, const std::string &romm_name);
+
 		//user getters
 		User						*get_user_by_socket(int client_socket);
 		std::string					get_nickname_by_socket(int client_socket);
@@ -87,7 +91,7 @@ class Server
 
 		//validated user
 		bool 						add_unva_user(int client_index);
-		bool						add_validated_user(int client_index);
+		User						*add_validated_user(unvalidated_user);
 		bool 						check_validated_user(Server::validated_user);
 		void    					notice_new_user(User *user, int client_index);
 		
@@ -114,9 +118,9 @@ class Server
 		int					_socket;
 		struct sockaddr_in 	sv_socket_info;
 
-		void	_init_cout() const;
-		void	_create_new_user(ssize_t, int, std::string);
-		void	send_intro(int);
+		void			_init_cout() const;
+		void			_create_new_user(ssize_t, int, std::string);
+		void			send_intro(int);
 		std::istream&	get_token(Message&, std::string&, char, const std::string &);
 };
 

@@ -4,7 +4,7 @@
 #include "User.hpp"
 
 
-Channel::Channel(const std::string& name, const std::string &topic) : _name(name), _topic(" :" + topic)
+Channel::Channel(const std::string& name, const std::string &topic) : _name(name), _topic(topic), _key("")
 {
     std::cout << "The channel " << name << " has been created." << std::endl;
 }
@@ -35,10 +35,10 @@ void Channel::join_channel(std::string buffer, User &user)
 
 std::string Channel::get_user_list() const
 {
-    std::string user_list;
+    std::string user_list = "";
     
     for (int i = 0; i < this->_users.size() - 1; i++)
-        user_list += this->_users.at(i)->get_nickname() + " ";
+        user_list += this->_users.at(i)->get_nickname() + ",";
     return (user_list);
 }
 
@@ -68,3 +68,32 @@ int Channel::get_users_size() const { return (this->_users.size()); }
 //{
     //TODO
 //}
+
+std::string Channel::get_topic_msg(const User *user) {
+    std::stringstream res;
+
+    //TODO hay que notificar al resto de una manera distinta
+    res << user->get_nickname() << "!" << user->get_login_name() << "@localhost ";
+    res << "JOIN " << this->_name << MSG_END;
+    res << RPL_TOPIC << user->get_nickname() << " " << this->_name << ": " << this->get_topic() << MSG_END;
+    return res.str();
+}
+
+std::string Channel::get_user_list_msg(const User *user) {
+    std::stringstream res;
+
+    //TODO comprobar el nivel de privilegios del canal
+    res << RPL_NAMREPLY << user->get_nickname() << " = " << this->_name << " :" << this->get_user_list() << MSG_END;
+    res << RPL_ENDOFNAMES << ENDOFNAMES << MSG_END;
+    return res.str();
+}
+
+void    Channel::set_key(const std::string &key) { this->_key = key; }
+
+User    *Server::add_validated_user(Server::unvalidated_user unva_user) {
+    User    *user;
+
+    user = new User(unva_user->second);
+    this->users.push_back(user);
+    return user;
+}

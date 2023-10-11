@@ -8,7 +8,9 @@ void Server::generate_default_channels()
     Channel * lukas = new Channel("#La_Guarida_de_Lukas","El mismo la ha denominado asi quien sabe que podrias encontrarte dentro.");
     Channel * test_room = new Channel("#Test_Room","Todas las salas son de prueba, pero ponerle un nombre a una hace que lo sea mas.");
     Channel * AAAA = new Channel("#AAAA","Asii es, AAAA.");
+    Channel * LockedChannel = new Channel("#locked","locked room access denied");
 
+    LockedChannel->set_key("admin");
     this->channels.push_back(lobby);
     this->channels.at(0)->add_user(new User("Dummy1",999));
     this->channels.at(0)->add_user(new User("Dummy2",998));
@@ -29,6 +31,16 @@ void Server::generate_default_channels()
     this->channels.at(3)->add_user(new User("Dummy2",986));
     this->channels.at(3)->add_user(new User("Dummy3",985));
     this->channels.at(3)->add_user(new User("Dummy4",984));
+}
+
+Channel *Server::get_channel_by_name(const std::string& name) const
+{
+    for(int i = 0; i < this->channels.size(); i++)
+    {
+        if (this->channels[i]->get_name() == name)
+            return this->channels[i];
+    }
+    return NULL;
 }
 
 int Server::check_channel(std::string& validation)

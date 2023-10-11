@@ -42,36 +42,40 @@ void    Server::list_command(Message &msg) {
     send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
 }
 
+Channel    *Server::create_channel(const User *user, const std::string &room_name) {
+    Channel *channel;
+
+    channel = new Channel(room_name, "There is no topic"); 
+    this->channels.push_back(channel);
+    channel->add_user(user);
+    std::cout << "New channel created: " << room_name << std::endl;
+    return channel;
+}
+
 void    Server::join_command(Message &msg) {
 
     std::string room_name;
-    std::string nickname;
-    int         room_index;
+    std::string key;
+    Channel     *channel;
+    User        *user;
 
-    msg >> room_name;
-    room_index = check_channel(room_name);
-    if (room_index == BAD_ROOM)
-        return ;
+    //msg.request >> room_name;
+    //msg.request >> key;
 
-    std::cout << "join command\n - room name: " << room_name << "\nroom index: " << room_index << std::endl;
-    nickname = this->users.at(msg.client_index)->get_nickname(); 
+    channel = this->get_channel_by_name(room_name);
+    user = this->get_user_by_socket(msg.client_socket);
 
-    //build_message_and_send("JOIN",msg.client_index,
-    //nickname,
-    //USR_RPL,
-    //"",1, this->channels[room_index]->get_name().c_str());
-    //build_message_and_send("332",msg.client_index,"",SRV_RPL,
-    //"RPL_TOPIC", 1, this->channels[room_index]->get_name().c_str()," :Bienvenido");
-    //hacer función que devuelva usuarios dentro del channel
-    //build_message_and_send("353",msg.client_index,"",SRV_RPL,
-    //"RPL_TOPIC", 1, this->channels[room_index]->get_name().c_str()," :",
-    //this->channels.at(room_index)->get_user_list().c_str()); 
-    //build_message_and_send("366",msg.client_index,"",SRV_RPL,
-    //"RPL_ENDOFNAMES", 1, this->channels[room_index]->get_name().c_str()," :Fin de la lista de nombres");
-    //this->channels.at(room_index)->add_user(this->users.at(msg.client_index));
-    msg.res.clear();
-    msg.res << "JOIN " << room_name << MSG_END;
-    msg.res << RPL_TOPIC << room_name << " :fumando bolardos\r\n";
+    //TODO create new channel
+    if (channel == NULL) {
+        channel = this->create_channel(user, room_name);
+        msg.push_bucket(room_name);
+        this->mode_command(msg);
+    }
+
+    msg.res.str("");
+    msg.res << channel->get_topic_msg(user);
+
+    msg.res << channel->get_user_list_msg(user);
     send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
 }
 
@@ -95,8 +99,13 @@ void    Server::quit_command(Message &msg) {
 }
 
 void    Server::mode_command(Message &msg) {
-    (void)msg;
-    std::cout << "FUMADA\r\n";
+    std::string room_name;
+
+    room_name = msg.pop_bucket();
+
+    msg.res.str("");
+    msg.res << ":Server MODE " << room_name << " +nt" << MSG_END;
+    send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
 }
 
 void    Server::user_command(Message &msg) {
@@ -107,26 +116,20 @@ void    Server::user_command(Message &msg) {
     unva_user = this->unvalidated_users.find(msg.client_socket);
     created_user = unva_user->second;
 
-    //LOGINNAME
-    msg >> created_user->login_name;
-    //LEVEL -> casteo a integer
-    msg >> created_user->level;
+    created_user->login_name = msg.get_params_front();
+    created_user->level = msg.get_params_front();
+    created_user->realname = msg.get_params_front();
 
-    msg >> created_user->realname;
-    msg >> created_user->realname;
+    user = this->add_validated_user(unva_user);
 
-    user = new User(unva_user->second);
-    this->users.push_back(user);
-    msg.res.clear();
-    msg.res << RPL_WELCOME;
-    msg.res << WELCOME << " ";
-    msg.res << user->get_nickname() << "!" << "paco@yahoo\r\n";
+    msg.res.str("");
+    msg.res << RPL_WELCOME << WELCOME << user->get_nickname() << "!" << "paco@yahoo\r\n";
     send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+
     this->send_intro(msg.client_index);
     notice_new_user(user, msg.client_index);
     
     std::cout << "User command\n" << " - login: " << user->_login_name << "\n - realname: " << user->_realname << std::endl;
-
 }
 
 User *  Server::get_user_by_socket(int client_socket) {
@@ -144,8 +147,8 @@ bool    Server::check_operator(Message &msg) {
     std::string     user;
     std::string     password;
 
-    msg >> user;
-    msg >> password;
+    //msg.request >> user;
+    //msg.request >> password;
 
     current_user = NULL;
     for (int i = 0; i < 2; i++) {
@@ -194,23 +197,45 @@ bool    Server::delete_user_by_socket(int client_socket) {
     return false;
 }
 
+static bool check_nickname(const std::string &nickname) {
+    for (size_t i = 0; i < nickname.size(); i++) {
+        if (!isalpha(nickname[i]))
+            return true;
+    }
+    return false;
+}
+
 void    Server::nick_command(Message &msg) {
-    UnvalidatedUser *unva_user;
+
+    UnvalidatedUser *unvalid_user;
     User            *user;
+    std::string     nickname;
 
-    unva_user = this->unvalidated_users[msg.client_socket];
-    msg >> unva_user->nickname;
-    user = this->get_user_by_nickname(unva_user->nickname);
+    nickname = msg.params->front();
+    std::cout << "size: " << msg.params->size() << std::endl;
+    if (msg.params->size() == 0) {
+        msg.res << ERR_NONICKNAMEGIVEN << NONICKNAMEGIVEN;
+        send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+        return ;
+    }
+    else if (check_nickname(msg.params->front())) {
+        msg.res << ERR_ERRONEUSNICKNAME << nickname << ERRONEUSNICKNAME;
+        send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+        return ;
+    }
+    unvalid_user = this->unvalidated_users[msg.client_socket];
+    unvalid_user->nickname = nickname;
+    user = this->get_user_by_nickname(unvalid_user->nickname);
 
-    std::cout << "Nick command:\n - nickname: " << unva_user->nickname << std::endl;
+    std::cout << "Nick command:\n - nickname: " << unvalid_user->nickname << std::endl;
     if (!user)
         return ;
 
     else if (user->get_notices() == true) {
-        msg.push_bucket(unva_user->nickname);
-        msg.res.clear();
-        msg.res << ERR_NICKNAMEINUSE;
-        msg.res << unva_user->nickname;
+        msg.push_bucket(unvalid_user->nickname);
+        msg.res.str("");
+        msg.res << ERR_NICKNAMEINUSE << "* ";
+        msg.res << unvalid_user->nickname;
         msg.res << ": nickname is already in use\r\n";
         kick_command(msg);
 

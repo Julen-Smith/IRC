@@ -24,6 +24,7 @@ class User
 
         User& operator=(User &user);
         const std::string&  get_nickname(void) const;
+        const std::string&  get_login_name(void) const;
         bool                get_notices(void) const;
         int                 get_socket(void) const;
         

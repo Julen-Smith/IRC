@@ -23,6 +23,7 @@
 # define OFF_NICK         5
 # define MSG_END          "\r\n"
 # define MSG_END_SPACE    "\r\n "
+# define PARAMS_PATTERN   " :"
 # define SPACE            ' '
 # define JOIN_MSG         "has joined the channel."
 # define COMMAND_LIST     "This is a placeholder to notice that the user must use some command."
@@ -45,19 +46,28 @@
 # define BAD_ROOM -1
 
 //ERROR_COMMANDS
-# define ERR_NICKNAMEINUSE "433 "
-# define ERR_PASSWDMISMATCH "464 "
+# define ERR_NICKNAMEINUSE ":Server 433 "
+# define ERR_PASSWDMISMATCH ":Server 464 "
+# define ERR_NONICKNAMEGIVEN "431 * "
+# define NONICKNAMEGIVEN ":No nickname given\r\n"
+# define ERR_ERRONEUSNICKNAME "432 * "
+# define ERRONEUSNICKNAME " :Erroneus nickname\r\n"
 
 //RESPONSE COMMANDS
-# define RPL_WELCOME "001"
-# define WELCOME    "Welcome to the Internet Relay Network "
-# define RPL_LIST "322 "
-# define RPL_LISTEND "323 "
+# define RPL_WELCOME ":Server 001"
+
+# define WELCOME    " Welcome to the Internet Relay Network "
+# define RPL_LIST ":Server 322 "
+# define RPL_LISTEND ":Server 323 "
 # define LISTEND ":End of LIST\r\n"
 
-# define RPL_TOPIC "332 "
+# define RPL_TOPIC ":Server 332 "
 
-# define RPL_YOUREOPER "381 "
+# define RPL_YOUREOPER ":Server 381 "
 
+# define RPL_NAMREPLY ":Server 353 "
+
+# define RPL_ENDOFNAMES ":Server 366"
+# define ENDOFNAMES " :End of NAMES list"
 
 #endif  //DEFS_HPP
