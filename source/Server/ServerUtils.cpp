@@ -63,7 +63,7 @@ bool	Server::delete_unvalidated_user(int client_socket) {
     return true;
 }
 
-bool    Server::check_unvalidated_user(int client_socket) {
+bool    Server::find_unva_user_by_socket(int client_socket) {
     unvalidated_user    user;
 
     user = this->unvalidated_users.find(client_socket);

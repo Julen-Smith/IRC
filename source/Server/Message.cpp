@@ -51,11 +51,11 @@ std::deque<std::string>	*Message::split(const std::string &buffer, const std::st
     return bucket;
 }
 
-void    Message::get_commands() {
+void    Message::set_commands() {
     this->commands = this->split(this->buffer, MSG_END);
 }
 
-void    Message::get_params() {
+void    Message::set_params() {
     this->params = this->split(this->commands->front(), PARAMS_PATTERN);
     this->commands->pop_front();
 }
@@ -63,7 +63,22 @@ void    Message::get_params() {
 std::string Message::get_params_front() {
     std::string token;
 
-    this->params->front();
+    token = this->params->front();
     this->params->pop_front();
     return token;
 }
+
+/*
+void            Message::set_holder(const std::string &holder, const std::string delimiter) {
+
+    if (this->holder != NULL)
+        delete this->holder;
+    this->holder = this->split(holder, delimiter);
+}
+std::string     Message::get_holder() {
+    std::string token;
+
+    token = this->holder->front();
+    this->holder->pop_front();
+    return token;
+}*/

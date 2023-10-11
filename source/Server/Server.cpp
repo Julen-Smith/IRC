@@ -13,6 +13,7 @@ Server::Server(const char *port) : max_clients(MAX_CLIENTS), _port(port)
     this->callback_map["OPER"] = &Server::oper_command;
     this->callback_map["MODE"] = &Server::mode_command;
     this->callback_map["QUIT"] = &Server::quit_command;
+    this->callback_map["PART"] = &Server::part_command;
 
    priv_list[0].user = "admin";
    priv_list[0].password = "admin";
@@ -54,9 +55,9 @@ void Server::tokenizer(Message &msg) {
     Message::command  command;
     std::string       token;
     
-    msg.get_commands();
+    msg.set_commands();
     for (command = msg.commands->begin(); command != msg.commands->end(); command++) {
-        msg.get_params();
+        msg.set_params();
         token = msg.params->front();
         this->it = this->callback_map.find(token);
         msg.params->pop_front();
@@ -99,6 +100,8 @@ bool Server::read_socket(Message &msg) {
     ssize_t read_size;
 
     read_size = recv(msg.client_socket, msg.buffer, BUFFER_SIZE, 0);
+
+    //TODO handleear cuando read_size es 0
     if (read_size == -1) {
         std::cerr << "Error: read socket failed\n";
         return true;

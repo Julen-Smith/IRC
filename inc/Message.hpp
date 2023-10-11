@@ -18,6 +18,7 @@ class Message
         typedef std::deque<std::string>::iterator  command;
         std::deque<std::string> *commands;
         std::deque<std::string> *params;
+        std::deque<std::string> *holder;
 
         std::stack<std::string> bucket;
 
@@ -29,9 +30,12 @@ class Message
         int                     client_socket;
         int                     client_index;
 
-        std::string get_params_front();
-        void    get_commands();
-        void    get_params();
+        //void            set_holder(const std::string &holder, const std::string delimiter);
+        //std::string     get_holder();
+
+        std::string     get_params_front();
+        void            set_commands();
+        void            set_params();
         const char      *get_res_str();
         size_t          get_res_size() const;
         void            push_bucket(std::string src);

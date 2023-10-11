@@ -31,6 +31,7 @@ std::string Server::get_nickname_by_socket(int client_socket) {
 
 void    Server::list_command(Message &msg) {
 
+    msg.res.str("");
     for (int i = 0; i != this->channels.size(); i++)
     {
         msg.res << RPL_LIST;
@@ -61,6 +62,10 @@ void    Server::join_command(Message &msg) {
 
     //msg.request >> room_name;
     //msg.request >> key;
+    room_name = msg.get_params_front();
+
+    //TODO canales con contrasena
+    //key = msg.get_params_front();
 
     channel = this->get_channel_by_name(room_name);
     user = this->get_user_by_socket(msg.client_socket);
@@ -70,6 +75,9 @@ void    Server::join_command(Message &msg) {
         channel = this->create_channel(user, room_name);
         msg.push_bucket(room_name);
         this->mode_command(msg);
+    }
+    else {
+        channel->add_user(user);
     }
 
     msg.res.str("");
@@ -118,6 +126,8 @@ void    Server::user_command(Message &msg) {
 
     created_user->login_name = msg.get_params_front();
     created_user->level = msg.get_params_front();
+    //TODO unused
+    msg.get_params_front();
     created_user->realname = msg.get_params_front();
 
     user = this->add_validated_user(unva_user);
@@ -128,6 +138,7 @@ void    Server::user_command(Message &msg) {
 
     this->send_intro(msg.client_index);
     notice_new_user(user, msg.client_index);
+    this->delete_unvalidated_user(msg.client_socket);
     
     std::cout << "User command\n" << " - login: " << user->_login_name << "\n - realname: " << user->_realname << std::endl;
 }
@@ -205,24 +216,50 @@ static bool check_nickname(const std::string &nickname) {
     return false;
 }
 
+void    Server::part_command(Message &msg) {
+    std::deque<std::string> *params;
+    std::string token;
+    Channel *channel;
+    std::string nickname;
+
+    nickname = this->get_nickname_by_socket(msg.client_socket);
+    token = msg.get_params_front();
+    params = msg.split(token, CSV);
+    for (size_t i = 0; i < params->size(); i++) {
+        channel = this->get_channel_by_name(params->front());
+        if (channel == NULL)
+         continue ;
+        channel->delete_user(nickname);
+        params->pop_front();
+    }
+    delete params;
+}
+
 void    Server::nick_command(Message &msg) {
 
     UnvalidatedUser *unvalid_user;
     User            *user;
     std::string     nickname;
 
-    nickname = msg.params->front();
-    std::cout << "size: " << msg.params->size() << std::endl;
-    if (msg.params->size() == 0) {
+    nickname = msg.get_params_front();
+    if (msg.params->size() != 0 or nickname.size() == 0) {
         msg.res << ERR_NONICKNAMEGIVEN << NONICKNAMEGIVEN;
         send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
-        return ;
     }
-    else if (check_nickname(msg.params->front())) {
+    else if (check_nickname(nickname)) {
         msg.res << ERR_ERRONEUSNICKNAME << nickname << ERRONEUSNICKNAME;
         send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+
+        if (this->find_unva_user_by_socket(msg.client_socket))
+            close(msg.client_socket);
+    }
+    //TODO avisar al restor del cambio de nick
+    else if (this->find_unva_user_by_socket(msg.client_socket) == false) {
+        user = this->get_user_by_socket(msg.client_socket);
+        user->set_nickname(nickname);
         return ;
     }
+
     unvalid_user = this->unvalidated_users[msg.client_socket];
     unvalid_user->nickname = nickname;
     user = this->get_user_by_nickname(unvalid_user->nickname);

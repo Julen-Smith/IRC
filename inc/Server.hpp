@@ -96,6 +96,7 @@ class Server
 		void    					notice_new_user(User *user, int client_index);
 		
 		//commands
+		void						part_command(Message&);
 		void						quit_command(Message&);
 		void						mode_command(Message&);
 		void						oper_command(Message&);
@@ -106,7 +107,7 @@ class Server
 		void						user_command(Message&);
 
 		//unvalidated user methods
-		bool						check_unvalidated_user(int);
+		bool						find_unva_user_by_socket(int);
 		void						add_unvalidated_user(int);
 		bool						delete_unvalidated_user(int);
 

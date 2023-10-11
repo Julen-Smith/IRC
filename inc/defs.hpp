@@ -25,6 +25,7 @@
 # define MSG_END_SPACE    "\r\n "
 # define PARAMS_PATTERN   " :"
 # define SPACE            ' '
+# define CSV              " ,"
 # define JOIN_MSG         "has joined the channel."
 # define COMMAND_LIST     "This is a placeholder to notice that the user must use some command."
 
@@ -54,14 +55,14 @@
 # define ERRONEUSNICKNAME " :Erroneus nickname\r\n"
 
 //RESPONSE COMMANDS
-# define RPL_WELCOME ":Server 001"
+# define RPL_WELCOME ":Server 001 * "
 
 # define WELCOME    " Welcome to the Internet Relay Network "
 # define RPL_LIST ":Server 322 "
 # define RPL_LISTEND ":Server 323 "
 # define LISTEND ":End of LIST\r\n"
 
-# define RPL_TOPIC ":Server 332 "
+# define RPL_TOPIC "332"
 
 # define RPL_YOUREOPER ":Server 381 "
 
