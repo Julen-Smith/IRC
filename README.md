@@ -59,7 +59,12 @@ Hacer un Rakefile
       Ejecución correcta.
       Mensaje: ":You are now an IRC operator".
 
-## MODES
+  Tipos de usuario:
+
+    1. admin
+    2. moderador
+
+## COMANDO - MODE
 
 ### User
 
@@ -111,9 +116,5 @@ Hacer un Rakefile
 
     403 ERR_NOSUCHCHANNEL:
       El nombre del canal es invalido.
-      - Mensaje: "<channel name> :No such channel"
-
-    
-
-      
+      - Mensaje: "<channel name> :No such channel".      
       
