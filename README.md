@@ -16,7 +16,7 @@ gethostbyname, getaddrinfo, freeaddrinfo, bind,
 connect, listen, accept, htons, htonl, ntohs,
 ntohl, inet_addr, inet_ntoa, send, recv, signal,
 lseek, fstat, fcntl, poll (or equivalent)
-
+  
 Libft authorized n/a
 Description An IRC server in C++ 98
 
