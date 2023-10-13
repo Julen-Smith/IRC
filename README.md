@@ -33,9 +33,35 @@ Servidor - Rooms/Channels - Comandos por channel, Perfiles de usuarios especiale
 
 Hacer un Rakefile
 
+## OPER
+
+  Comando utilizado por los usuarios para ganar privilegios de operario.
+
+  Prototipo: OPER <user> <password>
+
+    OPER -> comando
+    user -> tipo de usuario
+    password -> contraseña asociada al tipo de usuario.
+
+  Errores:
+
+    461 ERR_NEEDMOREPARAMS:
+      Parametros insuficientes.
+      - Mensaje: "<command> :Not enough parameters".
+
+    464 ERR_PASSWDMISMATCH:
+      Contraseña incorrecta.
+      . Mensaje: ":Password incorrect".
+
+  Respuesta:
+
+    381 RPL_YOUREOPER:
+      Ejecución correcta.
+      Mensaje: ":You are now an IRC operator".
+
 ## MODES
 
-### User modes
+### User
 
   Tipo:
 
@@ -78,6 +104,16 @@ Hacer un Rakefile
     401 ERR_NOSUCHNICK:
       El nickname o canal no existe.
       - Mensaje: "<nickname> :No such nick/channel".
+
+    467 ERR_KEYSET:
+      ??
+      - Mensaje: "<channel> :Channel key already set".
+
+    403 ERR_NOSUCHCHANNEL:
+      El nombre del canal es invalido.
+      - Mensaje: "<channel name> :No such channel"
+
+    
 
       
       
