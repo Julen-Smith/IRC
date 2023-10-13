@@ -45,30 +45,42 @@
 
 //CONFIG FILES
 # define BAD_ROOM -1
+# define INVITE_ONLY true
 
 //ERROR_COMMANDS
-# define ERR_NICKNAMEINUSE ":Server 433 "
-# define ERR_PASSWDMISMATCH ":Server 464 "
+# define ERR_NICKNAMEINUSE ":Server 433 * "
+
+# define ERR_PASSWDMISMATCH ":Server 464 * "
+# define PASSWDMISMATCH ":Password incorrect\r\n"
+
 # define ERR_NONICKNAMEGIVEN "431 * "
 # define NONICKNAMEGIVEN ":No nickname given\r\n"
+
 # define ERR_ERRONEUSNICKNAME "432 * "
 # define ERRONEUSNICKNAME " :Erroneus nickname\r\n"
 
+# define ERR_NEEDMOREPARAMS "461 * "
+# define NEEDMOREPARAMS ":Not enough parameters\r\n"
+
+# define ERR_INVITEONLYCHAN "473 * "
+# define INVITEONLYCHAN " :Cannot join channel (+i)\r\n"
+
 //RESPONSE COMMANDS
-# define RPL_WELCOME ":Server 001 * "
+# define RPL_WELCOME ":Server 001 "
 
 # define WELCOME    " Welcome to the Internet Relay Network "
-# define RPL_LIST ":Server 322 "
-# define RPL_LISTEND ":Server 323 "
+# define RPL_LIST ":Server 322 * "
+# define RPL_LISTEND ":Server 323 * "
 # define LISTEND ":End of LIST\r\n"
 
-# define RPL_TOPIC "332"
+# define RPL_TOPIC "332 "
 
 # define RPL_YOUREOPER ":Server 381 "
+# define YOUREOPER ":You are now an IRC operator\r\n"
 
 # define RPL_NAMREPLY ":Server 353 "
 
-# define RPL_ENDOFNAMES ":Server 366"
+# define RPL_ENDOFNAMES ":Server 366 "
 # define ENDOFNAMES " :End of NAMES list"
 
 #endif  //DEFS_HPP

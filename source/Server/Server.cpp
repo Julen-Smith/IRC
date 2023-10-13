@@ -58,9 +58,8 @@ void Server::tokenizer(Message &msg) {
     msg.set_commands();
     for (command = msg.commands->begin(); command != msg.commands->end(); command++) {
         msg.set_params();
-        token = msg.params->front();
+        token = msg.get_params_front();
         this->it = this->callback_map.find(token);
-        msg.params->pop_front();
 
         if (this->it != this->callback_map.end())
             (this->*(it->second))(msg);
@@ -74,7 +73,7 @@ void Server::tokenizer(Message &msg) {
 
 const int	Server::get_socket() const {return this->_socket;}
 
-void Server::send_intro(int client_index) {
+void Server::send_intro(int client_socket) {
 
     std::ifstream       inputFile("inc/Server.info");
     std::string         line;
@@ -86,7 +85,7 @@ void Server::send_intro(int client_index) {
         while (std::getline(inputFile, line)) {
             client_stream << PRIVMSG << " " << MAIN_CHANNEL << " : " << line << MSG_END;
             client_msg = client_stream.str();
-            rd_size = send(this->fds[client_index].fd, client_msg.c_str(), client_msg.size(), 0);
+            rd_size = send(client_socket, client_msg.c_str(), client_msg.size(), 0);
             client_stream.str("");
             client_msg = "";
         }

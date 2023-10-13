@@ -4,7 +4,8 @@
 #include "User.hpp"
 
 
-Channel::Channel(const std::string& name, const std::string &topic) : _name(name), _topic(topic), _key("")
+Channel::Channel(const std::string& name, const std::string &topic) 
+: _name(name), _topic(topic), _key(""), _invite(false), _user_limit(5)
 {
     std::cout << "The channel " << name << " has been created." << std::endl;
 }
@@ -60,9 +61,16 @@ void    Channel::delete_user(const std::string &name)
     }
 }
 
+bool    Channel::get_invite() const { return this->_invite; }
 const std::string&  Channel::get_name() const { return (this->_name );}
 const std::string&  Channel::get_topic() const { return (this->_topic );}
 int Channel::get_users_size() const { return (this->_users.size()); }
+
+//is
+
+bool    Channel::is_limit_raised() const {
+    if (this->_users.size() == this->_user_limit; )
+}
 
 //void    Channel::send_msg(const std::string &msg, int client)
 //{
@@ -88,7 +96,9 @@ std::string Channel::get_user_list_msg(const User *user) {
     return res.str();
 }
 
+void    Channel::set_user_limit(int user_limit) { this->_user_limit = user_limit; }
 void    Channel::set_key(const std::string &key) { this->_key = key; }
+void    Channel::set_invite(const bool invite) { this->_invite = invite; }
 
 User    *Server::add_validated_user(Server::unvalidated_user unva_user) {
     User    *user;

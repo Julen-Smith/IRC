@@ -93,7 +93,7 @@ class Server
 		bool 						add_unva_user(int client_index);
 		User						*add_validated_user(unvalidated_user);
 		bool 						check_validated_user(Server::validated_user);
-		void    					notice_new_user(User *user, int client_index);
+		void    					notice_new_user(Message &msg);
 		
 		//commands
 		void						part_command(Message&);

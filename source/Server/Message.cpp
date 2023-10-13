@@ -1,6 +1,13 @@
 #include "Message.hpp"
 
-Message::Message(){}
+Message::Message(){
+    this->commands = NULL;
+    this->params = NULL;
+    this->holder = NULL;
+    this->user = NULL;
+
+    std::memset(this->buffer, 0, BUFFER_SIZE);
+}
 
 Message::~Message(){}
 
@@ -11,9 +18,6 @@ const char    *Message::get_res_str() {
     this->res_size = this->res_string.size();
     return this->res_string.c_str();
 }
-
-void    Message::push_bucket(std::string src) { this->bucket.push(src); }
-std::string    Message::pop_bucket() { return this->bucket.top(); }
 
 size_t	Message::_delimiter(const std::string &src, const std::string &pattern, size_t index, bool mode) {
 	size_t	j;
@@ -67,6 +71,8 @@ std::string Message::get_params_front() {
     this->params->pop_front();
     return token;
 }
+
+void    Message::set_user(User *user) { this->user = user; }
 
 /*
 void            Message::set_holder(const std::string &holder, const std::string delimiter) {
