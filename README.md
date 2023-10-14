@@ -33,6 +33,35 @@ Servidor - Rooms/Channels - Comandos por channel, Perfiles de usuarios especiale
 
 Hacer un Rakefile
 
+## JOIN
+
+  Comando utilizado para crear o escuchar en un canal.
+
+  Condiciones:
+    1. El usuario debe ser invitado en caso de ser solo por invitación.
+    2. El usuario/canal no debe matchear ningún canal baneado.
+    3. La contraseña correcta debe ser proporcionada.
+
+  Errores:
+
+    461 ERR_NEEDMOREPARAMS:
+      Parametros insuficientes.
+      - Mensaje: "<command> :Not enough parameters".
+      
+    474 ERR_BANNEDFROMCHAN:
+      El usuario está baneado del canal.
+      - Mensaje: "<channel> :Cannot join channel (+b)".
+      
+    ERR_INVITEONLYCHAN
+    ERR_BADCHANNELKEY
+    ERR_CHANNELISFULL
+    ERR_BADCHANMASK
+    ERR_NOSUCHCHANNEL
+    ERR_TOOMANYCHANNELS
+     
+     RPL_TOPIC
+
+
 ## OPER
 
   Comando utilizado por los usuarios para ganar privilegios de operario.
@@ -64,7 +93,7 @@ Hacer un Rakefile
     1. admin
     2. moderador
 
-## COMANDO - MODE
+## MODE
 
 ### User
 
