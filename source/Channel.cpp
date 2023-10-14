@@ -38,7 +38,7 @@ std::string Channel::get_user_list() const
 {
     std::string user_list = "";
     
-    for (int i = 0; i < this->_users.size() - 1; i++)
+    for (int i = 0; i < this->_users.size(); i++)
         user_list += this->_users.at(i)->get_nickname() + " ";
     return (user_list);
 }
@@ -113,7 +113,7 @@ std::string Channel::get_user_list_msg(User *user) {
 
     //TODO comprobar el nivel de privilegios del canal
     res << RPL_NAMREPLY << user->get_nickname() << " = " << this->_name << " :" << this->get_user_list() << MSG_END;
-    res << RPL_ENDOFNAMES << ENDOFNAMES << MSG_END;
+    res << RPL_ENDOFNAMES << user->get_nickname() << " " << this->_name << ENDOFNAMES;
     return res.str();
 }
 

@@ -92,8 +92,7 @@ void    Server::join_command(Message &msg) {
                         } else {
                             channel->add_user(msg.user);
                             msg.res.str("");
-                            msg.res << channel->get_topic_msg(msg.user) << ":irc.example.com 353 alice = #test :alice @dan\r\n"; //channel->get_user_list_msg(msg.user);
-                            msg.res << ":irc.example.com 366 alice #test :End of /NAMES list.\r\n";
+                            msg.res << channel->get_topic_msg(msg.user) << channel->get_user_list_msg(msg.user);
                         }
                     }
                 }

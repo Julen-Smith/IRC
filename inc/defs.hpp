@@ -105,7 +105,7 @@
 # define TOOMANYCHANNELS " :You have joined too many channels\r\n"
 
 //RESPONSE COMMANDS
-# define RPL_LISTSTART "321 "
+# define RPL_LISTSTART ":Server 321 "
 # define LISTSTART "Channel :Users  Name"
 
 # define RPL_LIST ":Server 322 * "
@@ -117,7 +117,7 @@
 
 # define WELCOME    " Welcome to the Internet Relay Network "
 
-# define RPL_TOPIC "332 "
+# define RPL_TOPIC ":Server 332 "
 
 # define RPL_YOUREOPER ":Server 381 "
 # define YOUREOPER ":You are now an IRC operator\r\n"
@@ -125,6 +125,6 @@
 # define RPL_NAMREPLY ":Server 353 "
 
 # define RPL_ENDOFNAMES ":Server 366 "
-# define ENDOFNAMES " :End of NAMES list"
+# define ENDOFNAMES " :End of NAMES list\r\n"
 
 #endif  //DEFS_HPP
