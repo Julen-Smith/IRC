@@ -68,9 +68,9 @@ int Channel::get_users_size() const { return (this->_users.size()); }
 
 //is
 
-bool    Channel::is_limit_raised() const {
-    if (this->_users.size() == this->_user_limit; )
-}
+//bool    Channel::is_limit_raised() const {
+//    if (this->_users.size() == this->_user_limit; )
+//}
 
 //void    Channel::send_msg(const std::string &msg, int client)
 //{

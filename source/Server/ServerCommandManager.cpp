@@ -49,7 +49,7 @@ void    Server::join_command(Message &msg) {
             if (channel->get_invite() == INVITE_ONLY) {
                 msg.res.str("");
                 msg.res << ERR_INVITEONLYCHAN << room_name << " " << INVITEONLYCHAN;
-            } else if (channel->is_limit_raised()) {
+            //} else if (channel->is_limit_raised()) {
 
             } else {
                 channel->add_user(msg.user);
@@ -244,6 +244,7 @@ void    Server::manage_response(int client_index) {
     if (this->read_socket(msg))
         return ;
 
+    //TODO asegurar flujo de codigo
     user = this->get_user_by_socket(msg.client_socket);
     if (user != NULL)
         msg.set_user(user);

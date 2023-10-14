@@ -39,7 +39,7 @@ class Channel
 
         //is functions
 
-        bool                is_limit_raised() const;
+        //bool                is_limit_raised() const;
 
         std::string         get_user_list_msg(const User *user);
         std::string         get_topic_msg(const User *user);
