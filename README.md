@@ -52,14 +52,29 @@ Hacer un Rakefile
       El usuario está baneado del canal.
       - Mensaje: "<channel> :Cannot join channel (+b)".
       
-    ERR_INVITEONLYCHAN
-    ERR_BADCHANNELKEY
-    ERR_CHANNELISFULL
-    ERR_BADCHANMASK
-    ERR_NOSUCHCHANNEL
-    ERR_TOOMANYCHANNELS
+    473 ERR_INVITEONLYCHAN:
+      El canal solo acepta usuarios invitados.
+      - Mensaje: "<channel> :Cannot join channel (+i)".
+      
+    475 ERR_BADCHANNELKEY:
+      La key asociada al canal es incorrecta.
+      - Mensaje: "<channel> :Cannot join channel (+k)".
+      
+    471 ERR_CHANNELISFULL:
+      El canal está completo no acepta mas usuarios.
+      - Mensaje: "<channel> :Cannot join channel (+l)".
+      
+    //ERR_BADCHANMASK
+    
+    403 ERR_NOSUCHCHANNEL:
+      El nombre del canal requerido no cumple la norma.
+      - Mensaje: "<channel name> :No such channel".
+      
+    405 ERR_TOOMANYCHANNELS:
+      El usuario ha superado el límite de canales.
+      - Mensaje: " :You have joined too many channels"
      
-     RPL_TOPIC
+    RPL_TOPIC
 
 
 ## OPER
