@@ -13,6 +13,9 @@ class Channel
         std::string                 _topic;
         std::string                 _key;
         std::vector<const User *>   _users;
+        std::map<const User*,  std::vector<char> > _user_permissions; //iwsovq
+        std::vector<bool>           _channel_permissions; //tklbm
+
         bool                        _invite;
         int                         _user_limit;
 
@@ -36,6 +39,7 @@ class Channel
         const std::string&  get_topic() const;
         std::string         get_user_list() const;
         int                 get_users_size() const;
+        
 
         //is functions
 
@@ -47,6 +51,10 @@ class Channel
         void                join_channel(std::string buffer, User &user);
         void                add_user(const User *);
         void                delete_user(const std::string &);
+
+        //Debug and stuff
+        void                stdout_channel_permissions();
+        void                stdout_channel__users_permissions(const User *user);
        
 };
 
