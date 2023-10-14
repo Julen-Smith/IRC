@@ -74,12 +74,11 @@ class Server
 		int							check_channel(std::string&);
 		void						tokenizer(Message& msg);
 		bool						read_socket(Message &msg);
-		////void						erase_match(std::string &source, const std::string &to_erase);
 		bool    					check_operator(Message &msg);
 
 		//channel getters
 		Channel						*get_channel_by_name(const std::string &name) const;
-		Channel    					*create_channel(const User *user, const std::string &romm_name);
+		Channel    					*create_channel(User *user, const std::string &romm_name);
 
 		//user getters
 		User						*get_user_by_socket(int client_socket);
@@ -93,6 +92,7 @@ class Server
 		bool 						add_unva_user(int client_index);
 		User						*add_validated_user(unvalidated_user);
 		bool 						check_validated_user(Server::validated_user);
+		bool						check_name(const std::string &name);
 		void    					notice_new_user(Message &msg);
 		
 		//commands

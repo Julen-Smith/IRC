@@ -108,3 +108,11 @@ bool Server::read_socket(Message &msg) {
     msg.buffer[read_size] = 0;
     return false;
 }
+
+User    *Server::add_validated_user(Server::unvalidated_user unva_user) {
+    User    *user;
+
+    user = new User(unva_user->second);
+    this->users.push_back(user);
+    return user;
+}

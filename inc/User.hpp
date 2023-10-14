@@ -13,12 +13,13 @@ class User
         std::string _nickname;
         bool        _notices;
         int         _socket;
+        size_t      _count;
 
     public:
         //User();
         User(const std::string &, int);
         User(UnvalidatedUser *);
-        User(const User &);
+        User(User &);
 
         ~User();
 
@@ -27,9 +28,12 @@ class User
         const std::string&  get_login_name(void) const;
         bool                get_notices(void) const;
         int                 get_socket(void) const;
+        size_t              get_count(void) const;
         
         void                set_notices(void);
         void                set_nickname(std::string);
+        void                add_channel_count();
+        void                substract_channel_count();
 
         std::string             _login_name;
         std::string             _realname;

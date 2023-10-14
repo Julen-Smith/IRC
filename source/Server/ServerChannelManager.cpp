@@ -13,6 +13,7 @@ void Server::generate_default_channels()
 
     LockedChannel->set_key("admin");
     inviteOnly->set_invite(INVITE_ONLY);
+    ////test_room->set_user_ban("nicknametest");
     this->channels.push_back(lobby);
     this->channels.at(0)->add_user(new User("Dummy1",999));
     this->channels.at(0)->add_user(new User("Dummy2",998));

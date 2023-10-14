@@ -21,45 +21,86 @@ void    Server::list_command(Message &msg) {
 //TODO en caso de tener contraseña, que sea correcta.
 void    Server::join_command(Message &msg) {
 
+    std::deque<std::string> *rooms;
+    std::deque<std::string> *keys;
+
     std::string room_name;
     std::string key;
     Channel     *channel;
 
-    std::cout << "Params size: " << msg.params->size() << std::endl;
+    key.clear();
+    room_name.clear();
+
+    rooms = NULL;
+    keys = NULL;
     if (msg.params->size() == 0 or msg.params->size() > 2 or msg.params->front().size() < 2) {
         msg.res.str("");
         msg.res << ERR_NEEDMOREPARAMS << "JOIN " << NEEDMOREPARAMS;
+        send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
     } else {
 
+        //TODO hay que hacer split de los canales
         room_name = msg.get_params_front();
-        channel = this->get_channel_by_name(room_name);
+        if (msg.params->size() == 2)
+            key = msg.get_params_front();
+        
+        rooms = msg.split(room_name, CSV);
+        if (key.size())
+            keys = msg.split(key, CSV);
 
-        //TODO canales con password
-        //key = msg.get_params_front();
+        std::cout << "Join command:\n - channels: " << room_name << "\n - keys: " << key << std::endl;
+        for (std::deque<std::string>::iterator it = rooms->begin(); it != rooms->end(); it++) {
+            room_name = *it;
 
+            channel = this->get_channel_by_name(room_name);
 
-        //TODO create new channel
-        //el canal no existe
-        if (channel == NULL) {
-            channel = this->create_channel(msg.user, room_name);
-            this->mode_command(msg);
-        } 
-        //el canal existe
-        else {
-            if (channel->get_invite() == INVITE_ONLY) {
-                msg.res.str("");
-                msg.res << ERR_INVITEONLYCHAN << room_name << " " << INVITEONLYCHAN;
-            //} else if (channel->is_limit_raised()) {
-
-            } else {
-                channel->add_user(msg.user);
-                msg.res.str("");
-                msg.res << channel->get_topic_msg(msg.user) << channel->get_user_list_msg(msg.user);
+            //TODO create new channel
+            //el canal no existe
+            if (channel == NULL) {
+                if (this->check_name(room_name)) {
+                    msg.res.str("");
+                    msg.res << ERR_NOSUCHCHANNEL << msg.user->get_nickname() << room_name << NOSUCHCHANNEL;
+                } else {
+                    channel = this->create_channel(msg.user, room_name);
+                    this->mode_command(msg);
+                }
+            } 
+            //el canal existe
+            else {
+                //canal solo para invitados
+                if (channel->is_already(msg.user->get_nickname()))
+                    return ;
+                else if (channel->get_invite() == INVITE_ONLY) {
+                    msg.res.str("");
+                    msg.res << ERR_INVITEONLYCHAN << msg.user->get_nickname() << room_name << " " << INVITEONLYCHAN;
+                //canal con limite de usuarios superado
+                } else if (channel->is_limit_raised()) {
+                    msg.res.str("");
+                    msg.res << ERR_CHANNELISFULL << msg.user->get_nickname() << " " << room_name << CHANNELISFULL;
+                //usuario baneado
+                } else if (channel->is_banned(msg.user->get_nickname())) {
+                    msg.res.str("");
+                    msg.res << ERR_BANNEDFROMCHAN << msg.user->get_nickname() << " " << room_name << BANNEDFROMCHAN;
+                } else {
+                    if (channel->enter_key(key) == INCORRECT_KEY) {
+                        msg.res.str("");
+                        msg.res << ERR_BADCHANNELKEY << msg.user->get_nickname() << " " << room_name << BADCHANNELKEY;
+                    } else {
+                        if (msg.user->get_count() >= MAX_CHANNELS) {
+                            msg.res.str("");
+                            msg.res << ERR_TOOMANYCHANNELS << msg.user->get_nickname() << " " << room_name << TOOMANYCHANNELS;
+                        } else {
+                            channel->add_user(msg.user);
+                            msg.res.str("");
+                            msg.res << channel->get_topic_msg(msg.user) << ":irc.example.com 353 alice = #test :alice @dan\r\n"; //channel->get_user_list_msg(msg.user);
+                            msg.res << ":irc.example.com 366 alice #test :End of /NAMES list.\r\n";
+                        }
+                    }
+                }
             }
+            send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
         }
-
     }
-    send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
 }
 
 //TODO revisar funcionalidad del comando quit
@@ -158,14 +199,6 @@ void    Server::kick_command(Message &msg) {
     close(msg.client_socket);
 }
 
-static bool check_nickname(const std::string &nickname) {
-    for (size_t i = 0; i < nickname.size(); i++) {
-        if (!isalpha(nickname[i]))
-            return true;
-    }
-    return false;
-}
-
 void    Server::part_command(Message &msg) {
 
     std::deque<std::string> *params;
@@ -199,7 +232,7 @@ void    Server::nick_command(Message &msg) {
         msg.res << ERR_NONICKNAMEGIVEN << NONICKNAMEGIVEN;
         send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
     }
-    else if (check_nickname(nickname)) {
+    else if (this->check_name(nickname)) {
         msg.res << ERR_ERRONEUSNICKNAME << nickname << ERRONEUSNICKNAME;
         send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
 

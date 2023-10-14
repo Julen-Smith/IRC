@@ -1,6 +1,30 @@
 #ifndef DEFS_HPP
 # define DEFS_HPP
 
+//User
+
+# define MAX_CHANNELS   2
+# define EMPTY          0
+
+//Channel
+
+# define FOUND              true
+# define NOT_FOUND          false
+
+# define LIMIT_RAISED       true
+# define LIMIT_NOT_RAISED   false
+
+# define USER_ALREADY_IN        true
+# define USER_NOT_ALREADY_IN    false
+
+# define INCORRECT_KEY  true
+# define CORRECT_KEY    false
+
+# define KEY_SET        true
+# define KEY_NOT_SET    false
+# define NO_KEY         0
+
+# define STANDARD_LIMIT 5
 
 # define PORT			    "4242"
 # define SOCKET_ERROR 		"Error al crear el socket"
@@ -62,16 +86,36 @@
 # define ERR_NEEDMOREPARAMS "461 * "
 # define NEEDMOREPARAMS ":Not enough parameters\r\n"
 
-# define ERR_INVITEONLYCHAN "473 * "
+# define ERR_INVITEONLYCHAN "473 "
 # define INVITEONLYCHAN " :Cannot join channel (+i)\r\n"
 
+# define ERR_CHANNELISFULL "471 "
+# define CHANNELISFULL " :Cannot join channel (+l)\r\n"
+
+# define ERR_BANNEDFROMCHAN "474 "
+# define BANNEDFROMCHAN " :Cannot join channel (+b)\r\n"
+
+# define ERR_NOSUCHCHANNEL "403 "
+# define NOSUCHCHANNEL " :No such channel"
+
+# define ERR_BADCHANNELKEY "475 "
+# define BADCHANNELKEY " :Cannot join channel (+k)\r\n"
+
+# define ERR_TOOMANYCHANNELS "405 "
+# define TOOMANYCHANNELS " :You have joined too many channels\r\n"
+
 //RESPONSE COMMANDS
+# define RPL_LISTSTART "321 "
+# define LISTSTART "Channel :Users  Name"
+
+# define RPL_LIST ":Server 322 * "
+
+# define RPL_LISTEND ":Server 323 * "
+# define LISTEND ":End of LIST\r\n"
+
 # define RPL_WELCOME ":Server 001 "
 
 # define WELCOME    " Welcome to the Internet Relay Network "
-# define RPL_LIST ":Server 322 * "
-# define RPL_LISTEND ":Server 323 * "
-# define LISTEND ":End of LIST\r\n"
 
 # define RPL_TOPIC "332 "
 
