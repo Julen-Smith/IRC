@@ -58,6 +58,8 @@ void    Server::accept_new_user()
     pollfd      new_pollfd;
 
     client_socket = accept(this->_socket, (sockaddr *)&client, &size);
+    if (client_socket == -1)
+        return ;
     this->add_unvalidated_user(client_socket);
 
     new_pollfd.fd = client_socket;

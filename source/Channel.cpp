@@ -3,6 +3,30 @@
 #include "Channel.hpp"
 #include "User.hpp"
 
+void    Channel::send_msg(Message &msg) {
+    std::stringstream body;
+    std::vector<User *>::iterator   it;
+    std::string nickname;
+    int client_socket;
+
+
+    it = this->_users.begin();
+    for (size_t i = 0; i < msg.params->size(); i++) {
+        body << (*msg.params)[i] << " ";
+    }
+
+    body << MSG_END;
+    nickname = msg.user->get_nickname();
+
+    for (; it != this->_users.end(); it++) {
+        msg.res.str("");
+        client_socket = (*it)->get_socket();
+        msg.res << ":" << nickname << " PRIVMSG " << this->_name << " " << body.str();
+        std::cout << msg.res.str();
+        if (client_socket != msg.client_socket)
+            send(client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+    }
+}
 
 Channel::Channel(const std::string& name, const std::string &topic) 
 : _name(name), _topic(topic), _invite(false), _user_limit(STANDARD_LIMIT), _key_opt(KEY_NOT_SET)

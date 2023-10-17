@@ -3,6 +3,8 @@
 
 //User
 
+# define CONNECTED      true
+# define DISCONNECTED   false
 # define MAX_CHANNELS   2
 # define EMPTY          0
 
@@ -24,7 +26,7 @@
 # define KEY_NOT_SET    false
 # define NO_KEY         0
 
-# define STANDARD_LIMIT 5
+# define STANDARD_LIMIT 10
 
 # define PORT			    "4242"
 # define SOCKET_ERROR 		"Error al crear el socket"
@@ -47,14 +49,14 @@
 # define OFF_NICK         5
 # define MSG_END          "\r\n"
 # define MSG_END_SPACE    "\r\n "
-# define PARAMS_PATTERN   " :"
+# define PARAMS_PATTERN   " "
 # define SPACE            ' '
 # define CSV              " ,"
 # define JOIN_MSG         "has joined the channel."
 # define COMMAND_LIST     "This is a placeholder to notice that the user must use some command."
 
 // MODES
- 
+
  #define USR_RPL "USR_RPL"
  #define SRV_RPL "SRV_RPL"
  #define NON_NUMERIC "NON_NUMERIC"

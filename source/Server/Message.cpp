@@ -1,3 +1,5 @@
+#include <cstring>
+
 #include "Message.hpp"
 
 Message::Message(){

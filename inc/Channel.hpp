@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 
+#include "Message.hpp"
 #include "Server.hpp"
 
 class Channel
@@ -56,6 +57,7 @@ class Channel
         void                add_user(User *);
         void                delete_user(const std::string &);
         bool                enter_key(const std::string &key);
+        void                send_msg(Message &msg);
 };
 
 

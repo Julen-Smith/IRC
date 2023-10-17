@@ -17,6 +17,7 @@
 #include <fcntl.h>
 #include <fstream>
 #include <cstdarg>
+#include <ctime>
 
 #include "defs.hpp"
 #include "User.hpp"
@@ -75,6 +76,8 @@ class Server
 		void						tokenizer(Message& msg);
 		bool						read_socket(Message &msg);
 		bool    					check_operator(Message &msg);
+		void						check_users();
+		void						check_inac();
 
 		//channel getters
 		Channel						*get_channel_by_name(const std::string &name) const;
@@ -105,11 +108,20 @@ class Server
 		void						join_command(Message&);
 		void						nick_command(Message&);
 		void						user_command(Message&);
+		void						ping_command(Message&);
+		void						pong_command(Message&);
+		void						prvmsg_command(Message&);
 
 		//unvalidated user methods
 		bool						find_unva_user_by_socket(int);
 		void						add_unvalidated_user(int);
 		bool						delete_unvalidated_user(int);
+
+		//setter
+		void						set_curr_time(time_t curr_time);
+
+		//getter
+		time_t						get_curr_time() const;
 
 	protected:
 
@@ -118,6 +130,7 @@ class Server
 		std::string			_port;
 		int					_socket;
 		struct sockaddr_in 	sv_socket_info;
+		time_t				_curr_time;
 
 		void			_init_cout() const;
 		void			_create_new_user(ssize_t, int, std::string);
