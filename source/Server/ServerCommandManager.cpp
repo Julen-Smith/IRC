@@ -3,6 +3,7 @@
 #include "Channel.hpp"
 #include <string.h>
 
+
 //TODO revisar funcionallidad de list
 void    Server::list_command(Message &msg) {
 
@@ -67,15 +68,7 @@ void    Server::quit_command(Message &msg) {
     close(msg.client_socket);
 }
 
-//TODO revisar funcionalidad del comando mode
-void    Server::mode_command(Message &msg) {
-    std::string room_name;
-
-
-    msg.res.str("");
-    msg.res << ":Server MODE " << room_name << " +nt" << MSG_END;
-    send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
-}
+//Mode.cpp
 
 void    Server::user_command(Message &msg) {
     unvalidated_user    unva_user;
