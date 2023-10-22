@@ -91,6 +91,7 @@
 # define ERR_INVITEONLYCHAN "473 "
 # define INVITEONLYCHAN " :Cannot join channel (+i)\r\n"
 
+
 # define ERR_CHANNELISFULL "471 "
 # define CHANNELISFULL " :Cannot join channel (+l)\r\n"
 
@@ -105,6 +106,48 @@
 
 # define ERR_TOOMANYCHANNELS "405 "
 # define TOOMANYCHANNELS " :You have joined too many channels\r\n"
+
+//MODE RESPONSES
+
+# define MODECHANNELMODS "+-tklbm"
+# define MODEUSERMODS "+-iwsovq"
+
+# define RPL_CHANNELMODEIS "324 * "
+# define CHANNELMODEIS " :<channel> <mode> <mode params>\r\n"
+
+# define ERR_CHANOPRIVSNEEDED "482 * "
+# define CHANOPRIVSNEEDED " :You're not channel operator.\r\n"
+
+# define ERR_NOSUCHNICK "401 * "
+# define NOSUCHNICK " :No such nick/channel.\r\n"
+
+# define ERR_NOTONCHANNEL "442 * "
+# define NOTONCHANNEL " :You're not on that channel.\r\n"
+
+# define ERR_KEYSET "467 * "
+# define KEYSET " :Channel key already set.\r\n"
+
+# define RPL_BANLIST "367 * "
+# define BANLIST " :<channel> <banmask>\r\n"
+
+# define RPL_ENDOFBANLIST "368 * "
+# define ENDOFBANLIST " :End of channel ban list.\r\n"
+
+# define ERR_UNKNOWNMODE "472 * "
+# define UNKNOWNMODE " :is unknown mode char to me.\r\n"
+
+# define ERR_NOSUCHCHANNEL "403 * "
+# define NOSUCHCHANNEL " :No such channel.\r\n"
+
+# define ERR_USERSDONTMATCH "502 * "
+# define USERSDONTMATCH " :Can't change mode for other users.\r\n"
+
+# define RPL_UMODEIS "221 * "
+# define UMODEIS " :<user mode string>\r\n"
+
+# define ERR_UMODEUNKNOWNFLAG "501 * "
+# define UMODEUNKNOWNFLAG " :Unknown MODE flag.\r\n"
+
 
 //RESPONSE COMMANDS
 # define RPL_LISTSTART ":Server 321 "

@@ -3,6 +3,7 @@
 #include "Channel.hpp"
 #include <string.h>
 
+
 void    Server::prvmsg_command(Message& msg) {
     Channel *channel;
     std::string channel_name;
@@ -18,6 +19,7 @@ void    Server::prvmsg_command(Message& msg) {
     
     channel->send_msg(msg);
 }
+
 
 //TODO revisar funcionallidad de list
 void    Server::list_command(Message &msg) {
@@ -128,15 +130,7 @@ void    Server::quit_command(Message &msg) {
     close(msg.client_socket);
 }
 
-//TODO revisar funcionalidad del comando mode
-void    Server::mode_command(Message &msg) {
-    std::string room_name;
-
-
-    msg.res.str("");
-    msg.res << ":Server MODE " << room_name << " +nt" << MSG_END;
-    send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
-}
+//Mode.cpp
 
 void    Server::user_command(Message &msg) {
     unvalidated_user    unva_user;
@@ -333,14 +327,3 @@ void    Server::manage_response(int client_index) {
         msg.set_user(user);
     this->tokenizer(msg);
 }
-
-
-
-    //        else
-    //        {
-    //            std::string channel_name("#");
-    //            channel_name+=compare;
-    //            Channel *new_channel = new Channel(channel_name,"Default topic");
-    //            this->channels.push_back(new_channel);
-    //            JOIN(clientIndex,this->channels.size() - 1);
-    //        }

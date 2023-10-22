@@ -32,6 +32,8 @@ Channel::Channel(const std::string& name, const std::string &topic)
 : _name(name), _topic(topic), _invite(false), _user_limit(STANDARD_LIMIT), _key_opt(KEY_NOT_SET)
 {
     std::cout << "The channel " << name << " has been created." << std::endl;
+    for(int i = 0; i != 5; i++) _channel_permissions.push_back(false);
+    stdout_channel_permissions();
 }
 
 Channel::~Channel()
@@ -69,8 +71,15 @@ std::string Channel::get_user_list() const
 
 void    Channel::add_user(User *user)
 {
+
     user->add_channel_count();
+  
+    std::vector<char> permissions(6, '0');
+    this->_user_permissions[user] = permissions;
+    if (!this->_users.size())
+        this->_user_permissions[user][2] = '1';
     this->_users.push_back(user);
+    stdout_channel__users_permissions(user);
 }
 
 void    Channel::delete_user(const std::string &name)
@@ -164,6 +173,7 @@ void    Channel::unset_user_ban(const std::string &nickname) {
     }
 }
 
+
 bool    Channel::enter_key(const std::string &key) {
     if (this->_key_opt == KEY_NOT_SET and key.size() == NO_KEY)
         return CORRECT_KEY;
@@ -172,4 +182,43 @@ bool    Channel::enter_key(const std::string &key) {
     else if (this->_key_opt == KEY_SET and this->get_key() != key)
         return INCORRECT_KEY;
     return CORRECT_KEY;
+
+    user = new User(unva_user->second);
+    this->users.push_back(user);
+    return user;
+}
+
+void    Channel::stdout_channel_permissions()
+{
+    std::cout << "Permisos [ " << this->get_name() <<" ]" << std::endl;
+    std::cout << "Modo solo temas : " << this->_channel_permissions.at(0) << std::endl;
+    std::cout << "Modo de clave : " << this->_channel_permissions.at(1) << std::endl;
+    std::cout << "Modo de limite de usuarios : " << this->_channel_permissions.at(2) << std::endl;
+    std::cout << "Modo de ban : " << this->_channel_permissions.at(3) << std::endl;
+    std::cout << "Modo moderado : " << this->_channel_permissions.at(4) << std::endl;
+}
+
+void    Channel::stdout_channel__users_permissions(const User *user)
+{
+    std::cout << "Permisos [ " << user->get_nickname() <<" ]" << std::endl;
+    std::cout << "Modo invisible : " << this->_user_permissions[user].at(0) << std::endl;
+    std::cout << "Modo wallops : " << this->_user_permissions[user].at(1) << std::endl;
+    std::cout << "Modo operator : " << this->_user_permissions[user].at(2) << std::endl;
+    std::cout << "Modo silencioso : " << this->_user_permissions[user].at(3) << std::endl;
+    std::cout << "Modo voz  : " << this->_user_permissions[user].at(4) << std::endl;
+    std::cout << "Modo cuarentena  : " << this->_user_permissions[user].at(5) << std::endl;
+}
+
+
+std::string Channel::get_permissions_to_string()
+{
+    std::string holder = "";
+    
+    holder += this->_channel_permissions.at(0) == false ? "-t" : "+t";
+    holder += this->_channel_permissions.at(0) == false ? "-k" : "+k";
+    holder += this->_channel_permissions.at(0) == false ? "-l" : "+l";
+    holder += this->_channel_permissions.at(0) == false ? "-b" : "+b";
+    holder += this->_channel_permissions.at(0) == false ? "-m" : "+m";
+    
+    return  holder;
 }

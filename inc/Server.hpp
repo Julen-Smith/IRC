@@ -111,6 +111,9 @@ class Server
 		void						ping_command(Message&);
 		void						pong_command(Message&);
 		void						prvmsg_command(Message&);
+		//commands error
+
+		void						mode_error_manager(int);
 
 		//unvalidated user methods
 		bool						find_unva_user_by_socket(int);

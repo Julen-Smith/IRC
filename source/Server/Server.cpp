@@ -76,7 +76,6 @@ void Server::tokenizer(Message &msg) {
             std::cerr << "Contents: " << msg.buffer << std::endl;
             std::cerr << "Error: invalid commnad -> " << token << std::endl;
         }
-
         delete msg.params;
     }
 }
@@ -89,13 +88,14 @@ void Server::send_intro(int client_socket) {
     std::string         line;
     std::string         client_msg;
     std::stringstream   client_stream;
-    ssize_t             rd_size;
+    //ssize_t             rd_size;
 
+    
     if (inputFile.is_open()) {
         while (std::getline(inputFile, line)) {
             client_stream << PRIVMSG << " " << MAIN_CHANNEL << " : " << line << MSG_END;
             client_msg = client_stream.str();
-            rd_size = send(client_socket, client_msg.c_str(), client_msg.size(), 0);
+            send(client_socket, client_msg.c_str(), client_msg.size(), 0);
             client_stream.str("");
             client_msg = "";
         }
