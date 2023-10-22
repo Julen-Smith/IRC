@@ -23,12 +23,14 @@ void main_loop(Server &server)
 {
     //signal(SIGPIPE, SIG_IGN);
 
-    server.users.push_back(new User("Bot", server.get_socket()));
+    time_t  curr_time = std::clock();
+
+    server.users.push_back(new User("Bot", server.get_socket(), curr_time));
     server.fds.push_back(pollfd());
     server.fds[0].fd = server.get_socket();
     server.fds[0].events = POLLIN;
 
-    server.users.push_back(new User("nickname", 8));
+    server.users.push_back(new User("nickname", 8, curr_time));
     server.fds.push_back(pollfd());
     server.fds[1].fd = 8;
     server.fds[1].events = POLLIN;
@@ -49,7 +51,7 @@ void main_loop(Server &server)
                 if (server.fds[client].fd == server.get_socket())
                     server.accept_new_user();
                 else
-                    server.manage_response(client);     
+                    server.manage_response(client);
             }
         }
     }

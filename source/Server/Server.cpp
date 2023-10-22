@@ -14,6 +14,8 @@ Server::Server(const char *port) : max_clients(MAX_CLIENTS), _port(port)
     this->callback_map["MODE"] = &Server::mode_command;
     this->callback_map["QUIT"] = &Server::quit_command;
     this->callback_map["PART"] = &Server::part_command;
+    this->callback_map["PING"] = &Server::part_command;
+    this->callback_map["PRIVMSG"] = &Server::prvmsg_command;
 
    priv_list[0].user = "admin";
    priv_list[0].password = "admin";
@@ -56,6 +58,13 @@ void Server::tokenizer(Message &msg) {
     std::string       token;
     
     msg.set_commands();
+    if (msg.commands == NULL)
+        return ;
+    if (msg.commands->size() == 0) {
+        delete msg.commands;
+        return ;
+    }
+
     for (command = msg.commands->begin(); command != msg.commands->end(); command++) {
         msg.set_params();
         token = msg.get_params_front();
@@ -63,11 +72,11 @@ void Server::tokenizer(Message &msg) {
 
         if (this->it != this->callback_map.end())
             (this->*(it->second))(msg);
-        else
-            std::cerr << "Error: invalid command -> " << token << std::endl;
-
+        else {
+            std::cerr << "Contents: " << msg.buffer << std::endl;
+            std::cerr << "Error: invalid commnad -> " << token << std::endl;
+        }
         delete msg.params;
-
     }
 }
 
@@ -109,3 +118,28 @@ bool Server::read_socket(Message &msg) {
     msg.buffer[read_size] = 0;
     return false;
 }
+
+User    *Server::add_validated_user(Server::unvalidated_user unva_user) {
+    User    *user;
+
+    user = new User(unva_user->second, this->_curr_time);
+    this->users.push_back(user);
+    return user;
+}
+
+void    Server::check_users() {
+    validated_user  it;
+
+    return ;
+    it = this->users.begin();
+    for (; it != this->users.end(); it++) {
+        if (((this->_curr_time - (*it)->get_curr_time()) / 1000000) > 180 and (*it)->get_notices() == CONNECTED) {
+            std::cout << "User: " << (*it)->get_nickname() << " deleted for inactivity\n";
+            close((*it)->get_socket());
+            (*it)->set_notices(false);
+        }
+    }
+}
+
+void	Server::set_curr_time(time_t curr_time) {this->_curr_time = curr_time;};
+time_t  Server::get_curr_time() const {return this->_curr_time;};
