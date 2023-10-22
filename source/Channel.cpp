@@ -135,3 +135,17 @@ void    Channel::stdout_channel__users_permissions(const User *user)
     std::cout << "Modo voz  : " << this->_user_permissions[user].at(4) << std::endl;
     std::cout << "Modo cuarentena  : " << this->_user_permissions[user].at(5) << std::endl;
 }
+
+
+std::string Channel::get_permissions_to_string()
+{
+    std::string holder = "";
+    
+    holder += this->_channel_permissions.at(0) == false ? "-t" : "+t";
+    holder += this->_channel_permissions.at(0) == false ? "-k" : "+k";
+    holder += this->_channel_permissions.at(0) == false ? "-l" : "+l";
+    holder += this->_channel_permissions.at(0) == false ? "-b" : "+b";
+    holder += this->_channel_permissions.at(0) == false ? "-m" : "+m";
+    
+    return  holder;
+}

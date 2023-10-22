@@ -68,7 +68,7 @@
 //MODE RESPONSES
 
 # define MODECHANNELMODS "+-tklbm"
-# define MODEUSERMODS "+-iwsosvq"
+# define MODEUSERMODS "+-iwsovq"
 
 # define RPL_CHANNELMODEIS "324 * "
 # define CHANNELMODEIS " :<channel> <mode> <mode params>\r\n"

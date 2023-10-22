@@ -105,6 +105,9 @@ class Server
 		void						join_command(Message&);
 		void						nick_command(Message&);
 		void						user_command(Message&);
+		//commands error
+
+		void						mode_error_manager(int);
 
 		//unvalidated user methods
 		bool						find_unva_user_by_socket(int);

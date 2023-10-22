@@ -39,6 +39,7 @@ class Channel
         const std::string&  get_topic() const;
         std::string         get_user_list() const;
         int                 get_users_size() const;
+        std::string         get_permissions_to_string();
         
 
         //is functions
@@ -47,6 +48,7 @@ class Channel
 
         std::string         get_user_list_msg(const User *user);
         std::string         get_topic_msg(const User *user);
+
         void                welcome_msg() const;
         void                join_channel(std::string buffer, User &user);
         void                add_user(const User *);

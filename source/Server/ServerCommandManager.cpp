@@ -3,6 +3,7 @@
 #include "Channel.hpp"
 #include <string.h>
 
+
 //TODO revisar funcionallidad de list
 void    Server::list_command(Message &msg) {
 
