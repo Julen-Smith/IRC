@@ -65,6 +65,7 @@ void Server::tokenizer(Message &msg) {
         return ;
     }
 
+    std::cout << msg.buffer << std::endl;
     for (command = msg.commands->begin(); command != msg.commands->end(); command++) {
         msg.set_params();
         token = msg.get_params_front();

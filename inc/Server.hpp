@@ -111,6 +111,10 @@ class Server
 		void						ping_command(Message&);
 		void						pong_command(Message&);
 		void						prvmsg_command(Message&);
+
+		//flags
+		void						flag_manager(Message &msg);
+
 		//commands error
 
 		void						mode_error_manager(int);

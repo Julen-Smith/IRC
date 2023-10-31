@@ -135,8 +135,8 @@ std::string Channel::get_topic_msg(User *user) {
     std::stringstream res;
 
     //TODO hay que notificar al resto de una manera distinta
-    res << user->get_nickname() << "!" << user->get_login_name() << "@localhost ";
-    res << "JOIN " << this->_name << MSG_END;
+    res << ":" <<user->get_nickname(); //<< "!" << user->get_login_name() << "@localhost ";
+    res << " JOIN " << this->_name << MSG_END;
     res << RPL_TOPIC << user->get_nickname() << " " << this->get_name() << " :" << this->get_topic() << MSG_END; 
     return res.str();
 }
@@ -184,6 +184,20 @@ bool    Channel::enter_key(const std::string &key) {
     return CORRECT_KEY;
 }
 
+std::vector<User *> Channel::get_visible_users()
+{
+    return this->_visible_users;
+}
+
+std::string Channel::get_visible_user_list() const
+{
+    std::string user_list = "";
+    
+    for (int i = 0; i < this->_visible_users.size(); i++)
+        user_list += this->_visible_users.at(i)->get_nickname() + " ";
+    return (user_list);
+}
+
 void    Channel::stdout_channel_permissions()
 {
     std::cout << "Permisos [ " << this->get_name() <<" ]" << std::endl;
@@ -217,4 +231,15 @@ std::string Channel::get_permissions_to_string()
     holder += this->_channel_permissions.at(0) == false ? "-m" : "+m";
     
     return  holder;
+}
+
+std::map<const User*,  std::vector<char> > * Channel::get_user_permissions()
+{
+    return &this->_user_permissions;
+}
+
+
+std::vector<User *> Channel::get_users()
+{
+    return this->_users;
 }
