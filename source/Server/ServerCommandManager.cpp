@@ -116,6 +116,7 @@ void    Server::join_command(Message &msg) {
                             channel->add_user(msg.user);
                             msg.res.str("");
                             msg.res << channel->get_topic_msg(msg.user) << channel->get_user_list_msg(msg.user);
+                            channel->notice_join(msg);
                         }
                     }
                 }
@@ -141,6 +142,9 @@ void    Server::user_command(Message &msg) {
 
     if (msg.params->size() < 2) {
         std::cerr << "Invalid params! : " << msg.buffer;
+        msg.res.str("");
+        msg.res << ERR_NEEDMOREPARAMS << NEEDMOREPARAMS;
+        send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
         return ;
     }
 
@@ -242,19 +246,34 @@ void    Server::part_command(Message &msg) {
 
     std::deque<std::string> *params;
     std::string token;
+    std::string topic;
     Channel *channel;
 
+
+    if (msg.params->size() < 1) {
+        msg.res.str("");
+        msg.res << ERR_NEEDMOREPARAMS << NEEDMOREPARAMS;
+        send(msg.user->get_socket(), msg.get_res_str(), msg.get_res_size(), 0);
+        return ;
+    }
     token = msg.get_params_front();
     params = msg.split(token, CSV);
+    topic = msg.get_params_front();
 
     for (size_t i = 0; i < params->size(); i++) {
 
-        channel = this->get_channel_by_name(params->front());
-        if (channel == NULL)
-         continue ;
-
-        channel->delete_user(msg.user->get_nickname());
+        token = params->front();
         params->pop_front();
+
+        channel = this->get_channel_by_name(token);
+        if (channel == NULL) {
+            msg.res.str("");
+            msg.res << ERR_NOSUCHCHANNEL << token << " " << NOSUCHCHANNEL;
+            continue ;
+        }
+
+        channel->notice_part(msg);
+        channel->delete_user(msg.user->get_nickname());
     }
 
     delete params;
