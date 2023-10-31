@@ -77,7 +77,8 @@ void Server::tokenizer(Message &msg) {
             std::cerr << "Contents: " << msg.buffer << std::endl;
             std::cerr << "Error: invalid commnad -> " << token << std::endl;
         }
-        delete msg.params;
+        if (msg.params->size() != -1)
+            delete msg.params;
     }
 }
 

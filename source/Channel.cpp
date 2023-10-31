@@ -182,10 +182,6 @@ bool    Channel::enter_key(const std::string &key) {
     else if (this->_key_opt == KEY_SET and this->get_key() != key)
         return INCORRECT_KEY;
     return CORRECT_KEY;
-
-    //user = new User(unva_user->second);
-    //this->users.push_back(user);
-    //return user;
 }
 
 std::vector<User *> Channel::get_visible_users()
