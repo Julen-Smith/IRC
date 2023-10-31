@@ -11,6 +11,7 @@ SERVER_SRCS =   source/Server/Server.cpp \
 				source/Server/ServerUtils.cpp \
 			 	source/Server/Message.cpp \
 				source/Server/Commands/Mode.cpp \
+				source/Server/Commands/Flags.cpp \
 			 	source/main.cpp \
 			 	source/Channel.cpp \
 			 	source/User.cpp

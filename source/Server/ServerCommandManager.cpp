@@ -55,6 +55,7 @@ void    Server::join_command(Message &msg) {
 
     rooms = NULL;
     keys = NULL;
+    std::cout << keys << std::endl;
     if (msg.params->size() == 0 or msg.params->size() > 2 or msg.params->front().size() < 2) {
         msg.res.str("");
         msg.res << ERR_NEEDMOREPARAMS << "JOIN " << NEEDMOREPARAMS;
@@ -119,6 +120,7 @@ void    Server::join_command(Message &msg) {
                     }
                 }
             }
+            std::cout << msg.get_res_str() << std::endl;
             send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
         }
     }
@@ -176,6 +178,7 @@ void    Server::user_command(Message &msg) {
 }
 
 bool    Server::check_operator(Message &msg) {
+  /*
     User    *current_user;
     std::string     user;
     std::string     password;
@@ -193,6 +196,7 @@ bool    Server::check_operator(Message &msg) {
             return true;
         }
     }
+    */
     return false;
 }
 
