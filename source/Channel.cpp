@@ -222,3 +222,14 @@ std::string Channel::get_permissions_to_string()
     
     return  holder;
 }
+
+std::map<const User*,  std::vector<char> > * Channel::get_user_permissions()
+{
+    return &this->_user_permissions;
+}
+
+
+std::vector<User *> Channel::get_users()
+{
+    return this->_users;
+}

@@ -2,29 +2,92 @@
 
 int get_channel_index(std::vector<Channel *> channels, std::string channel)
 {
-    for (std::vector<Channel *>::iterator it = channels.begin(); it != channels.end(); ++it) {
-        it->get_name();
+    for (int i = 0; i < channels.size(); i++) {
+        if(channels.at(i)->get_name() == channel)
+            return (i);
     }
     return (1);
 }
 
+User* get_user_index(std::vector<Channel *> channels, int channel_index, std::string user)
+{
+    for (int i = 0; i < channels.at(channel_index)->get_users().size(); i++) {
+        if(channels.at(channel_index)->get_users().at(i)->get_nickname() == user)
+            return (channels.at(channel_index)->get_users().at(i));
+    }
+    return (0);
+}
 
 void i_flag(Message &msg,char impact,Server *serv)
 {
-    
-    if(msg.holder->size() < 3)
+    std::map<const User*, std::vector<char> >::iterator it;
+    std::vector<User *>         users;
+
+    User * user_obj;
+    if(msg.holder->size() == 3)
     {
          std::cout << "Not implemmented" << std::endl;
          return ; 
     }
-    std::cout << "Calling flag i" << std::endl;
     std::string channel = msg.holder->at(1);
     std::string user = msg.holder->at(3);
-    get_channel_index(serv->channels,channel);
+    int index = get_channel_index(serv->channels,channel);
+    if (get_user_index(serv->channels, index, user) == 0)
+    {
+        msg.res.str("");
+        msg.res << ERR_NOSUCHNICK << NOSUCHNICK;
+        send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+        return ;
+    }
+    user_obj = get_user_index(serv->channels, index, user);
+    std::cout << user_obj->get_nickname() << std::endl;
+    it = serv->channels.at(index)->get_user_permissions()->find(user_obj);
+    std::vector<char>& permissions = it->second;
+    std::cout << permissions[0] << std::endl;
+    if (permissions[0] == '1' && impact == '+')
+    {
+        msg.res.str("");
+        msg.res << ERR_CUSTOM << INVISIBLE_ALR;
+        send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+    }
+    else if(permissions[0] == '0' && impact == '+')
+    {
+        permissions[0] = '1';
+        msg.res.str("");
+        msg.res << ERR_CUSTOM << INVISIBLE;
+        send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+    }
+    else if (permissions[0] == '0' && impact == '-')
+    {
+        msg.res.str("");
+        msg.res << ERR_CUSTOM << VISIBLE_ALR;
+        send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+    }
+    else if (permissions[0] == '1' && impact == '-')
+    {   
+        permissions[0] = '0';
+        msg.res.str("");
+        msg.res << ERR_CUSTOM << VISIBLE;
+        send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+    }
+    std::string socket_to_nick;
+    for (int i = 0; i < serv->users.size(); i++)
+    {
+        if (serv->users.at(i)->get_socket() == msg.client_socket)
+            socket_to_nick = serv->users.at(i)->get_nickname();
+    }
+    std::cout << socket_to_nick << std::endl;
+    std::cout << serv->channels.at(get_channel_index(serv->channels,channel))->get_user_list() << std::endl;
+    
 
 
-
-    std::cout <<  serv->users[0] << std::endl;
+  //  msg.res.str("");
+  //  msg.res << RPL_NAMREPLY << socket_to_nick << " = " << channel << " :" << serv->channels.at(get_channel_index(serv->channels,channel))->get_user_list() << MSG_END;
+  //  send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+  //  msg.res.str("");
+  //  msg.res << RPL_ENDOFNAMES << socket_to_nick << " " << channel << ENDOFNAMES;
+  //  send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+    //Necesito volver a enviar la lista de usuarios para el canal a todos los usuarios en base a las flags
 }
    
 void w_flag(Message &msg,char impact,Server *serv)
@@ -85,7 +148,7 @@ void    Server::flag_manager(Message &msg)
     void (*do_flags[])(Message &msg, char impact,Server *serv) = \
     {i_flag,w_flag,s_flag,o_flag,v_flag,q_flag,t_flag,k_flag,l_flag,b_flag,m_flag};
     flags = msg.holder->at(2);
-    
+
     for (int flag = 0; flag < flags.size(); flag++)
     {
         if (flags[flag] == '+' || flags[flag] == '-')
@@ -96,7 +159,11 @@ void    Server::flag_manager(Message &msg)
         for (int i = 0; i < compilation.size(); i++)
         {
             if (flags[flag] == compilation[i])
+            {
+                std::cout << "Validated flag : " << flags[flag] << std::endl;
                 do_flags[i](msg, impact, this);
+            }
+                
         }
     }
 }

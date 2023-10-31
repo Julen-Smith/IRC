@@ -74,6 +74,12 @@
 # define INVITE_ONLY true
 
 //ERROR_COMMANDS
+# define ERR_CUSTOM ":Server 999 * "
+# define INVISIBLE ":You are invisible now\r\n"
+# define INVISIBLE_ALR ":You are invisible alredy\r\n"
+# define VISIBLE ":You are visible now\r\n"
+# define VISIBLE_ALR ":You are visible alredy\r\n"
+
 # define ERR_NICKNAMEINUSE ":Server 433 * "
 
 # define ERR_PASSWDMISMATCH ":Server 464 * "
@@ -167,6 +173,6 @@
 # define RPL_NAMREPLY ":Server 353 "
 
 # define RPL_ENDOFNAMES ":Server 366 "
-# define ENDOFNAMES " :End of NAMES list\r\n"
+# define ENDOFNAMES " :End of /NAMES list\r\n"
 
 #endif  //DEFS_HPP
