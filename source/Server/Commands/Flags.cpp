@@ -22,7 +22,7 @@ void i_flag(Message &msg,char impact,Server *serv)
 {
     std::map<const User*, std::vector<char> >::iterator it;
     std::vector<User *>         users;
-
+    std::cout << msg.buffer << std::endl;
     User * user_obj;
     if(msg.holder->size() == 3)
     {
@@ -76,16 +76,36 @@ void i_flag(Message &msg,char impact,Server *serv)
         if (serv->users.at(i)->get_socket() == msg.client_socket)
             socket_to_nick = serv->users.at(i)->get_nickname();
     }
-    std::cout << socket_to_nick << std::endl;
-    std::cout << serv->channels.at(get_channel_index(serv->channels,channel))->get_user_list() << std::endl;
+    if (permissions[0] == '1')
+    {
+        for (int i = 0; i < serv->channels.at(index)->get_users().size(); i++)
+        {
+            std::map<const User*, std::vector<char> >::iterator iter;
+            iter = serv->channels.at(index)->get_user_permissions()->find(serv->channels.at(index)->get_users().at(i));
+            std::vector<char>& perm = iter->second;
+           if (perm[0] != '1')
+           {
+             std::cout << "Añadido a usuario visible" << serv->channels.at(index)->get_users().at(i)->get_nickname() << std::endl;
+             serv->channels.at(index)->get_visible_users().push_back(serv->channels.at(index)->get_users().at(i));
+           }      
+        }
+        std::cout << "Size " << serv->channels.at(index)->get_visible_users().size() << std::endl;
+        for (int i = 0; i < serv->channels.at(index)->get_visible_users().size(); i++)
+        {
+            std::cout << "Enviado la reply a " << serv->channels.at(index)->get_visible_users().at(i)->get_nickname() << std::endl;
+            msg.res.str("");
+            msg.res << RPL_NAMREPLY << serv->channels.at(index)->get_visible_users().at(i)->get_nickname() << " = " << channel << " : " << "" << MSG_END;
+            msg.res << RPL_ENDOFNAMES << socket_to_nick << " " << channel << ENDOFNAMES;
+        }
+
+    }
+
+
+  //  msg.res.str("");
     
-
-
+   // send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
   //  msg.res.str("");
-  //  msg.res << RPL_NAMREPLY << socket_to_nick << " = " << channel << " :" << serv->channels.at(get_channel_index(serv->channels,channel))->get_user_list() << MSG_END;
-  //  send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
-  //  msg.res.str("");
-  //  msg.res << RPL_ENDOFNAMES << socket_to_nick << " " << channel << ENDOFNAMES;
+  //  
   //  send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
     //Necesito volver a enviar la lista de usuarios para el canal a todos los usuarios en base a las flags
 }

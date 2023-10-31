@@ -135,8 +135,8 @@ std::string Channel::get_topic_msg(User *user) {
     std::stringstream res;
 
     //TODO hay que notificar al resto de una manera distinta
-    res << user->get_nickname() << "!" << user->get_login_name() << "@localhost ";
-    res << "JOIN " << this->_name << MSG_END;
+    res << ":" <<user->get_nickname(); //<< "!" << user->get_login_name() << "@localhost ";
+    res << " JOIN " << this->_name << MSG_END;
     res << RPL_TOPIC << user->get_nickname() << " " << this->get_name() << " :" << this->get_topic() << MSG_END; 
     return res.str();
 }
@@ -186,6 +186,20 @@ bool    Channel::enter_key(const std::string &key) {
     //user = new User(unva_user->second);
     //this->users.push_back(user);
     //return user;
+}
+
+std::vector<User *> Channel::get_visible_users()
+{
+    return this->_visible_users;
+}
+
+std::string Channel::get_visible_user_list() const
+{
+    std::string user_list = "";
+    
+    for (int i = 0; i < this->_visible_users.size(); i++)
+        user_list += this->_visible_users.at(i)->get_nickname() + " ";
+    return (user_list);
 }
 
 void    Channel::stdout_channel_permissions()

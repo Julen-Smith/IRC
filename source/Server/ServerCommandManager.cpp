@@ -120,6 +120,7 @@ void    Server::join_command(Message &msg) {
                     }
                 }
             }
+            std::cout << msg.get_res_str() << std::endl;
             send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
         }
     }

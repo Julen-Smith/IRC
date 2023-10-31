@@ -14,6 +14,7 @@ class Channel
         std::string                 _topic;
         std::string                 _key;
         std::vector<User *>         _users;
+        std::vector<User *>         _visible_users;
         std::vector<std::string>    _banned;
 
         std::map<const User*,  std::vector<char> > _user_permissions; //iwsovq
@@ -46,9 +47,11 @@ class Channel
         const std::string&                          get_name() const;
         const std::string&                          get_topic() const;
         std::string                                 get_user_list() const;
+        std::string                                 get_visible_user_list() const;
         int                                         get_users_size() const;
         std::string                                 get_permissions_to_string();
         std::vector<User *>                         get_users();
+        std::vector<User *>                         get_visible_users();
         std::map<const User*,  std::vector<char> > *get_user_permissions();
 
         //is functions
