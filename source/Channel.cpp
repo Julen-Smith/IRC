@@ -183,9 +183,9 @@ bool    Channel::enter_key(const std::string &key) {
         return INCORRECT_KEY;
     return CORRECT_KEY;
 
-    user = new User(unva_user->second);
-    this->users.push_back(user);
-    return user;
+    //user = new User(unva_user->second);
+    //this->users.push_back(user);
+    //return user;
 }
 
 void    Channel::stdout_channel_permissions()
