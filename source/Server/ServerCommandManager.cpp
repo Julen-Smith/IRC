@@ -153,6 +153,13 @@ void    Server::user_command(Message &msg) {
     }
     created_user = unva_user->second;
 
+    //Si el usuario hace user antes de nick es expulsado
+    if (created_user->nickname.size() == 0) {
+        this->delete_unvalidated_user(msg.client_socket);
+        close(msg.client_socket);
+        return ;
+    }
+
     created_user->login_name = msg.get_params_front();
     created_user->level = msg.get_params_front();
 
@@ -168,8 +175,6 @@ void    Server::user_command(Message &msg) {
     send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
 
     this->send_intro(msg.client_socket);
-    ////this->notice_new_user(msg);
-
     this->delete_unvalidated_user(msg.client_socket);
     
     std::cout << "User command\n" << " - login: " << user->_login_name << "\n - realname: " << user->_realname << std::endl;

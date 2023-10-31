@@ -136,9 +136,6 @@
 # define ERR_UNKNOWNMODE "472 * "
 # define UNKNOWNMODE " :is unknown mode char to me.\r\n"
 
-# define ERR_NOSUCHCHANNEL "403 * "
-# define NOSUCHCHANNEL " :No such channel.\r\n"
-
 # define ERR_USERSDONTMATCH "502 * "
 # define USERSDONTMATCH " :Can't change mode for other users.\r\n"
 
