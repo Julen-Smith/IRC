@@ -145,3 +145,17 @@ bool Server::check_name(const std::string &name) {
     }
     return false;
 }
+
+bool Server::delete_channel(const std::string &name) {
+    std::vector<Channel *>::iterator it;
+
+    it = this->channels.begin();
+    for (; it != this->channels.end(); it++) {
+        if (name == (*it)->get_name()) {
+            this->channels.erase(it);
+            delete(*it);
+            return true;
+        }
+    }
+    return false;
+}

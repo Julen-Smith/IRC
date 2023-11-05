@@ -14,7 +14,7 @@ Server::Server(const char *port) : max_clients(MAX_CLIENTS), _port(port)
     this->callback_map["MODE"] = &Server::mode_command;
     this->callback_map["QUIT"] = &Server::quit_command;
     this->callback_map["PART"] = &Server::part_command;
-    this->callback_map["PING"] = &Server::part_command;
+    this->callback_map["PING"] = &Server::ping_command;
     this->callback_map["PRIVMSG"] = &Server::prvmsg_command;
 
    priv_list[0].user = "admin";
@@ -65,14 +65,16 @@ void Server::tokenizer(Message &msg) {
         return ;
     }
 
-    std::cout << msg.buffer << std::endl;
+    std::cout << "RAW msg: " << msg.buffer << std::endl;
     for (command = msg.commands->begin(); command != msg.commands->end(); command++) {
         msg.set_params();
         token = msg.get_params_front();
         this->it = this->callback_map.find(token);
 
-        if (this->it != this->callback_map.end())
+        if (this->it != this->callback_map.end()) {
+            std::cout << "Valid command -> " << token << std::endl;
             (this->*(it->second))(msg);
+        }
         else {
             std::cerr << "Contents: " << msg.buffer << std::endl;
             std::cerr << "Error: invalid commnad -> " << token << std::endl;

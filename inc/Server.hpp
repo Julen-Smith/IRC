@@ -82,6 +82,7 @@ class Server
 		//channel getters
 		Channel						*get_channel_by_name(const std::string &name) const;
 		Channel    					*create_channel(User *user, const std::string &romm_name);
+		bool 						delete_channel(const std::string &name);
 
 		//user getters
 		User						*get_user_by_socket(int client_socket);

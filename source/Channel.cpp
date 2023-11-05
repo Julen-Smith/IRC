@@ -254,11 +254,11 @@ void    Channel::notice_join(Message &msg) {
     }
 }
 
-void    Channel::notice_part(Message &msg) {
+void    Channel::notice_part(Message &msg, const std::string &topic) {
     std::stringstream   ss;
     std::vector<User *>::iterator it;
 
-    ss << ":" << msg.user->get_nickname() << " PART " << this->_name << " :test" << MSG_END;
+    ss << ":" << msg.user->get_nickname() << " PART " << this->_name << " " << topic << MSG_END;
     std::cout << ss.str() << std::endl;
     for (it = this->_users.begin(); it != this->_users.end(); it++) {
         send((*it)->get_socket(), ss.str().c_str(), ss.str().size(), 0);

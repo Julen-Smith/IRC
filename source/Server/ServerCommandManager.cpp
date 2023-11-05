@@ -35,8 +35,12 @@ void    Server::list_command(Message &msg) {
 }
 
 void    Server::ping_command(Message &msg) {
+    
+    if (msg.user == NULL)
+        return ;
+        
     std::cout << "Ping command\n - nickname: " << msg.user->get_nickname() << std::endl;
-    msg.user->set_curr_time(this->_curr_time);
+    //msg.user->set_curr_time(this->_curr_time);
 }
 //TODO crear canal solo con invitación.
 //TODO nick, usuario, host no puede estar en lista ban.
@@ -80,13 +84,8 @@ void    Server::join_command(Message &msg) {
             //TODO create new channel
             //el canal no existe
             if (channel == NULL) {
-                if (this->check_name(room_name)) {
-                    msg.res.str("");
-                    msg.res << ERR_NOSUCHCHANNEL << msg.user->get_nickname() << room_name << NOSUCHCHANNEL;
-                } else {
-                    channel = this->create_channel(msg.user, room_name);
-                    this->mode_command(msg);
-                }
+                channel = this->create_channel(msg.user, room_name);
+                msg.res << channel->get_topic_msg(msg.user) << channel->get_user_list_msg(msg.user);
             } 
             //el canal existe
             else {
@@ -127,8 +126,19 @@ void    Server::join_command(Message &msg) {
     }
 }
 
+# define EXIT ":exited without saying bye :("
+
 //TODO revisar funcionalidad del comando quit
 void    Server::quit_command(Message &msg) {
+    std::vector<Channel *>::iterator it;
+
+    it = this->channels.begin();
+    for (; it != this->channels.end(); it++) {
+        if ((*it)->is_already(msg.user->get_nickname())) {
+            (*it)->delete_user(msg.user->get_nickname());
+            (*it)->notice_part(msg, EXIT);
+        }
+    }
     msg.user->set_notices(DISCONNECTED);
     close(msg.client_socket);
 }
@@ -246,7 +256,7 @@ void    Server::part_command(Message &msg) {
 
     std::deque<std::string> *params;
     std::string token;
-    std::string topic;
+    std::string topic = ":witohut reason";
     Channel *channel;
 
 
@@ -258,10 +268,16 @@ void    Server::part_command(Message &msg) {
     }
     token = msg.get_params_front();
     params = msg.split(token, CSV);
-    topic = msg.get_params_front();
+    if (msg.params->size()) {
+        topic.clear();
+        while (msg.params->size())
+            topic += msg.get_params_front() + " ";
+        topic[topic.size() - 1] = 0;
+    }
 
     for (size_t i = 0; i < params->size(); i++) {
 
+        std::cout << 4 << std::endl;
         token = params->front();
         params->pop_front();
 
@@ -272,11 +288,13 @@ void    Server::part_command(Message &msg) {
             continue ;
         }
 
-        channel->notice_part(msg);
+        channel->notice_part(msg, topic);
         channel->delete_user(msg.user->get_nickname());
     }
-
-    delete params;
+    if (channel->get_users_size() == 0) {
+        std::cout << "Empty channel!" << std::endl;
+        this->delete_channel(token);
+    }
 }
 
 void    Server::nick_command(Message &msg) {
