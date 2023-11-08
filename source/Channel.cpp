@@ -247,7 +247,29 @@ std::vector<User *> Channel::get_users()
     return this->_users;
 }
 
+
+void    Channel::notice_join(Message &msg) {
+    std::stringstream   ss;
+    std::vector<User *>::iterator it;
+
+    ss << ":" << msg.user->get_nickname() << " JOIN :" << this->_name << MSG_END;
+    for (it = this->_users.begin(); it != this->_users.end(); it++) {
+        send((*it)->get_socket(), ss.str().c_str(), ss.str().size(), 0);
+    }
+}
+
+void    Channel::notice_part(Message &msg, const std::string &topic) {
+    std::stringstream   ss;
+    std::vector<User *>::iterator it;
+
+    ss << ":" << msg.user->get_nickname() << " PART " << this->_name << " " << topic << MSG_END;
+    std::cout << ss.str() << std::endl;
+    for (it = this->_users.begin(); it != this->_users.end(); it++) {
+        send((*it)->get_socket(), ss.str().c_str(), ss.str().size(), 0);
+    }
+
 std::vector<bool> *Channel::get_channel_permissions()
 {
     return &_channel_permissions;
+
 }

@@ -72,6 +72,8 @@ class Channel
 
         bool                enter_key(const std::string &key);
         void                send_msg(Message &msg);
+        void                notice_join(Message &msg);
+        void                notice_part(Message &msg, const std::string &topic);
 
 
         //Debug and stuff

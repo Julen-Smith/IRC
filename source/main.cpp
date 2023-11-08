@@ -61,13 +61,7 @@ void main_loop(Server &server)
 /** @attention Main @param Argc,Port,Password @return exit mode */
 int main(int argc, char const *argv[])
 {
-    /*
-    if (argc == 1)
-        Server	server(PORT, PASSWORD);
-    else
-        Server	server(PORT, argv[1]);
-        */
-    Server	server(PORT);
+    Server	server(PORT, PASSWORD);
 
     main_loop(server);
     return (0);

@@ -245,6 +245,7 @@ void    Server::flag_manager(Message &msg)
     {i_flag,w_flag,s_flag,o_flag,v_flag,q_flag,t_flag,k_flag,l_flag,b_flag,m_flag};
     flags = msg.holder->at(2);
 
+    std::cout << "start" << std::endl;
     for (int flag = 0; flag < flags.size(); flag++)
     {
         if (flags[flag] == '+' || flags[flag] == '-')
@@ -262,4 +263,5 @@ void    Server::flag_manager(Message &msg)
                 
         }
     }
+    std::cout << "finish" << std::endl;
 }

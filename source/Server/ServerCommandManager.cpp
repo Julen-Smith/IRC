@@ -30,18 +30,31 @@ static bool erase_back_match(std::string &source, const std::string &to_erase) {
 
 void    Server::prvmsg_command(Message& msg) {
     Channel *channel;
-    std::string channel_name;
-    std::string nickname;
+    User    *user;
+    std::string name;
 
-    channel_name = msg.get_params_front();
-    channel = this->get_channel_by_name(channel_name);
-    if (channel == NULL)
-        return ;
+    name = msg.get_params_front();
+    channel = this->get_channel_by_name(name);
+    if (channel != NULL)
+        channel->send_msg(msg);
+    else {
+        user = this->get_user_by_nickname(name);
+        if (!user) {
+            std::cout << "handle this error\n";
+            return ;
+        }
+        msg.res.str("");
+        msg.res << ":" << msg.user->get_nickname() << " " << PRIVMSG << " " << user->get_nickname();
+        while (msg.params->size() > 0) {
+         msg.res << " " << msg.get_params_front();   
+        }
+        msg.res << MSG_END;
+        send(user->get_socket(), msg.get_res_str(), msg.get_res_size(), 0);
+    }
     //std::cout << "raw: " << msg.buffer << std::endl;
-    std::cout << "PRVMSG command\n - Channel name: " << channel_name << ".\n - Nickname: " << msg.user->get_nickname();
+    std::cout << "PRVMSG command\n - Channel name: " << name << ".\n - Nickname: " << msg.user->get_nickname();
     std::cout << "\n - Message: ";
     
-    channel->send_msg(msg);
 }
 
 
@@ -58,9 +71,50 @@ void    Server::list_command(Message &msg) {
     send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
 }
 
+void    Server::pass_command(Message &msg) {
+
+    UnvalidatedUser *unvalid_user;
+    std::string     nickname;
+    
+    if (msg.params->size() != 1) {
+        msg.res.str("");
+        msg.res << ERR_NEEDMOREPARAMS << NEEDMOREPARAMS;
+        send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+        return ;
+    }
+
+    std::cout << msg.user << std::endl;
+    if (msg.user)
+        return ;
+
+    std::string password = msg.get_params_front();
+    std::cout << "Password: " << password << std::endl;
+
+    if (this->get_user_by_socket(msg.client_socket)) {
+
+        msg.res.str("");
+        msg.res << ERR_ALREADYREGISTRED << ALREADYREGISTRED;
+        send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+        return ;
+    
+    } else if (this->_password != password) {
+
+        close(msg.client_socket);
+        this->delete_unvalidated_user(msg.client_socket);
+        return ;
+    }
+
+    unvalid_user = this->unvalidated_users[msg.client_socket];
+    unvalid_user->password = 1;
+}
+
 void    Server::ping_command(Message &msg) {
+    
+    if (msg.user == NULL)
+        return ;
+        
     std::cout << "Ping command\n - nickname: " << msg.user->get_nickname() << std::endl;
-    msg.user->set_curr_time(this->_curr_time);
+    //msg.user->set_curr_time(this->_curr_time);
 }
 //TODO crear canal solo con invitación.
 //TODO nick, usuario, host no puede estar en lista ban.
@@ -104,13 +158,8 @@ void    Server::join_command(Message &msg) {
             //TODO create new channel
             //el canal no existe
             if (channel == NULL) {
-                if (this->check_name(room_name)) {
-                    msg.res.str("");
-                    msg.res << ERR_NOSUCHCHANNEL << msg.user->get_nickname() << room_name << NOSUCHCHANNEL;
-                } else {
-                    channel = this->create_channel(msg.user, room_name);
-                    this->mode_command(msg);
-                }
+                channel = this->create_channel(msg.user, room_name);
+                msg.res << channel->get_topic_msg(msg.user) << channel->get_user_list_msg(msg.user);
             } 
             //el canal existe
             else {
@@ -140,6 +189,7 @@ void    Server::join_command(Message &msg) {
                             channel->add_user(msg.user);
                             msg.res.str("");
                             msg.res << channel->get_topic_msg(msg.user) << channel->get_user_list_msg(msg.user);
+                            channel->notice_join(msg);
                         }
                     }
                 }
@@ -150,8 +200,19 @@ void    Server::join_command(Message &msg) {
     }
 }
 
+# define EXIT ":exited without saying bye :("
+
 //TODO revisar funcionalidad del comando quit
 void    Server::quit_command(Message &msg) {
+    std::vector<Channel *>::iterator it;
+
+    it = this->channels.begin();
+    for (; it != this->channels.end(); it++) {
+        if ((*it)->is_already(msg.user->get_nickname())) {
+            (*it)->delete_user(msg.user->get_nickname());
+            (*it)->notice_part(msg, EXIT);
+        }
+    }
     msg.user->set_notices(DISCONNECTED);
     close(msg.client_socket);
 }
@@ -165,15 +226,23 @@ void    Server::user_command(Message &msg) {
 
     if (msg.params->size() < 2) {
         std::cerr << "Invalid params! : " << msg.buffer;
+        msg.res.str("");
+        msg.res << ERR_NEEDMOREPARAMS << NEEDMOREPARAMS;
+        send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
         return ;
     }
 
     std::cout << "Buffer: " << msg.buffer << std::endl;
     std::cout << "Size: " << msg.params->size() << std::endl;
 
+    user = this->get_user_by_socket(msg.client_socket);
+    if (user)
+        return ;
+
     unva_user = this->unvalidated_users.find(msg.client_socket);
     if (unva_user == this->unvalidated_users.end())
     {
+        std::cout << "Close 3\n";
         close(msg.client_socket);
         return ;
     }
@@ -181,6 +250,7 @@ void    Server::user_command(Message &msg) {
 
     //Si el usuario hace user antes de nick es expulsado
     if (created_user->nickname.size() == 0) {
+        std::cout << "Close 4\n";
         this->delete_unvalidated_user(msg.client_socket);
         close(msg.client_socket);
         return ;
@@ -288,22 +358,47 @@ void    Server::part_command(Message &msg) {
 
     std::deque<std::string> *params;
     std::string token;
+    std::string topic = ":witohut reason";
     Channel *channel;
+
+
+    if (msg.params->size() < 1) {
+        msg.res.str("");
+        msg.res << ERR_NEEDMOREPARAMS << NEEDMOREPARAMS;
+        send(msg.user->get_socket(), msg.get_res_str(), msg.get_res_size(), 0);
+        return ;
+    }
 
     token = msg.get_params_front();
     params = msg.split(token, CSV);
+    if (msg.params->size()) {
+        topic.clear();
+        while (msg.params->size())
+            topic += msg.get_params_front() + " ";
+        topic[topic.size() - 1] = 0;
+    }
 
     for (size_t i = 0; i < params->size(); i++) {
 
-        channel = this->get_channel_by_name(params->front());
-        if (channel == NULL)
-         continue ;
-
-        channel->delete_user(msg.user->get_nickname());
+        std::cout << 4 << std::endl;
+        token = params->front();
         params->pop_front();
-    }
 
-    delete params;
+        channel = this->get_channel_by_name(token);
+        if (channel == NULL) {
+            msg.res.str("");
+            msg.res << ERR_NOSUCHCHANNEL << token << " " << NOSUCHCHANNEL;
+            continue ;
+        }
+
+        channel->notice_part(msg, topic);
+        channel->delete_user(msg.user->get_nickname());
+    }
+    if (channel->get_users_size() == 0) {
+        std::cout << "Empty channel!" << std::endl;
+        this->delete_channel(token);
+    }
+    msg.user->set_notices(DISCONNECTED);
 }
 
 void    Server::nick_command(Message &msg) {
@@ -314,44 +409,40 @@ void    Server::nick_command(Message &msg) {
 
     nickname = msg.get_params_front();
     if (msg.params->size() != 0 or nickname.size() == 0) {
+
         msg.res << ERR_NONICKNAMEGIVEN << NONICKNAMEGIVEN;
         send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+
     }
     else if (this->check_name(nickname)) {
+
         msg.res << ERR_ERRONEUSNICKNAME << nickname << ERRONEUSNICKNAME;
         send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
 
         if (this->find_unva_user_by_socket(msg.client_socket)) {
+            std::cout << "close 1\n";
             msg.user->set_notices(DISCONNECTED);
             close(msg.client_socket);
         }
     }
     //TODO avisar al restor del cambio de nick
     else if (this->find_unva_user_by_socket(msg.client_socket) == false) {
+
         user = this->get_user_by_socket(msg.client_socket);
-        user->set_nickname(nickname);
+        if (user)
+            user->set_nickname(nickname);
+
         return ;
     }
 
     unvalid_user = this->unvalidated_users[msg.client_socket];
+    if (unvalid_user->password == 0) {
+        std::cout << "Close 2\n";
+        this->delete_unvalidated_user(msg.client_socket);
+        close(msg.client_socket);
+    }
     unvalid_user->nickname = nickname;
     user = this->get_user_by_nickname(unvalid_user->nickname);
-
-    std::cout << "Nick command:\n - nickname: " << unvalid_user->nickname << std::endl;
-    if (!user)
-        return ;
-
-    else if (user->get_notices() == true) {
-        msg.res.str("");
-        msg.res << ERR_NICKNAMEINUSE << "* ";
-        msg.res << unvalid_user->nickname;
-        msg.res << ": nickname is already in use\r\n";
-        kick_command(msg);
-
-        this->delete_unvalidated_user(msg.client_socket);
-        return ;
-    }
-    this->delete_user_by_socket(user->get_socket());
 }
 
 void    Server::check_inac() {
@@ -373,6 +464,7 @@ void    Server::manage_response(int client_index) {
     msg.client_index = client_index;
     msg.client_socket = this->fds[client_index].fd;
 
+    std::cout << "Manage response\n";
     if (this->read_socket(msg))
         return ;
 

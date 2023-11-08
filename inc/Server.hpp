@@ -36,7 +36,7 @@ class Server
 {
 	public:
 		Server();
-		Server(const char *);
+		Server(const char *, const char *);
 
 		~Server();
 
@@ -82,6 +82,7 @@ class Server
 		//channel getters
 		Channel						*get_channel_by_name(const std::string &name) const;
 		Channel    					*create_channel(User *user, const std::string &romm_name);
+		bool 						delete_channel(const std::string &name);
 
 		//user getters
 		User						*get_user_by_socket(int client_socket);
@@ -99,6 +100,7 @@ class Server
 		void    					notice_new_user(Message &msg);
 		
 		//commands
+		void						pass_command(Message&);
 		void						part_command(Message&);
 		void						quit_command(Message&);
 		void						mode_command(Message&);
@@ -136,6 +138,7 @@ class Server
 	private:
 
 		std::string			_port;
+		std::string			_password;
 		int					_socket;
 		struct sockaddr_in 	sv_socket_info;
 		time_t				_curr_time;
