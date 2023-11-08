@@ -16,6 +16,8 @@ Server::Server(const char *port, const char *password): max_clients(MAX_CLIENTS)
     this->callback_map["PART"] = &Server::part_command;
     this->callback_map["PING"] = &Server::ping_command;
     this->callback_map["PASS"] = &Server::pass_command;
+    this->callback_map["PING"] = &Server::part_command;
+    this->callback_map["INVITE"] = &Server::invite_command;
     this->callback_map["PRIVMSG"] = &Server::prvmsg_command;
 
    priv_list[0].user = "admin";

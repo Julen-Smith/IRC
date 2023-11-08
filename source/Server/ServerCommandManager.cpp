@@ -3,6 +3,30 @@
 #include "Channel.hpp"
 #include <string.h>
 
+static int error_return(const std::string error_code,const std::string error_string, Message &msg)
+{
+    msg.res.str("");
+    msg.res << error_code << " " << error_string;
+    send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+    return (1);
+}
+
+static bool erase_back_match(std::string &source, const std::string &to_erase) {
+
+    size_t  erase_len = 0;
+    size_t  source_len = source.size();
+    
+    for (int i = 0; i < to_erase.size(); i++) {
+        if (source.find(to_erase[i]) != -1)
+            erase_len++;
+    }
+    if (erase_len)
+    {
+        source.erase(source_len - erase_len, source_len);
+        return true;
+    }
+    return false;        
+}
 
 void    Server::prvmsg_command(Message& msg) {
     Channel *channel;
@@ -277,21 +301,44 @@ bool    Server::check_operator(Message &msg) {
 
 //TODO revisar funcionalidad de oper
 void    Server::oper_command(Message& msg) {
+    bool exist = false;
 
-    if (msg.params->size() != 2) {
-        msg.res.str("");
-        msg.res << "OPER " << ERR_NEEDMOREPARAMS << NEEDMOREPARAMS;
-    } else {
-        
-        if (check_operator(msg)) {
-            msg.res << RPL_YOUREOPER << YOUREOPER;
-            msg.res << "MODE +o\r\n";
+    msg.holder = msg.split(msg.buffer," ");
+    if (msg.holder->size() != 3)
+        error_return(ERR_NEEDMOREPARAMS,NEEDMOREPARAMS,msg);
+    else
+    {
+        for (int i = 0; i < this->users.size(); i++){
+            std::cout << this->users.at(i)->get_nickname() << msg.holder->at(1) <<std::endl;
+            if (this->users.at(i)->get_nickname() == msg.holder->at(1)) {
+                
+                exist = true;
+                break;
+            }
+        }
+        if (!exist && error_return(ERR_NOSUCHNICK,NOSUCHNICK,msg))
+            return;
+        erase_back_match(msg.holder->at(2),MSG_END);
+        if (msg.holder->at(2) == OPER_PASSWORD || msg.holder->at(2) == TEST_USER_PASSWORD)
+        {
+            if (msg.user->get_operator_status())
+            {
+                msg.res.str("");
+                msg.res << RPL_YOUREOPER <<" :You are no longer an IRC operator\r\n";
+                send(msg.client_socket, msg.get_res_str(), msg.get_res_size(),0);
+                msg.user->set_operator_status(false);
+            }
+            else
+            {
+                msg.res.str("");
+                msg.res << RPL_YOUREOPER << YOUREOPER;
+                send(msg.client_socket, msg.get_res_str(), msg.get_res_size(),0);
+                msg.user->set_operator_status(true);
+            }
         }
         else
-            msg.res << ERR_PASSWDMISMATCH << PASSWDMISMATCH;
+          error_return(ERR_PASSWDMISMATCH,PASSWDMISMATCH,msg);
     }
-
-    send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
 }
 
 //TODO revisar funcionalidad de kick
@@ -302,7 +349,6 @@ void    Server::kick_command(Message &msg) {
     if (msg.user == NULL)
         return ;
     std::cout << "Kick command:\n - nickname: " << nickname << std::endl;
-
     send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
     msg.user->set_notices(DISCONNECTED);
     close(msg.client_socket);
@@ -427,4 +473,59 @@ void    Server::manage_response(int client_index) {
     if (user != NULL)
         msg.set_user(user);
     this->tokenizer(msg);
+}
+
+
+
+
+void    Server::invite_command(Message &msg) {
+
+    int channel_index = 0;
+    bool exist = false;
+    bool channel_exist = false;
+    bool user_exist = false;
+    int real_index = 0;
+    
+    msg.holder = msg.split(msg.buffer," ");
+    std::cout << msg.holder->size() << std::endl;
+    if (msg.holder->size() != 3)
+        error_return(ERR_NEEDMOREPARAMS,NEEDMOREPARAMS,msg);
+    else
+    {
+        erase_back_match(msg.holder->at(2),MSG_END);
+        for (int i = 0; i < this->users.size(); i++){
+                if (this->users.at(i)->get_nickname() == msg.holder->at(2)) {
+                    exist = true;
+                    break;
+                }
+        }
+        if (!exist && error_return(ERR_NOSUCHNICK,NOSUCHNICK,msg))
+        {
+            std::cout << msg.user->get_nickname().size() << msg.holder->at(2).size() << std::endl;
+            std::cout << "No such nick con " << msg.user->get_nickname() << " y " << msg.holder->at(2) << std::endl;
+            return;
+        } 
+        for (channel_index = 0; channel_index < this->channels.size(); channel_index++)
+        {
+            if (this->channels.at(channel_index)->get_name() == msg.holder->at(1))
+            {
+                channel_exist = true;
+                real_index = channel_index;
+            }   
+        }
+        if (!channel_exist && error_return(ERR_NOSUCHCHANNEL,NOSUCHCHANNEL,msg))
+             return ;   
+        for (int i = 0; i < this->channels.at(real_index)->get_users().size();i++)
+            user_exist = ((this->channels.at(real_index)->get_users().at(i)->get_nickname() == msg.user->get_nickname()) && (!user_exist)) ? true : false;
+        if (!user_exist && error_return(ERR_NOTONCHANNEL,NOTONCHANNEL,msg))
+            return;
+        msg.res.str(":Server NOTICE " + msg.user->get_nickname() + " :Inviting " + msg.holder->at(2) + " to channel " + this->channels.at(real_index)->get_name() + MSG_END);
+        send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
+
+        msg.res.str(":Server NOTICE " + msg.holder->at(2) + " :" + msg.user->get_nickname() + " invited you to channel " + this->channels.at(real_index)->get_name() + MSG_END);
+        for(int i = 0; i < this->users.size(); i++)
+            if (this->users.at(i)->get_nickname() == msg.holder->at(2))
+                send(this->users.at(i)->get_socket(), msg.res.str().c_str(), msg.res.str().size(), 0);
+    }
+
 }

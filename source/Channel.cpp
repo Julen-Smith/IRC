@@ -32,7 +32,7 @@ Channel::Channel(const std::string& name, const std::string &topic)
 : _name(name), _topic(topic), _invite(false), _user_limit(STANDARD_LIMIT), _key_opt(KEY_NOT_SET)
 {
     std::cout << "The channel " << name << " has been created." << std::endl;
-    for(int i = 0; i != 5; i++) _channel_permissions.push_back(false);
+    for(int i = 0; i != 6; i++) _channel_permissions.push_back(false);
     stdout_channel_permissions();
 }
 
@@ -206,6 +206,7 @@ void    Channel::stdout_channel_permissions()
     std::cout << "Modo de limite de usuarios : " << this->_channel_permissions.at(2) << std::endl;
     std::cout << "Modo de ban : " << this->_channel_permissions.at(3) << std::endl;
     std::cout << "Modo moderado : " << this->_channel_permissions.at(4) << std::endl;
+    std::cout << "Modo invitación : " << this->_channel_permissions.at(5) << std::endl;
 }
 
 void    Channel::stdout_channel__users_permissions(const User *user)
@@ -217,6 +218,7 @@ void    Channel::stdout_channel__users_permissions(const User *user)
     std::cout << "Modo silencioso : " << this->_user_permissions[user].at(3) << std::endl;
     std::cout << "Modo voz  : " << this->_user_permissions[user].at(4) << std::endl;
     std::cout << "Modo cuarentena  : " << this->_user_permissions[user].at(5) << std::endl;
+    std::cout << "IS OPERATOR : " << user->get_operator_status() << std::endl;
 }
 
 
@@ -225,10 +227,11 @@ std::string Channel::get_permissions_to_string()
     std::string holder = "";
     
     holder += this->_channel_permissions.at(0) == false ? "-t" : "+t";
-    holder += this->_channel_permissions.at(0) == false ? "-k" : "+k";
-    holder += this->_channel_permissions.at(0) == false ? "-l" : "+l";
-    holder += this->_channel_permissions.at(0) == false ? "-b" : "+b";
-    holder += this->_channel_permissions.at(0) == false ? "-m" : "+m";
+    holder += this->_channel_permissions.at(1) == false ? "-k" : "+k";
+    holder += this->_channel_permissions.at(2) == false ? "-l" : "+l";
+    holder += this->_channel_permissions.at(3) == false ? "-b" : "+b";
+    holder += this->_channel_permissions.at(4) == false ? "-m" : "+m";
+    holder += this->_channel_permissions.at(5) == false ? "-i" : "+i";
     
     return  holder;
 }
@@ -243,6 +246,7 @@ std::vector<User *> Channel::get_users()
 {
     return this->_users;
 }
+
 
 void    Channel::notice_join(Message &msg) {
     std::stringstream   ss;
@@ -263,4 +267,9 @@ void    Channel::notice_part(Message &msg, const std::string &topic) {
     for (it = this->_users.begin(); it != this->_users.end(); it++) {
         send((*it)->get_socket(), ss.str().c_str(), ss.str().size(), 0);
     }
+
+std::vector<bool> *Channel::get_channel_permissions()
+{
+    return &_channel_permissions;
+
 }

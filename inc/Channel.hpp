@@ -18,7 +18,7 @@ class Channel
         std::vector<std::string>    _banned;
 
         std::map<const User*,  std::vector<char> > _user_permissions; //iwsovq
-        std::vector<bool>           _channel_permissions; //tklbm
+        std::vector<bool>           _channel_permissions; //tklbmi
 
         bool                        _invite;
         int                         _user_limit;
@@ -52,6 +52,7 @@ class Channel
         std::string                                 get_permissions_to_string();
         std::vector<User *>                         get_users();
         std::vector<User *>                         get_visible_users();
+        std::vector<bool>                           *get_channel_permissions();
         std::map<const User*,  std::vector<char> > *get_user_permissions();
 
         //is functions
