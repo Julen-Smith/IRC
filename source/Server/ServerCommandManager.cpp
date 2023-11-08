@@ -6,18 +6,31 @@
 
 void    Server::prvmsg_command(Message& msg) {
     Channel *channel;
-    std::string channel_name;
-    std::string nickname;
+    User    *user;
+    std::string name;
 
-    channel_name = msg.get_params_front();
-    channel = this->get_channel_by_name(channel_name);
-    if (channel == NULL)
-        return ;
+    name = msg.get_params_front();
+    channel = this->get_channel_by_name(name);
+    if (channel != NULL)
+        channel->send_msg(msg);
+    else {
+        user = this->get_user_by_nickname(name);
+        if (!user) {
+            std::cout << "handle this error\n";
+            return ;
+        }
+        msg.res.str("");
+        msg.res << ":" << msg.user->get_nickname() << " " << PRIVMSG << " " << user->get_nickname();
+        while (msg.params->size() > 0) {
+         msg.res << " " << msg.get_params_front();   
+        }
+        msg.res << MSG_END;
+        send(user->get_socket(), msg.get_res_str(), msg.get_res_size(), 0);
+    }
     //std::cout << "raw: " << msg.buffer << std::endl;
-    std::cout << "PRVMSG command\n - Channel name: " << channel_name << ".\n - Nickname: " << msg.user->get_nickname();
+    std::cout << "PRVMSG command\n - Channel name: " << name << ".\n - Nickname: " << msg.user->get_nickname();
     std::cout << "\n - Message: ";
     
-    channel->send_msg(msg);
 }
 
 
@@ -32,6 +45,43 @@ void    Server::list_command(Message &msg) {
     }
     msg.res << RPL_LISTEND << LISTEND;
     send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+}
+
+void    Server::pass_command(Message &msg) {
+
+    UnvalidatedUser *unvalid_user;
+    std::string     nickname;
+    
+    if (msg.params->size() != 1) {
+        msg.res.str("");
+        msg.res << ERR_NEEDMOREPARAMS << NEEDMOREPARAMS;
+        send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+        return ;
+    }
+
+    std::cout << msg.user << std::endl;
+    if (msg.user)
+        return ;
+
+    std::string password = msg.get_params_front();
+    std::cout << "Password: " << password << std::endl;
+
+    if (this->get_user_by_socket(msg.client_socket)) {
+
+        msg.res.str("");
+        msg.res << ERR_ALREADYREGISTRED << ALREADYREGISTRED;
+        send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+        return ;
+    
+    } else if (this->_password != password) {
+
+        close(msg.client_socket);
+        this->delete_unvalidated_user(msg.client_socket);
+        return ;
+    }
+
+    unvalid_user = this->unvalidated_users[msg.client_socket];
+    unvalid_user->password = 1;
 }
 
 void    Server::ping_command(Message &msg) {
@@ -161,9 +211,14 @@ void    Server::user_command(Message &msg) {
     std::cout << "Buffer: " << msg.buffer << std::endl;
     std::cout << "Size: " << msg.params->size() << std::endl;
 
+    user = this->get_user_by_socket(msg.client_socket);
+    if (user)
+        return ;
+
     unva_user = this->unvalidated_users.find(msg.client_socket);
     if (unva_user == this->unvalidated_users.end())
     {
+        std::cout << "Close 3\n";
         close(msg.client_socket);
         return ;
     }
@@ -171,6 +226,7 @@ void    Server::user_command(Message &msg) {
 
     //Si el usuario hace user antes de nick es expulsado
     if (created_user->nickname.size() == 0) {
+        std::cout << "Close 4\n";
         this->delete_unvalidated_user(msg.client_socket);
         close(msg.client_socket);
         return ;
@@ -266,6 +322,7 @@ void    Server::part_command(Message &msg) {
         send(msg.user->get_socket(), msg.get_res_str(), msg.get_res_size(), 0);
         return ;
     }
+
     token = msg.get_params_front();
     params = msg.split(token, CSV);
     if (msg.params->size()) {
@@ -295,6 +352,7 @@ void    Server::part_command(Message &msg) {
         std::cout << "Empty channel!" << std::endl;
         this->delete_channel(token);
     }
+    msg.user->set_notices(DISCONNECTED);
 }
 
 void    Server::nick_command(Message &msg) {
@@ -305,44 +363,40 @@ void    Server::nick_command(Message &msg) {
 
     nickname = msg.get_params_front();
     if (msg.params->size() != 0 or nickname.size() == 0) {
+
         msg.res << ERR_NONICKNAMEGIVEN << NONICKNAMEGIVEN;
         send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+
     }
     else if (this->check_name(nickname)) {
+
         msg.res << ERR_ERRONEUSNICKNAME << nickname << ERRONEUSNICKNAME;
         send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
 
         if (this->find_unva_user_by_socket(msg.client_socket)) {
+            std::cout << "close 1\n";
             msg.user->set_notices(DISCONNECTED);
             close(msg.client_socket);
         }
     }
     //TODO avisar al restor del cambio de nick
     else if (this->find_unva_user_by_socket(msg.client_socket) == false) {
+
         user = this->get_user_by_socket(msg.client_socket);
-        user->set_nickname(nickname);
+        if (user)
+            user->set_nickname(nickname);
+
         return ;
     }
 
     unvalid_user = this->unvalidated_users[msg.client_socket];
+    if (unvalid_user->password == 0) {
+        std::cout << "Close 2\n";
+        this->delete_unvalidated_user(msg.client_socket);
+        close(msg.client_socket);
+    }
     unvalid_user->nickname = nickname;
     user = this->get_user_by_nickname(unvalid_user->nickname);
-
-    std::cout << "Nick command:\n - nickname: " << unvalid_user->nickname << std::endl;
-    if (!user)
-        return ;
-
-    else if (user->get_notices() == true) {
-        msg.res.str("");
-        msg.res << ERR_NICKNAMEINUSE << "* ";
-        msg.res << unvalid_user->nickname;
-        msg.res << ": nickname is already in use\r\n";
-        kick_command(msg);
-
-        this->delete_unvalidated_user(msg.client_socket);
-        return ;
-    }
-    this->delete_user_by_socket(user->get_socket());
 }
 
 void    Server::check_inac() {
@@ -364,6 +418,7 @@ void    Server::manage_response(int client_index) {
     msg.client_index = client_index;
     msg.client_socket = this->fds[client_index].fd;
 
+    std::cout << "Manage response\n";
     if (this->read_socket(msg))
         return ;
 

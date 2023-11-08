@@ -36,7 +36,7 @@ class Server
 {
 	public:
 		Server();
-		Server(const char *);
+		Server(const char *, const char *);
 
 		~Server();
 
@@ -100,6 +100,7 @@ class Server
 		void    					notice_new_user(Message &msg);
 		
 		//commands
+		void						pass_command(Message&);
 		void						part_command(Message&);
 		void						quit_command(Message&);
 		void						mode_command(Message&);
@@ -110,7 +111,6 @@ class Server
 		void						nick_command(Message&);
 		void						user_command(Message&);
 		void						ping_command(Message&);
-		void						pong_command(Message&);
 		void						prvmsg_command(Message&);
 
 		//flags
@@ -136,6 +136,7 @@ class Server
 	private:
 
 		std::string			_port;
+		std::string			_password;
 		int					_socket;
 		struct sockaddr_in 	sv_socket_info;
 		time_t				_curr_time;

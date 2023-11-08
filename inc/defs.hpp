@@ -28,6 +28,8 @@
 
 # define STANDARD_LIMIT 10
 
+//Server
+
 # define PORT			    "4242"
 # define SOCKET_ERROR 		"Error al crear el socket"
 # define SOCKET_PREF_ERROR 	"Error al setear las preferencias del socket"
@@ -112,6 +114,9 @@
 
 # define ERR_TOOMANYCHANNELS "405 "
 # define TOOMANYCHANNELS " :You have joined too many channels\r\n"
+
+# define ERR_ALREADYREGISTRED "462 "
+# define ALREADYREGISTRED ":You may not reregister\r\n"
 
 //MODE RESPONSES
 

@@ -4,7 +4,7 @@
 #include "Channel.hpp"
 
 
-Server::Server(const char *port) : max_clients(MAX_CLIENTS), _port(port)
+Server::Server(const char *port, const char *password): max_clients(MAX_CLIENTS), _port(port), _password(password)
 {
     this->callback_map["NICK"] = &Server::nick_command;
     this->callback_map["USER"] = &Server::user_command;
@@ -15,6 +15,7 @@ Server::Server(const char *port) : max_clients(MAX_CLIENTS), _port(port)
     this->callback_map["QUIT"] = &Server::quit_command;
     this->callback_map["PART"] = &Server::part_command;
     this->callback_map["PING"] = &Server::ping_command;
+    this->callback_map["PASS"] = &Server::pass_command;
     this->callback_map["PRIVMSG"] = &Server::prvmsg_command;
 
    priv_list[0].user = "admin";
@@ -82,6 +83,7 @@ void Server::tokenizer(Message &msg) {
         if (msg.params->size() != -1)
             delete msg.params;
     }
+    delete msg.commands;
 }
 
 const int	Server::get_socket() const {return this->_socket;}
@@ -113,10 +115,14 @@ bool Server::read_socket(Message &msg) {
     ssize_t read_size;
 
     read_size = recv(msg.client_socket, msg.buffer, BUFFER_SIZE, 0);
+    std::cout << "read size: " << read_size << std::endl;
 
     //TODO handleear cuando read_size es 0
-    if (read_size == -1) {
+    if (read_size < 1) {
+        this->delete_unvalidated_user(msg.client_socket);
+        this->delete_user_by_socket(msg.client_socket);
         std::cerr << "Error: read socket failed\n";
+        close(msg.client_socket);
         return true;
     }
     msg.buffer[read_size] = 0;
