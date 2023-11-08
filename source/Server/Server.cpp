@@ -15,6 +15,7 @@ Server::Server(const char *port) : max_clients(MAX_CLIENTS), _port(port)
     this->callback_map["QUIT"] = &Server::quit_command;
     this->callback_map["PART"] = &Server::part_command;
     this->callback_map["PING"] = &Server::part_command;
+    this->callback_map["INVITE"] = &Server::invite_command;
     this->callback_map["PRIVMSG"] = &Server::prvmsg_command;
 
    priv_list[0].user = "admin";

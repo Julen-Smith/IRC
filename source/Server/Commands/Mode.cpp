@@ -148,7 +148,6 @@ static bool check_application_dest(Message &msg, std::vector<User *> users, std:
                 isNone = true;
         }
     }
-    //Comprobacion faltante para dar error en el campo 4;
     if (!isNone)
     {
         std::cout << "Error on flag channel coordination" << std::endl;
