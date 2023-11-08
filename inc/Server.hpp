@@ -110,6 +110,7 @@ class Server
 		void						user_command(Message&);
 		void						ping_command(Message&);
 		void						pong_command(Message&);
+		void						invite_command(Message&);
 		void						prvmsg_command(Message&);
 
 		//flags

@@ -69,6 +69,9 @@
 # define BAD_USER_PARAMETER false
 
 
+#define OPER_PASSWORD "HARDCODE_IS_A_SAFER_WAY_THAN_MFA"
+#define TEST_USER_PASSWORD "."
+
 //CONFIG FILES
 # define BAD_ROOM -1
 # define INVITE_ONLY true
@@ -79,6 +82,7 @@
 # define INVISIBLE_ALR ":You are invisible alredy\r\n"
 # define VISIBLE ":You are visible now\r\n"
 # define VISIBLE_ALR ":You are visible alredy\r\n"
+
 
 # define ERR_NICKNAMEINUSE ":Server 433 * "
 
@@ -104,8 +108,8 @@
 # define ERR_BANNEDFROMCHAN "474 "
 # define BANNEDFROMCHAN " :Cannot join channel (+b)\r\n"
 
-# define ERR_NOSUCHCHANNEL "403 "
-# define NOSUCHCHANNEL " :No such channel"
+# define ERR_NOSUCHCHANNEL "403 * "
+# define NOSUCHCHANNEL " :No such channel.\r\n"
 
 # define ERR_BADCHANNELKEY "475 "
 # define BADCHANNELKEY " :Cannot join channel (+k)\r\n"
@@ -113,6 +117,11 @@
 # define ERR_TOOMANYCHANNELS "405 "
 # define TOOMANYCHANNELS " :You have joined too many channels\r\n"
 
+//OPER
+# define RPL_YOUREOPER "381 * "
+# define YOUREOPER " :You are now an IRC operator\r\n"
+
+# define ERR_
 //MODE RESPONSES
 
 # define MODECHANNELMODS "+-tklbm"
@@ -151,6 +160,12 @@
 # define ERR_UMODEUNKNOWNFLAG "501 * "
 # define UMODEUNKNOWNFLAG " :Unknown MODE flag.\r\n"
 
+// Invite
+# define ERR_NOTONCHANNEL "442 * "
+# define ERR_USERONCHANNEL "443 * "
+# define USERONCHANNEL " :User is alredy on this channel.\r\n"
+# define ERR_CHANOPRIVSNEEDED "482 * "
+
 
 //RESPONSE COMMANDS
 # define RPL_LISTSTART ":Server 321 "
@@ -166,9 +181,6 @@
 # define WELCOME    " Welcome to the Internet Relay Network "
 
 # define RPL_TOPIC ":Server 332 "
-
-# define RPL_YOUREOPER ":Server 381 "
-# define YOUREOPER ":You are now an IRC operator\r\n"
 
 # define RPL_NAMREPLY ":Server 353 "
 

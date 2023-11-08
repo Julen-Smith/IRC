@@ -16,6 +16,7 @@ class User
         int         _socket;
         size_t      _count;
         time_t      _curr_time;
+        bool        _is_operator;
 
     public:
         //User();
@@ -32,10 +33,12 @@ class User
         int                 get_socket(void) const;
         size_t              get_count(void) const;
         time_t              get_curr_time() const;
+        bool                get_operator_status() const;
         
         void                set_curr_time(time_t curr_time);
         void                set_notices(bool status);
         void                set_nickname(std::string);
+        void                set_operator_status(bool status);
         void                add_channel_count();
         void                substract_channel_count();
 
