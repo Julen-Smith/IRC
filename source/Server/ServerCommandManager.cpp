@@ -28,6 +28,32 @@ static bool erase_back_match(std::string &source, const std::string &to_erase) {
     return false;        
 }
 
+void    Server::whois_command(Message& msg) {
+
+    std::string nickname;
+    User        *user;
+
+    if (msg.params->size() != 1) {
+        msg.res.str("");
+        msg.res << ERR_NONICKNAMEGIVEN << NONICKNAMEGIVEN;
+        send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+        return ;
+    }
+
+    nickname = msg.get_params_front();
+    user = this->get_user_by_nickname(nickname);
+    if (user == NULL) {
+        msg.res.str("");
+        msg.res << ERR_NOSUCHNICK << NOSUCHNICK;
+        send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+        return ;
+    } else {
+        msg.res.str("");
+        msg.res << RPL_WHOISUSER << user->get_nickname() << " ";
+    }
+
+}
+
 void    Server::prvmsg_command(Message& msg) {
     Channel *channel;
     User    *user;

@@ -122,7 +122,6 @@
 # define ERR_ALREADYREGISTRED "462 "
 # define ALREADYREGISTRED ":You may not reregister\r\n"
 
-
 //OPER
 # define RPL_YOUREOPER "381 * "
 # define YOUREOPER " :You are now an IRC operator\r\n"
@@ -193,5 +192,7 @@
 
 # define RPL_ENDOFNAMES ":Server 366 "
 # define ENDOFNAMES " :End of /NAMES list\r\n"
+
+# define RPL_WHOISUSER ":Server 311 "
 
 #endif  //DEFS_HPP

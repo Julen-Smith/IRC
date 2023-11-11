@@ -114,6 +114,7 @@ class Server
 		void						pong_command(Message&);
 		void						invite_command(Message&);
 		void						prvmsg_command(Message&);
+		void						whois_command(Message&);
 
 		//flags
 		void						flag_manager(Message &msg);
