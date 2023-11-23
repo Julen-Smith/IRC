@@ -6,8 +6,8 @@ void Server::generate_default_channels()
 {
     Channel * lobby = new Channel("#Lobby","Sala principal del servidor");
     Channel * lukas = new Channel("#La_Guarida_de_Lukas","El mismo la ha denominado asi quien sabe que podrias encontrarte dentro.");
-    Channel * test_room = new Channel("#Test_Room","Todas las salas son de prueba, pero ponerle un nombre a una hace que lo sea mas.");
-    Channel * AAAA = new Channel("#AAAA","Asii es, AAAA.");
+    Channel * test_room = new Channel("#Test_Room","Todas las salas son de prueba pero ponerle un nombre a una hace que lo sea mas.");
+    Channel * AAAA = new Channel("#AAAA","Asii es AAAA.");
     Channel * LockedChannel = new Channel("#locked","locked room access denied");
     Channel * inviteOnly = new Channel("#invite","invite only channel");
 
