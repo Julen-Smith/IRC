@@ -38,6 +38,7 @@ class Channel
         void                set_key(const std::string &key);
         void                set_invite(const bool invite);
         void                set_user_ban(const std::string &nickname);
+        void                set_topic(const std::string nickname);
         void                unset_user_ban(const std::string &nickname);
 
         //getters
