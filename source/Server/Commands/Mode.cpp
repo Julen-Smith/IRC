@@ -185,7 +185,8 @@ int mode_input_manager(Message &msg, std::vector<User *> users, std::vector<Chan
 
     if (msg.holder->size() == 2)
         reply_permissions(msg,channels);
-    else if (msg.holder->empty() ||  msg.holder->size() > 4 || msg.holder->at(2).empty() ||  is_repeated_char(msg.holder->at(2)) || is_duplicated_simbol(msg.holder->at(2)) ||
+
+    else if (msg.holder->size() == 1 || msg.holder->empty() ||  msg.holder->size() > 4 || msg.holder->at(2).empty() ||  is_repeated_char(msg.holder->at(2)) || is_duplicated_simbol(msg.holder->at(2)) ||
     (input_validator(msg.holder->at(2)) && twisted_input_validator(msg.holder->at(2))) || contains_invalid_mix(msg.holder->at(2))){
         msg.res.str("");
         msg.res << ERR_UMODEUNKNOWNFLAG << UMODEUNKNOWNFLAG;

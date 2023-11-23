@@ -66,18 +66,13 @@ class Server
 		int							event_to_handle;
 
 		void						accept_new_user();
-		void						enter_msg(int);
 		void						manage_response(int);
 		void    					erase_client(int);
-		int							command_checker(std::string &);
 		void						generate_default_channels(void);
-		void    					build_message_and_send(std::string,int,std::string, std::string,std::string, int, ...);
 		int							check_channel(std::string&);
 		void						tokenizer(Message& msg);
 		bool						read_socket(Message &msg);
 		bool    					check_operator(Message &msg);
-		void						check_users();
-		void						check_inac();
 
 		//channel getters
 		Channel						*get_channel_by_name(const std::string &name) const;
@@ -86,14 +81,12 @@ class Server
 
 		//user getters
 		User						*get_user_by_socket(int client_socket);
-		std::string					get_nickname_by_socket(int client_socket);
 		User						*get_user_by_nickname(const std::string &);
 
 		//user modifiers
 		bool						delete_user_by_socket(int client_socket);
 
 		//validated user
-		bool 						add_unva_user(int client_index);
 		User						*add_validated_user(unvalidated_user);
 		bool 						check_validated_user(Server::validated_user);
 		bool						check_name(const std::string &name);
@@ -111,7 +104,7 @@ class Server
 		void						nick_command(Message&);
 		void						user_command(Message&);
 		void						ping_command(Message&);
-		void						pong_command(Message&);
+		void						motd_command(Message&);
 		void						invite_command(Message&);
 		void						prvmsg_command(Message&);
 		void						whois_command(Message&);
@@ -119,20 +112,14 @@ class Server
 		//flags
 		void						flag_manager(Message &msg);
 
-		//commands error
-
-		void						mode_error_manager(int);
-
 		//unvalidated user methods
 		bool						find_unva_user_by_socket(int);
 		void						add_unvalidated_user(int);
 		bool						delete_unvalidated_user(int);
 
-		//setter
-		void						set_curr_time(time_t curr_time);
+		//is funcitons
 
-		//getter
-		time_t						get_curr_time() const;
+		bool						is_already(const std::string &nickname);
 
 	protected:
 
@@ -141,8 +128,8 @@ class Server
 		std::string			_port;
 		std::string			_password;
 		int					_socket;
-		struct sockaddr_in 	sv_socket_info;
-		time_t				_curr_time;
+		struct addrinfo		_hints;
+		struct addrinfo		*_res;
 
 		void			_init_cout() const;
 		void			_create_new_user(ssize_t, int, std::string);

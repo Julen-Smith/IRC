@@ -267,6 +267,7 @@ void    Channel::notice_part(Message &msg, const std::string &topic) {
     for (it = this->_users.begin(); it != this->_users.end(); it++) {
         send((*it)->get_socket(), ss.str().c_str(), ss.str().size(), 0);
     }
+}
 
 std::vector<bool> *Channel::get_channel_permissions()
 {

@@ -2,6 +2,9 @@
 
 int get_channel_index(std::vector<Channel *> channels, std::string channel)
 {
+    if (channels.empty())
+        return -1;
+
     for (int i = 0; i < channels.size(); i++) {
         if(channels.at(i)->get_name() == channel)
             return (i);
@@ -27,12 +30,17 @@ void i_flag(Message &msg,char impact,Server *serv)
     int ind = 0;
     bool finded;
 
+    finded = false;
     if(msg.holder->size() == 3)
     {
         ind = get_channel_index(serv->channels,msg.holder->at(1));
+        if (ind == -1)
+            return ;
+
         for (int i = 0; i < serv->channels.at(ind)->get_users_size();i++)
             if (serv->channels.at(ind)->get_users().at(i)->get_nickname() == msg.user->get_nickname())
                 finded = true;
+
         if (!finded)
         {
             msg.res.str(":Server 441 " + msg.user->get_nickname() + " " + serv->channels.at(ind)->get_name() + " :You aren't on that channel" + MSG_END);

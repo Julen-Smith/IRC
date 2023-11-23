@@ -7,6 +7,7 @@
 #include <ctime>
 
 #include "UnvalidatedUser.hpp"
+class Channel;
 
 class User
 {
@@ -15,30 +16,30 @@ class User
         bool        _notices;
         int         _socket;
         size_t      _count;
-        time_t      _curr_time;
         bool        _is_operator;
 
     public:
         //User();
-        User(const std::string &nickname, int socket, time_t curr_time);
-        User(UnvalidatedUser *, time_t curr_time);
+        User(const std::string &nickname, int socket);
+        User(UnvalidatedUser *);
         User(User &);
 
         ~User();
+        std::vector<Channel *>  _channels;
 
         User& operator=(User &user);
+        std::string         get_channels_str();
         const std::string&  get_nickname(void) const;
         const std::string&  get_login_name(void) const;
         bool                get_notices(void) const;
         int                 get_socket(void) const;
         size_t              get_count(void) const;
-        time_t              get_curr_time() const;
         bool                get_operator_status() const;
         
-        void                set_curr_time(time_t curr_time);
         void                set_notices(bool status);
         void                set_nickname(std::string);
         void                set_operator_status(bool status);
+        void                add_channel(Channel *channel);
         void                add_channel_count();
         void                substract_channel_count();
 

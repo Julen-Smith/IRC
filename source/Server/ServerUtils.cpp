@@ -133,6 +133,7 @@ Channel    *Server::create_channel(User *user, const std::string &room_name) {
     channel = new Channel(room_name, "There is no topic"); 
     this->channels.push_back(channel);
     channel->add_user(user);
+    user->add_channel(channel);
     std::cout << "New channel created: " << room_name << std::endl;
     return channel;
 }
@@ -140,7 +141,7 @@ Channel    *Server::create_channel(User *user, const std::string &room_name) {
 bool Server::check_name(const std::string &name) {
 
     for (size_t i = 0; i < name.size(); i++) {
-        if (!isalpha(name[i]))
+        if (!isalpha(name[i]) and name[i] != '_')
             return true;
     }
     return false;

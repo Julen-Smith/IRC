@@ -17,26 +17,36 @@ Server::Server(const char *port, const char *password): max_clients(MAX_CLIENTS)
     this->callback_map["PING"] = &Server::ping_command;
     this->callback_map["PASS"] = &Server::pass_command;
     this->callback_map["PING"] = &Server::part_command;
+    this->callback_map["MOTD"] = &Server::motd_command;
     this->callback_map["INVITE"] = &Server::invite_command;
     this->callback_map["PRIVMSG"] = &Server::prvmsg_command;
     this->callback_map["WHOIS"] = &Server::whois_command;
 
-   priv_list[0].user = "admin";
-   priv_list[0].password = "admin";
-   priv_list[0].level = "3";
-   priv_list[1].user = "operator";
-   priv_list[1].password = "operator";
-   priv_list[1].level = "1";
+    priv_list[0].user = "admin";
+    priv_list[0].password = "admin";
+    priv_list[0].level = "3";
+    priv_list[1].user = "operator";
+    priv_list[1].password = "operator";
+    priv_list[1].level = "1";
 
-   this->sv_socket_info.sin_port = htons(4242);
-   this->sv_socket_info.sin_family = AF_INET; 
-   this->sv_socket_info.sin_addr.s_addr = INADDR_ANY; 
-   this->_socket = socket(this->sv_socket_info.sin_family, SOCK_STREAM, 0);
-    if (this->_socket == -1)
+    std::memset(&this->_hints, 0, sizeof(this->_hints));
+    this->_hints.ai_family = AF_UNSPEC;
+    this->_hints.ai_socktype = SOCK_STREAM;
+    this->_hints.ai_flags = AI_PASSIVE;
+
+    getaddrinfo(NULL, "4242", &this->_hints, &this->_res);
+    this->_socket = socket(this->_res->ai_family, this->_res->ai_socktype, this->_res->ai_protocol);
+
+    //this->sv_socket_info.sin_port = htons(4242);
+    //this->sv_socket_info.sin_family = AF_INET; 
+    //this->sv_socket_info.sin_addr.s_addr = INADDR_ANY; 
+    //this->_socket = socket(this->sv_socket_info.sin_family, SOCK_STREAM, 0);
+    if (this->_socket == -1) //this->_socket == -1)
     {
         std::cout << SOCKET_ERROR << std::endl;
         exit(1);
     }
+
     int option = 1;
     while (setsockopt(this->_socket,SOL_SOCKET,SO_REUSEADDR, &option, sizeof(option)) < 0)
     {
@@ -44,11 +54,14 @@ Server::Server(const char *port, const char *password): max_clients(MAX_CLIENTS)
         std::cerr << "Intentandolo de nuevo . . ." << std::endl;
         usleep(1000000);
     }
-    if (bind(this->_socket, (sockaddr *) &this->sv_socket_info, sizeof(sv_socket_info)) < 0) {
+
+    if (bind(this->_socket, this->_res->ai_addr, this->_res->ai_addrlen) == -1) {//->_socket, (sockaddr *) &this->sv_socket_info, sizeof(sv_socket_info)) < 0) {
+    //if (bind(this->_socket, (sockaddr *) &this->sv_socket_info, sizeof(sv_socket_info)) < 0) {
         std::cerr << "Error al asignar la dirección al socket\n";
         exit(1);
     }
-    listen(this->_socket,MAX_CLIENTS);
+    listen(this->_socket, MAX_CLIENTS);
+    //listen(this->_socket,MAX_CLIENTS);
     _init_cout();
 }
 
@@ -100,18 +113,19 @@ void Server::send_intro(int client_socket) {
     //ssize_t             rd_size;
 
     
-    if (inputFile.is_open()) {
-        while (std::getline(inputFile, line)) {
-            client_stream << PRIVMSG << " " << MAIN_CHANNEL << " : " << line << MSG_END;
-            client_msg = client_stream.str();
-            send(client_socket, client_msg.c_str(), client_msg.size(), 0);
-            client_stream.str("");
-            client_msg = "";
-        }
-        inputFile.close();
-    }
-    else
+    if (!inputFile.is_open()) {
         std::cout << "No se pudo abrir el archivo." << std::endl;
+        return ;
+    }
+
+    client_stream << RPL_MOTDSTART << MOTDSTART;
+    while (std::getline(inputFile, line)) {
+        client_stream << RPL_MOTD << line << MSG_END;
+    }
+
+    client_msg = client_stream.str();
+    send(client_socket, client_msg.c_str(), client_msg.size(), 0);
+    inputFile.close();
 }
 
 bool Server::read_socket(Message &msg) {
@@ -126,6 +140,8 @@ bool Server::read_socket(Message &msg) {
         this->delete_user_by_socket(msg.client_socket);
         std::cerr << "Error: read socket failed\n";
         close(msg.client_socket);
+        this->delete_user_by_socket(msg.client_socket);
+        this->delete_unvalidated_user(msg.client_socket);
         return true;
     }
     msg.buffer[read_size] = 0;
@@ -135,24 +151,18 @@ bool Server::read_socket(Message &msg) {
 User    *Server::add_validated_user(Server::unvalidated_user unva_user) {
     User    *user;
 
-    user = new User(unva_user->second, this->_curr_time);
+    user = new User(unva_user->second);
     this->users.push_back(user);
     return user;
 }
 
-void    Server::check_users() {
-    validated_user  it;
+bool    Server::is_already(const std::string &nickname) {
+    std::vector<User *>::iterator   it;
 
-    return ;
     it = this->users.begin();
     for (; it != this->users.end(); it++) {
-        if (((this->_curr_time - (*it)->get_curr_time()) / 1000000) > 180 and (*it)->get_notices() == CONNECTED) {
-            std::cout << "User: " << (*it)->get_nickname() << " deleted for inactivity\n";
-            close((*it)->get_socket());
-            (*it)->set_notices(false);
-        }
+        if (nickname == (*it)->get_nickname() and (*it)->get_notices())
+            return true;
     }
+    return false;
 }
-
-void	Server::set_curr_time(time_t curr_time) {this->_curr_time = curr_time;};
-time_t  Server::get_curr_time() const {return this->_curr_time;};

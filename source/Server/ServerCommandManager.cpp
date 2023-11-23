@@ -28,29 +28,66 @@ static bool erase_back_match(std::string &source, const std::string &to_erase) {
     return false;        
 }
 
+#include <fstream>
+
+void    Server::motd_command(Message& msg) {
+
+    std::ifstream   inputFile("inc/Server.info");
+
+    msg.res.str("");
+    if (!inputFile.is_open()) {
+        std::cout << "No se pudo abrir el archivo." << std::endl;
+        msg.res << ERR_NOMOTD << NOMOTD;
+    } else if (msg.params->size() or !msg.user) {
+        return ;
+    } else {
+        msg.res << RPL_MOTDSTART << msg.user->get_nickname() << MOTDSTART;
+        
+        //for (std::string line; std::getline(inputFile, line);)
+        //    msg.res << RPL_MOTD << msg.user->get_nickname() << line << MSG_END;
+        msg.res << RPL_ENDOFMOTD << msg.user->get_nickname() << " " << ENDOFMOTD;
+    }
+    send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+}
+
 void    Server::whois_command(Message& msg) {
 
     std::string nickname;
     User        *user;
 
-    if (msg.params->size() != 1) {
-        msg.res.str("");
-        msg.res << ERR_NONICKNAMEGIVEN << NONICKNAMEGIVEN;
-        send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+    if (msg.params->size() > 1 or msg.user == NULL) {
         return ;
+    }
+    
+    msg.res.str("");
+    if (msg.params->size() == 1) {
+        nickname = msg.get_params_front();
+        user = this->get_user_by_nickname(nickname);
+        if (!user) {
+            msg.res << ERR_NOSUCHNICK << NOSUCHNICK;
+        } else {
+
+            msg.res << RPL_WHOISUSER << user->get_nickname() << " " << user->get_nickname() << " " << user->_login_name << " juluk.org * " << user->_realname << "\r\n";
+            msg.res << RPL_WHOISSERVER << user->get_nickname() << " " << user->get_nickname() << " juluk.org :42 Urduliz IRC chat\r\n";
+            if (user->_channels.size()) {
+                msg.res << RPL_WHOISCHANNELS << user->get_nickname() << " " << user->get_nickname();
+                msg.res << user->get_channels_str() << MSG_END;
+            }
+            msg.res << RPL_ENDOFWHOIS << "<nick> :End of WHOIS list\r\n";
+        }
+
+    } else {
+
+        msg.res << RPL_WHOISUSER << msg.user->get_nickname() << " " << msg.user->get_nickname() << " " << msg.user->_login_name << " juluk.org * " << msg.user->_realname << "\r\n";
+        msg.res << RPL_WHOISSERVER << msg.user->get_nickname() << " " << msg.user->get_nickname() << " juluk.org :42 Urduliz IRC chat\r\n";
+        if (msg.user->_channels.size()) {
+            msg.res << RPL_WHOISCHANNELS << msg.user->get_nickname() << " " << msg.user->get_nickname();
+            msg.res << msg.user->get_channels_str() << MSG_END;
+        }
+        msg.res << RPL_ENDOFWHOIS << "<nick> :End of WHOIS list\r\n";
     }
 
-    nickname = msg.get_params_front();
-    user = this->get_user_by_nickname(nickname);
-    if (user == NULL) {
-        msg.res.str("");
-        msg.res << ERR_NOSUCHNICK << NOSUCHNICK;
-        send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
-        return ;
-    } else {
-        msg.res.str("");
-        msg.res << RPL_WHOISUSER << user->get_nickname() << " ";
-    }
+    send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
 
 }
 
@@ -58,6 +95,9 @@ void    Server::prvmsg_command(Message& msg) {
     Channel *channel;
     User    *user;
     std::string name;
+
+    if (msg.params->size() == 0 or !msg.user)
+        return ;
 
     name = msg.get_params_front();
     channel = this->get_channel_by_name(name);
@@ -87,6 +127,9 @@ void    Server::prvmsg_command(Message& msg) {
 //TODO revisar funcionallidad de list
 void    Server::list_command(Message &msg) {
 
+    if (!msg.user)
+        return ;
+
     msg.res.str("");
     for (int i = 0; i != this->channels.size(); i++)
     {
@@ -110,13 +153,13 @@ void    Server::pass_command(Message &msg) {
     }
 
     std::cout << msg.user << std::endl;
-    if (msg.user)
+    if (msg.user and msg.user->get_notices())
         return ;
 
     std::string password = msg.get_params_front();
     std::cout << "Password: " << password << std::endl;
 
-    if (this->get_user_by_socket(msg.client_socket)) {
+    if (msg.user and msg.user->get_notices()) {
 
         msg.res.str("");
         msg.res << ERR_ALREADYREGISTRED << ALREADYREGISTRED;
@@ -136,11 +179,10 @@ void    Server::pass_command(Message &msg) {
 
 void    Server::ping_command(Message &msg) {
     
-    if (msg.user == NULL)
+    if (!msg.user)
         return ;
         
     std::cout << "Ping command\n - nickname: " << msg.user->get_nickname() << std::endl;
-    //msg.user->set_curr_time(this->_curr_time);
 }
 //TODO crear canal solo con invitación.
 //TODO nick, usuario, host no puede estar en lista ban.
@@ -153,6 +195,9 @@ void    Server::join_command(Message &msg) {
     std::string room_name;
     std::string key;
     Channel     *channel;
+
+    if (!msg.user)
+        return ;
 
     key.clear();
     room_name.clear();
@@ -232,6 +277,9 @@ void    Server::join_command(Message &msg) {
 void    Server::quit_command(Message &msg) {
     std::vector<Channel *>::iterator it;
 
+    if (!msg.user)
+        return ;
+
     it = this->channels.begin();
     for (; it != this->channels.end(); it++) {
         if ((*it)->is_already(msg.user->get_nickname())) {
@@ -250,7 +298,7 @@ void    Server::user_command(Message &msg) {
     UnvalidatedUser     *created_user;
     User                *user;
 
-    if (msg.params->size() < 2) {
+    if (msg.params->size() != 4) {
         std::cerr << "Invalid params! : " << msg.buffer;
         msg.res.str("");
         msg.res << ERR_NEEDMOREPARAMS << NEEDMOREPARAMS;
@@ -262,13 +310,12 @@ void    Server::user_command(Message &msg) {
     std::cout << "Size: " << msg.params->size() << std::endl;
 
     user = this->get_user_by_socket(msg.client_socket);
-    if (user)
+    if (user and user->get_notices())
         return ;
 
     unva_user = this->unvalidated_users.find(msg.client_socket);
     if (unva_user == this->unvalidated_users.end())
     {
-        std::cout << "Close 3\n";
         close(msg.client_socket);
         return ;
     }
@@ -296,7 +343,7 @@ void    Server::user_command(Message &msg) {
     msg.res << RPL_WELCOME << msg.user->get_nickname() << WELCOME << user->get_nickname() << "!" << "paco@yahoo\r\n";
     send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
 
-    this->send_intro(msg.client_socket);
+    this->motd_command(msg);
     this->delete_unvalidated_user(msg.client_socket);
     
     std::cout << "User command\n" << " - login: " << user->_login_name << "\n - realname: " << user->_realname << std::endl;
@@ -328,6 +375,9 @@ bool    Server::check_operator(Message &msg) {
 //TODO revisar funcionalidad de oper
 void    Server::oper_command(Message& msg) {
     bool exist = false;
+
+    if (!msg.user)
+        return ;
 
     msg.holder = msg.split(msg.buffer," ");
     if (msg.holder->size() != 3)
@@ -372,7 +422,7 @@ void    Server::kick_command(Message &msg) {
 
     std::string nickname;
 
-    if (msg.user == NULL)
+    if (!msg.user)
         return ;
     std::cout << "Kick command:\n - nickname: " << nickname << std::endl;
     send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
@@ -387,6 +437,9 @@ void    Server::part_command(Message &msg) {
     std::string topic = ":witohut reason";
     Channel *channel;
 
+
+    if (!msg.user)
+        return ;
 
     if (msg.params->size() < 1) {
         msg.res.str("");
@@ -406,7 +459,6 @@ void    Server::part_command(Message &msg) {
 
     for (size_t i = 0; i < params->size(); i++) {
 
-        std::cout << 4 << std::endl;
         token = params->front();
         params->pop_front();
 
@@ -419,10 +471,11 @@ void    Server::part_command(Message &msg) {
 
         channel->notice_part(msg, topic);
         channel->delete_user(msg.user->get_nickname());
-    }
-    if (channel->get_users_size() == 0) {
-        std::cout << "Empty channel!" << std::endl;
-        this->delete_channel(token);
+
+        if (channel->get_users_size() == 0) {
+            std::cout << "Empty channel!" << std::endl;
+            this->delete_channel(token);
+        }
     }
     msg.user->set_notices(DISCONNECTED);
 }
@@ -433,14 +486,22 @@ void    Server::nick_command(Message &msg) {
     User            *user;
     std::string     nickname;
 
-    nickname = msg.get_params_front();
-    if (msg.params->size() != 0 or nickname.size() == 0) {
+    if (msg.params->size() == 0) {// or nickname.size() == 0) {
 
         msg.res << ERR_NONICKNAMEGIVEN << NONICKNAMEGIVEN;
         send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
 
+        return ;
     }
-    else if (this->check_name(nickname)) {
+
+    nickname = msg.get_params_front();
+    msg.res.str("");
+    if (this->is_already(nickname))
+        nickname += '_';
+
+
+
+    if (this->check_name(nickname)) {
 
         msg.res << ERR_ERRONEUSNICKNAME << nickname << ERRONEUSNICKNAME;
         send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
@@ -450,6 +511,7 @@ void    Server::nick_command(Message &msg) {
             msg.user->set_notices(DISCONNECTED);
             close(msg.client_socket);
         }
+        return ;
     }
     //TODO avisar al restor del cambio de nick
     else if (this->find_unva_user_by_socket(msg.client_socket) == false) {
@@ -463,24 +525,12 @@ void    Server::nick_command(Message &msg) {
 
     unvalid_user = this->unvalidated_users[msg.client_socket];
     if (unvalid_user->password == 0) {
-        std::cout << "Close 2\n";
         this->delete_unvalidated_user(msg.client_socket);
         close(msg.client_socket);
+        return ;
     }
     unvalid_user->nickname = nickname;
     user = this->get_user_by_nickname(unvalid_user->nickname);
-}
-
-void    Server::check_inac() {
-
-        time_t  curr_time = std::clock();
-
-        curr_time = std::clock();
-        if (((curr_time - this->get_curr_time()) / 1000000) > 10) {
-            std::cout << "Checking inactive users!\n";
-            this->check_users();
-            this->set_curr_time(curr_time);
-        }
 }
 
 void    Server::manage_response(int client_index) {
@@ -512,6 +562,9 @@ void    Server::invite_command(Message &msg) {
     bool user_exist = false;
     int real_index = 0;
     
+    if (!msg.user)
+        return ;
+
     msg.holder = msg.split(msg.buffer," ");
     std::cout << msg.holder->size() << std::endl;
     if (msg.holder->size() != 3)

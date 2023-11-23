@@ -23,19 +23,17 @@ void main_loop(Server &server)
 {
     //signal(SIGPIPE, SIG_IGN);
 
-    time_t  curr_time = std::clock();
-
-    server.users.push_back(new User("Bot", server.get_socket(), curr_time));
+    server.users.push_back(new User("Bot", server.get_socket()));
     server.fds.push_back(pollfd());
     server.fds[0].fd = server.get_socket();
     server.fds[0].events = POLLIN;
 
-    server.users.push_back(new User("nickname", 8, curr_time));
-    server.fds.push_back(pollfd());
-    server.fds[1].fd = 8;
-    server.fds[1].events = POLLIN;
+    //server.users.push_back(new User("nickname", 8));
+    //server.fds.push_back(pollfd());
+    //server.fds[1].fd = 8;
+    //server.fds[1].events = POLLIN;
 
-    server.generate_default_channels();
+    //server.generate_default_channels();
     while (true)
     {
         server.event_to_handle = poll(server.fds.data(), server.fds.size(), 0);

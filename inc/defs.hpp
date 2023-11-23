@@ -79,16 +79,17 @@
 # define INVITE_ONLY true
 
 //ERROR_COMMANDS
-# define ERR_CUSTOM ":Server 999 * "
+# define ERR_CUSTOM ":juluk.org 999 * "
 # define INVISIBLE ":You are invisible now\r\n"
 # define INVISIBLE_ALR ":You are invisible alredy\r\n"
 # define VISIBLE ":You are visible now\r\n"
 # define VISIBLE_ALR ":You are visible alredy\r\n"
 
 
-# define ERR_NICKNAMEINUSE ":Server 433 * "
+# define ERR_NICKNAMEINUSE ":juluk.org 433 "
+# define NICKNAMEINUSE ":Nickname is already in use\r\n"
 
-# define ERR_PASSWDMISMATCH ":Server 464 * "
+# define ERR_PASSWDMISMATCH ":juluk.org 464 * "
 # define PASSWDMISMATCH ":Password incorrect\r\n"
 
 # define ERR_NONICKNAMEGIVEN "431 * "
@@ -174,25 +175,45 @@
 
 
 //RESPONSE COMMANDS
-# define RPL_LISTSTART ":Server 321 "
+# define RPL_LISTSTART ":juluk.org 321 "
 # define LISTSTART "Channel :Users  Name"
 
-# define RPL_LIST ":Server 322 * "
+# define RPL_LIST ":juluk.org 322 * "
 
-# define RPL_LISTEND ":Server 323 * "
+# define RPL_LISTEND ":juluk.org 323 * "
 # define LISTEND ":End of LIST\r\n"
 
-# define RPL_WELCOME ":Server 001 "
+# define RPL_WELCOME ":juluk.org 001 "
 
 # define WELCOME    " Welcome to the Internet Relay Network "
 
-# define RPL_TOPIC ":Server 332 "
+# define RPL_TOPIC ":juluk.org 332 "
 
-# define RPL_NAMREPLY ":Server 353 "
+# define RPL_NAMREPLY ":juluk.org 353 "
 
-# define RPL_ENDOFNAMES ":Server 366 "
+# define RPL_ENDOFNAMES ":juluk.org 366 "
 # define ENDOFNAMES " :End of /NAMES list\r\n"
 
-# define RPL_WHOISUSER ":Server 311 "
+//WHOIS
+# define RPL_WHOISUSER ":juluk.org 311 "
+
+# define RPL_WHOISSERVER ":juluk.org 312 "
+
+# define RPL_WHOISCHANNELS ":juluk.org 319 "
+
+# define RPL_ENDOFWHOIS ":juluk.org 318 "
+
+//MOTD
+# define RPL_MOTDSTART ":juluk.org 375 "
+# define MOTDSTART ":- juluk.org Message of the day - \r\n"
+
+# define RPL_MOTD ":juluk.org 372 "
+# define MOTD ":- "
+
+# define RPL_ENDOFMOTD ":juluk.org 376 "
+# define ENDOFMOTD ":End of MOTD command\r\n"
+
+# define ERR_NOMOTD ":juluk.org 422 "
+# define NOMOTD ":MOTD File is missing\r\n"
 
 #endif  //DEFS_HPP
