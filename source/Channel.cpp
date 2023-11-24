@@ -151,6 +151,7 @@ std::string Channel::get_user_list_msg(User *user) {
 }
 
 void    Channel::set_user_limit(int user_limit) { this->_user_limit = user_limit; }
+void    Channel::set_topic(std::string msg) { this->_topic = msg; }
 void    Channel::set_key(const std::string &key) {
     this->_key_opt = KEY_SET;
     this->_key = key;
@@ -272,5 +273,4 @@ void    Channel::notice_part(Message &msg, const std::string &topic) {
 std::vector<bool> *Channel::get_channel_permissions()
 {
     return &_channel_permissions;
-
 }

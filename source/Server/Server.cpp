@@ -21,6 +21,7 @@ Server::Server(const char *port, const char *password): max_clients(MAX_CLIENTS)
     this->callback_map["INVITE"] = &Server::invite_command;
     this->callback_map["PRIVMSG"] = &Server::prvmsg_command;
     this->callback_map["WHOIS"] = &Server::whois_command;
+    this->callback_map["TOPIC"] = &Server::topic_command;
 
     priv_list[0].user = "admin";
     priv_list[0].password = "admin";

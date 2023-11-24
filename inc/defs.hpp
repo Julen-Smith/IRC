@@ -127,7 +127,10 @@
 # define RPL_YOUREOPER "381 * "
 # define YOUREOPER " :You are now an IRC operator\r\n"
 
-//# define ERR_
+//TOPIC
+# define RPL_NOTOPIC  "331 * "
+# define NOTOPIC " :No topic is set\r\n"
+
 
 //MODE RESPONSES
 
@@ -188,6 +191,7 @@
 # define WELCOME    " Welcome to the Internet Relay Network "
 
 # define RPL_TOPIC ":juluk.org 332 "
+# define RPL_TOPIC "332 *"
 
 # define RPL_NAMREPLY ":juluk.org 353 "
 

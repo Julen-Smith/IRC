@@ -424,6 +424,12 @@ void    Server::kick_command(Message &msg) {
 
     if (!msg.user)
         return ;
+    if (msg.user->get_operator_status() == false) {
+        msg.res.str("");
+        msg.res << "481 :Permission Denied- You're not an IRC operator";
+        send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+        return ;
+    }
     std::cout << "Kick command:\n - nickname: " << nickname << std::endl;
     send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
     msg.user->set_notices(DISCONNECTED);
@@ -434,9 +440,15 @@ void    Server::part_command(Message &msg) {
 
     std::deque<std::string> *params;
     std::string token;
-    std::string topic = ":witohut reason";
+    std::string topic = ":without reason";
     Channel *channel;
 
+    if (msg.user->get_operator_status() == false) {
+        msg.res.str("");
+        msg.res << "481 :Permission Denied- You're not an IRC operator";
+        send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+        return ;
+    }
 
     if (!msg.user)
         return ;
@@ -551,7 +563,69 @@ void    Server::manage_response(int client_index) {
     this->tokenizer(msg);
 }
 
-
+void Server::topic_command(Message& msg) 
+{
+    bool channel = false;
+    int index= 0;
+    bool complete_execution = false;
+    int channel_pos = 1;
+    
+    msg.holder = msg.split(msg.buffer," ");
+    std::cout << msg.holder->size() << std::endl;
+    if (msg.holder->size() == 1)
+        error_return(ERR_NEEDMOREPARAMS,NEEDMOREPARAMS,msg);
+    erase_back_match(msg.holder->at(1),MSG_END);
+    std::cout << "El tamaño es" << msg.holder->size() << std::endl;
+    if (msg.holder->size() > 2)
+    {   
+        channel_pos = 1;
+        std::cout << msg.holder->at(1) << std::endl;
+        complete_execution = true;
+        erase_back_match(msg.holder->at(1),MSG_END);
+    }     
+    for (index = 0; index < this->channels.size(); index++)
+    {
+        std::cout << this->channels.at(index)->get_name() << " " << msg.holder->at(channel_pos)<< std::endl;
+        if (this->channels.at(index)->get_name() == msg.holder->at(channel_pos))
+        {
+            channel = true;
+            break;
+        }
+    }
+    if (channel && !complete_execution)
+    {
+        if (this->channels.at(index)->get_topic() == "")
+        {
+            msg.res.str("");
+            msg.res << RPL_NOTOPIC << " " << msg.user->get_nickname() << " " << msg.holder->at(1) << " " << NOTOPIC;
+            send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+        }
+        else
+        {
+            msg.res.str("");
+            msg.res << RPL_TOPIC << " " << this->channels.at(index)->get_name() << " : ";
+            msg.res << this->channels.at(index)->get_topic() <<MSG_END;
+            std::cout << msg.get_res_str() << std::endl;
+            send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+        }
+    }
+    else if (complete_execution && channel)
+    {
+            
+        for(int i = 3; i < msg.holder->size(); i++)
+            msg.holder->at(2) += " " + msg.holder->at(i);
+        this->channels.at(index)->set_topic(msg.holder->at(2));
+        msg.res << RPL_TOPIC << " " << this->channels.at(index)->get_name() << " : ";
+        msg.res << this->channels.at(index)->get_topic() <<MSG_END;
+        std::cout << msg.get_res_str() << std::endl;
+        send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+    }
+    else
+    {
+        error_return(ERR_NOSUCHCHANNEL,NOSUCHCHANNEL,msg);
+        return;
+    }
+}
 
 
 void    Server::invite_command(Message &msg) {
@@ -566,7 +640,6 @@ void    Server::invite_command(Message &msg) {
         return ;
 
     msg.holder = msg.split(msg.buffer," ");
-    std::cout << msg.holder->size() << std::endl;
     if (msg.holder->size() != 3)
         error_return(ERR_NEEDMOREPARAMS,NEEDMOREPARAMS,msg);
     else
@@ -579,11 +652,7 @@ void    Server::invite_command(Message &msg) {
                 }
         }
         if (!exist && error_return(ERR_NOSUCHNICK,NOSUCHNICK,msg))
-        {
-            std::cout << msg.user->get_nickname().size() << msg.holder->at(2).size() << std::endl;
-            std::cout << "No such nick con " << msg.user->get_nickname() << " y " << msg.holder->at(2) << std::endl;
             return;
-        } 
         for (channel_index = 0; channel_index < this->channels.size(); channel_index++)
         {
             if (this->channels.at(channel_index)->get_name() == msg.holder->at(1))

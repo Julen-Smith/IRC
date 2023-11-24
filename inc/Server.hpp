@@ -108,6 +108,7 @@ class Server
 		void						invite_command(Message&);
 		void						prvmsg_command(Message&);
 		void						whois_command(Message&);
+		void						topic_command(Message&);
 
 		//flags
 		void						flag_manager(Message &msg);
