@@ -348,6 +348,12 @@ void    Server::kick_command(Message &msg) {
 
     if (msg.user == NULL)
         return ;
+    if (msg.user->get_operator_status() == false) {
+        msg.res.str("");
+        msg.res << "481 :Permission Denied- You're not an IRC operator";
+        send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+        return ;
+    }
     std::cout << "Kick command:\n - nickname: " << nickname << std::endl;
     send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
     msg.user->set_notices(DISCONNECTED);
@@ -358,9 +364,15 @@ void    Server::part_command(Message &msg) {
 
     std::deque<std::string> *params;
     std::string token;
-    std::string topic = ":witohut reason";
+    std::string topic = ":without reason";
     Channel *channel;
 
+    if (msg.user->get_operator_status() == false) {
+        msg.res.str("");
+        msg.res << "481 :Permission Denied- You're not an IRC operator";
+        send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+        return ;
+    }
 
     if (msg.params->size() < 1) {
         msg.res.str("");
