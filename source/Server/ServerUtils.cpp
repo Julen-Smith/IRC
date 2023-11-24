@@ -127,12 +127,36 @@ void    Server::notice_new_user(Message &msg) {
     }
 }
 
-Channel    *Server::create_channel(const User *user, const std::string &room_name) {
+Channel    *Server::create_channel(User *user, const std::string &room_name) {
     Channel *channel;
 
     channel = new Channel(room_name, "There is no topic"); 
     this->channels.push_back(channel);
     channel->add_user(user);
+    user->add_channel(channel);
     std::cout << "New channel created: " << room_name << std::endl;
     return channel;
+}
+
+bool Server::check_name(const std::string &name) {
+
+    for (size_t i = 0; i < name.size(); i++) {
+        if (!isalpha(name[i]) and name[i] != '_')
+            return true;
+    }
+    return false;
+}
+
+bool Server::delete_channel(const std::string &name) {
+    std::vector<Channel *>::iterator it;
+
+    it = this->channels.begin();
+    for (; it != this->channels.end(); it++) {
+        if (name == (*it)->get_name()) {
+            this->channels.erase(it);
+            delete(*it);
+            return true;
+        }
+    }
+    return false;
 }

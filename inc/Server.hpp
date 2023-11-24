@@ -17,6 +17,7 @@
 #include <fcntl.h>
 #include <fstream>
 #include <cstdarg>
+#include <ctime>
 
 #include "defs.hpp"
 #include "User.hpp"
@@ -35,7 +36,7 @@ class Server
 {
 	public:
 		Server();
-		Server(const char *);
+		Server(const char *, const char *);
 
 		~Server();
 
@@ -65,37 +66,34 @@ class Server
 		int							event_to_handle;
 
 		void						accept_new_user();
-		void						enter_msg(int);
 		void						manage_response(int);
 		void    					erase_client(int);
-		int							command_checker(std::string &);
 		void						generate_default_channels(void);
-		void    					build_message_and_send(std::string,int,std::string, std::string,std::string, int, ...);
 		int							check_channel(std::string&);
 		void						tokenizer(Message& msg);
 		bool						read_socket(Message &msg);
-		////void						erase_match(std::string &source, const std::string &to_erase);
 		bool    					check_operator(Message &msg);
 
 		//channel getters
 		Channel						*get_channel_by_name(const std::string &name) const;
-		Channel    					*create_channel(const User *user, const std::string &romm_name);
+		Channel    					*create_channel(User *user, const std::string &romm_name);
+		bool 						delete_channel(const std::string &name);
 
 		//user getters
 		User						*get_user_by_socket(int client_socket);
-		std::string					get_nickname_by_socket(int client_socket);
 		User						*get_user_by_nickname(const std::string &);
 
 		//user modifiers
 		bool						delete_user_by_socket(int client_socket);
 
 		//validated user
-		bool 						add_unva_user(int client_index);
 		User						*add_validated_user(unvalidated_user);
 		bool 						check_validated_user(Server::validated_user);
+		bool						check_name(const std::string &name);
 		void    					notice_new_user(Message &msg);
 		
 		//commands
+		void						pass_command(Message&);
 		void						part_command(Message&);
 		void						quit_command(Message&);
 		void						mode_command(Message&);
@@ -105,19 +103,34 @@ class Server
 		void						join_command(Message&);
 		void						nick_command(Message&);
 		void						user_command(Message&);
+		void						ping_command(Message&);
+		void						motd_command(Message&);
+		void						invite_command(Message&);
+		void						prvmsg_command(Message&);
+		void						whois_command(Message&);
+		void						topic_command(Message&);
+
+		//flags
+		void						flag_manager(Message &msg);
 
 		//unvalidated user methods
 		bool						find_unva_user_by_socket(int);
 		void						add_unvalidated_user(int);
 		bool						delete_unvalidated_user(int);
 
+		//is funcitons
+
+		bool						is_already(const std::string &nickname);
+
 	protected:
 
 	private:
 
 		std::string			_port;
+		std::string			_password;
 		int					_socket;
-		struct sockaddr_in 	sv_socket_info;
+		struct addrinfo		_hints;
+		struct addrinfo		*_res;
 
 		void			_init_cout() const;
 		void			_create_new_user(ssize_t, int, std::string);

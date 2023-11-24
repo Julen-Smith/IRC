@@ -28,12 +28,12 @@ void main_loop(Server &server)
     server.fds[0].fd = server.get_socket();
     server.fds[0].events = POLLIN;
 
-    server.users.push_back(new User("nickname", 8));
-    server.fds.push_back(pollfd());
-    server.fds[1].fd = 8;
-    server.fds[1].events = POLLIN;
+    //server.users.push_back(new User("nickname", 8));
+    //server.fds.push_back(pollfd());
+    //server.fds[1].fd = 8;
+    //server.fds[1].events = POLLIN;
 
-    server.generate_default_channels();
+    //server.generate_default_channels();
     while (true)
     {
         server.event_to_handle = poll(server.fds.data(), server.fds.size(), 0);
@@ -49,7 +49,7 @@ void main_loop(Server &server)
                 if (server.fds[client].fd == server.get_socket())
                     server.accept_new_user();
                 else
-                    server.manage_response(client);     
+                    server.manage_response(client);
             }
         }
     }
@@ -59,13 +59,7 @@ void main_loop(Server &server)
 /** @attention Main @param Argc,Port,Password @return exit mode */
 int main(int argc, char const *argv[])
 {
-    /*
-    if (argc == 1)
-        Server	server(PORT, PASSWORD);
-    else
-        Server	server(PORT, argv[1]);
-        */
-    Server	server(PORT);
+    Server	server(PORT, PASSWORD);
 
     main_loop(server);
     return (0);
