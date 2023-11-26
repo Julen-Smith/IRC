@@ -510,20 +510,24 @@ void    Server::part_command(Message &msg) {
 void    Server::nick_command(Message &msg) {
 
     UnvalidatedUser *unvalid_user;
-    User            *user;
     std::string     nickname;
 
     if (msg.params->size() == 0) {// or nickname.size() == 0) {
 
         msg.res << ERR_NONICKNAMEGIVEN << NONICKNAMEGIVEN;
         send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+
         return ;
     }
+
     nickname = msg.get_params_front();
     msg.res.str("");
-
-    if (this->is_already(nickname))
+    if (this->is_already(nickname)) {
+	if (msg.user) {
+		msg.res << ERR_NICKNAMEINUSE << msg.user->get_nickname() << NICKNAMEINUSE;
+	}
         nickname += '_';
+    }
 
     if (this->check_name(nickname)) {
 
@@ -535,22 +539,17 @@ void    Server::nick_command(Message &msg) {
             msg.user->set_notices(DISCONNECTED);
             close(msg.client_socket);
         }
-
         return ;
     }
     //TODO avisar al restor del cambio de nick
     else if (this->find_unva_user_by_socket(msg.client_socket) == false) {
-
-        user = this->get_user_by_socket(msg.client_socket);
-        if (user)
-        {
-            user->set_nickname(nickname);
-            msg.res.str("");
-            msg.res << "303 * Your new nickname is " << nickname << MSG_END;
-            send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
-        }
-        return ;
+	    msg.res << ":" << msg.user->get_nickname() << " NICK :" << nickname << MSG_END;
+	    msg.user->set_nickname(nickname);
+	    std::cout << msg.get_res_str();
+	    send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+	    return ;
     }
+
     unvalid_user = this->unvalidated_users[msg.client_socket];
     if (unvalid_user->password == 0) {
         this->delete_unvalidated_user(msg.client_socket);
