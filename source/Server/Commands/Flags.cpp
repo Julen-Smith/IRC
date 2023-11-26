@@ -1,15 +1,17 @@
 #include "Server.hpp"
+#include <exception>
 
 int get_channel_index(std::vector<Channel *> channels, std::string channel)
 {
-    if (channels.empty())
-        return -1;
 
+    if (channels.empty())
+        return (-1);
     for (int i = 0; i < channels.size(); i++) {
-        if(channels.at(i)->get_name() == channel)
+        if(channels.at(i)->get_name() == channel){
             return (i);
+        }
     }
-    return (0);
+    return (-1);
 }
 
 User* get_user_index(std::vector<Channel *> channels, int channel_index, std::string user)
@@ -54,7 +56,7 @@ void i_flag(Message &msg,char impact,Server *serv)
             send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
             return;
         }
-        if (ind > 0 && impact == '+')
+        if (ind >= 0 && impact == '+')
         {
             std::string channelName = serv->channels.at(ind)->get_name();
             
@@ -87,9 +89,15 @@ void i_flag(Message &msg,char impact,Server *serv)
             return ;
         }
     }
+    
     std::string channel = msg.holder->at(1);
     std::string user = msg.holder->at(3);
     int index = get_channel_index(serv->channels,channel);
+    if (index == -1)
+    {
+        std::cout << "no encuentro index del canal" << std::endl;
+        return ;
+    }
     if (get_user_index(serv->channels, index, user) == 0)
     {
         msg.res.str("");
@@ -101,7 +109,7 @@ void i_flag(Message &msg,char impact,Server *serv)
     std::cout << user_obj->get_nickname() << std::endl;
     it = serv->channels.at(index)->get_user_permissions()->find(user_obj);
     std::vector<char>& permissions = it->second;
-    std::cout << permissions[0] << std::endl;
+    std::cout <<"Permisos " << permissions[0] << std::endl;
     if (permissions[0] == '1' && impact == '+')
     {
         msg.res.str("");
@@ -136,8 +144,7 @@ void i_flag(Message &msg,char impact,Server *serv)
     }
     if (permissions[0] == '1')
     {
-        //Eliminar el nombre de las listas
-        //names //who y //list
+        std::cout << "Si" << std::endl;
     }
 }
    
@@ -252,24 +259,26 @@ void    Server::flag_manager(Message &msg)
     void (*do_flags[])(Message &msg, char impact,Server *serv) = \
     {i_flag,w_flag,s_flag,o_flag,v_flag,q_flag,t_flag,k_flag,l_flag,b_flag,m_flag};
     flags = msg.holder->at(2);
-
-    std::cout << "start" << std::endl;
-    for (int flag = 0; flag < flags.size(); flag++)
-    {
-        if (flags[flag] == '+' || flags[flag] == '-')
+    try {
+        for (int flag = 0; flag < flags.size(); flag++)
         {
-            impact = flags[flag];
-            continue;
-        }
-        for (int i = 0; i < compilation.size(); i++)
-        {
-            if (flags[flag] == compilation[i])
+            if (flags[flag] == '+' || flags[flag] == '-')
             {
-                std::cout << "Validated flag : " << flags[flag] << std::endl;
-                do_flags[i](msg, impact, this);
+                impact = flags[flag];
+                continue;
             }
-                
+            for (int i = 0; i < compilation.size(); i++)
+            {
+                if (flags[flag] == compilation[i])
+                {
+                    std::cout << "Validated flag : " << flags[flag] << std::endl;
+                    do_flags[i](msg, impact, this);
+                } 
+            }
         }
+    } catch (std::exception &e)
+    {
+        std::cerr << "Error en la validacion de vectores" << std::endl;
     }
     std::cout << "finish" << std::endl;
 }
