@@ -62,6 +62,7 @@ void    Server::whois_command(Message& msg) {
     msg.res.str("");
     if (msg.params->size() == 1) {
         nickname = msg.get_params_front();
+	std::cout << "nickname: " << nickname << std::endl;
         user = this->get_user_by_nickname(nickname);
         if (!user) {
             msg.res << ERR_NOSUCHNICK << NOSUCHNICK;
@@ -183,6 +184,7 @@ void    Server::ping_command(Message &msg) {
         return ;
         
     std::cout << "Ping command\n - nickname: " << msg.user->get_nickname() << std::endl;
+
 }
 //TODO crear canal solo con invitación.
 //TODO nick, usuario, host no puede estar en lista ban.
@@ -443,12 +445,15 @@ void    Server::part_command(Message &msg) {
     std::string topic = ":without reason";
     Channel *channel;
 
-    if (msg.user->get_operator_status() == false) {
-        msg.res.str("");
-        msg.res << "481 :Permission Denied- You're not an IRC operator";
-        send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+    if (!msg.user)
         return ;
-    }
+
+    //if (msg.user->get_operator_status() == false) {
+   //     msg.res.str("");
+   //     msg.res << "481 :Permission Denied- You're not an IRC operator";
+  //      send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+   //     return ;
+   // }
 
     if (!msg.user)
         return ;
@@ -495,7 +500,6 @@ void    Server::part_command(Message &msg) {
 void    Server::nick_command(Message &msg) {
 
     UnvalidatedUser *unvalid_user;
-    User            *user;
     std::string     nickname;
 
     if (msg.params->size() == 0) {// or nickname.size() == 0) {
@@ -508,10 +512,12 @@ void    Server::nick_command(Message &msg) {
 
     nickname = msg.get_params_front();
     msg.res.str("");
-    if (this->is_already(nickname))
+    if (this->is_already(nickname)) {
+	if (msg.user) {
+		msg.res << ERR_NICKNAMEINUSE << msg.user->get_nickname() << NICKNAMEINUSE;
+	}
         nickname += '_';
-
-
+    }
 
     if (this->check_name(nickname)) {
 
@@ -527,12 +533,11 @@ void    Server::nick_command(Message &msg) {
     }
     //TODO avisar al restor del cambio de nick
     else if (this->find_unva_user_by_socket(msg.client_socket) == false) {
-
-        user = this->get_user_by_socket(msg.client_socket);
-        if (user)
-            user->set_nickname(nickname);
-
-        return ;
+	    msg.res << ":" << msg.user->get_nickname() << " NICK :" << nickname << MSG_END;
+	    msg.user->set_nickname(nickname);
+	    std::cout << msg.get_res_str();
+	    send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+	    return ;
     }
 
     unvalid_user = this->unvalidated_users[msg.client_socket];
@@ -542,7 +547,6 @@ void    Server::nick_command(Message &msg) {
         return ;
     }
     unvalid_user->nickname = nickname;
-    user = this->get_user_by_nickname(unvalid_user->nickname);
 }
 
 void    Server::manage_response(int client_index) {

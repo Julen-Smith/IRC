@@ -191,7 +191,7 @@
 # define WELCOME    " Welcome to the Internet Relay Network "
 
 # define RPL_TOPIC ":juluk.org 332 "
-# define RPL_TOPIC "332 *"
+//# define RPL_TOPIC "332 *"
 
 # define RPL_NAMREPLY ":juluk.org 353 "
 
