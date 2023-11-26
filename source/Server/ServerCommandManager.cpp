@@ -242,6 +242,7 @@ void    Server::join_command(Message &msg) {
             if (channel == NULL) {
                 channel = this->create_channel(msg.user, room_name);
                 msg.res << channel->get_topic_msg(msg.user) << channel->get_user_list_msg(msg.user);
+                msg.res << ":juluk.org MODE " << room_name << " +o " << msg.user->get_nickname() << MSG_END;
                 this->channels.push_back(channel);
             }
             //el canal existe

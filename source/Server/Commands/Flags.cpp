@@ -59,12 +59,11 @@ void i_flag(Message &msg,char impact,Server *serv)
         if (ind >= 0 && impact == '+')
         {
             std::string channelName = serv->channels.at(ind)->get_name();
-            
+            serv->channels.at(ind)->set_invite(true);
             msg.res.str(":Server MODE " + channelName + " +i" + MSG_END);
             send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
             std::cout << "Nombre canal " <<serv->channels.at(ind)->get_name() << std::endl;
             serv->channels.at(ind)->get_channel_permissions()->at(5) = true;
-
             msg.res.str(":Server 324 " + msg.user->get_nickname() + " " + channelName + " +i" + MSG_END);
             send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
             return;
@@ -72,12 +71,10 @@ void i_flag(Message &msg,char impact,Server *serv)
         else if (impact == '-')
         {
             std::string channelName = serv->channels.at(ind)->get_name();
-            
+            serv->channels.at(ind)->set_invite(false);
             msg.res.str(":Server MODE " + channelName + " -i" + MSG_END);
             send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
-            
             serv->channels.at(ind)->get_channel_permissions()->at(5) = false;
-
             msg.res.str(":Server 324 " + msg.user->get_nickname() + " " + channelName + " -i" + MSG_END);
             send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
             return;
@@ -89,7 +86,6 @@ void i_flag(Message &msg,char impact,Server *serv)
             return ;
         }
     }
-    
     std::string channel = msg.holder->at(1);
     std::string user = msg.holder->at(3);
     int index = get_channel_index(serv->channels,channel);
@@ -160,6 +156,7 @@ void s_flag(Message &msg,char impact,Server *serv)
 
 void o_flag(Message &msg,char impact,Server *serv)
 {
+
     int ind = 0;
     bool finded = false;
     bool user_exist = false;
