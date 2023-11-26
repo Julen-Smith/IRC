@@ -50,7 +50,10 @@ void i_flag(Message &msg,char impact,Server *serv)
             return;
         }
         std::map<const User*, std::vector<char> > *user_permissions = serv->channels.at(ind)->get_user_permissions();
-        if ((*user_permissions)[msg.user].at(2) == '0')
+        std::cout << "User " << msg.user->get_nickname() << msg.user->get_operator_status() << std::endl;
+        std::cout << (*user_permissions)[msg.user].at(2) << " " << msg.user->get_operator_status() << std::endl;
+        
+        if ((*user_permissions)[msg.user].at(2) == '0' && !msg.user->get_operator_status())
         {
             msg.res.str(":Server 482 " + msg.user->get_nickname() + " " + serv->channels.at(ind)->get_name() + " :You're not channel operator" + MSG_END);
             send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
@@ -185,8 +188,6 @@ void o_flag(Message &msg,char impact,Server *serv)
     }
     std::map<const User*, std::vector<char> > *user_permissions = serv->channels.at(ind)->get_user_permissions();
     serv->channels.at(ind)->stdout_channel__users_permissions(msg.user);
-    if (msg.user->get_nickname() == "jul")
-        msg.user->set_operator_status(true);
     if ((*user_permissions)[msg.user].at(2) == '0' && !msg.user->get_operator_status())
     {
         msg.res.str(":Server 482 " + msg.user->get_nickname() + " " + serv->channels.at(ind)->get_name() + " :You're not channel operator" + MSG_END);
@@ -195,8 +196,9 @@ void o_flag(Message &msg,char impact,Server *serv)
     }
     if (impact == '+')
     {
-        msg.res.str(":");
-        msg.res.str(msg.holder->at(3));
+       // msg.res.str(":");
+       // msg.res.str(msg.holder->at(3));
+       (*user_permissions)[msg.user].at(2) = '1';
         msg.res.str(" MODE " + msg.holder->at(1) + " +o" + MSG_END);
         send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
         msg.res.str(":Server 324 " + msg.user->get_nickname() + " " + msg.holder->at(1) + " +o"+ MSG_END);
@@ -205,6 +207,7 @@ void o_flag(Message &msg,char impact,Server *serv)
     }
     else
     {
+        (*user_permissions)[msg.user].at(2) = '0';
         msg.res.str(":Server MODE " + msg.holder->at(3) + " -o" + MSG_END);
         send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
         msg.res.str(":Server 324 " + msg.user->get_nickname() + " " + msg.holder->at(1) + " -o"+ MSG_END);

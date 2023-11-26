@@ -250,7 +250,7 @@ void    Server::join_command(Message &msg) {
                 //canal solo para invitados
                 if (channel->is_already(msg.user->get_nickname()))
                     return ;
-                else if (channel->get_invite() == INVITE_ONLY) {
+                else if (channel->get_invite() == INVITE_ONLY && msg.user->get_operator_status() == false) {
                     msg.res.str("");
                     msg.res << ERR_INVITEONLYCHAN << msg.user->get_nickname() << room_name << " " << INVITEONLYCHAN;
                 //canal con limite de usuarios superado
@@ -653,7 +653,6 @@ void    Server::invite_command(Message &msg) {
 
     if (!msg.user)
         return ;
-
     msg.holder = msg.split(msg.buffer," ");
     if (msg.holder->size() != 3)
         error_return(ERR_NEEDMOREPARAMS,NEEDMOREPARAMS,msg);
@@ -682,6 +681,8 @@ void    Server::invite_command(Message &msg) {
             user_exist = ((this->channels.at(real_index)->get_users().at(i)->get_nickname() == msg.user->get_nickname()) && (!user_exist)) ? true : false;
         if (!user_exist && error_return(ERR_NOTONCHANNEL,NOTONCHANNEL,msg))
             return;
+        if (!msg.user->get_operator_status() || (*this->channels.at(real_index)->get_channel_permissions())[2] == 0)
+            error_return(ERR_CHANOPRIVSNEEDED,CHANOPRIVSNEEDED,msg);
         msg.res.str(":Server NOTICE " + msg.user->get_nickname() + " :Inviting " + msg.holder->at(2) + " to channel " + this->channels.at(real_index)->get_name() + MSG_END);
         send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
 
