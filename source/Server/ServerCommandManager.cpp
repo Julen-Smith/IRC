@@ -510,6 +510,7 @@ void    Server::part_command(Message &msg) {
 void    Server::nick_command(Message &msg) {
 
     UnvalidatedUser *unvalid_user;
+    User            *user;
     std::string     nickname;
 
     if (msg.params->size() == 0) {// or nickname.size() == 0) {
