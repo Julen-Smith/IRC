@@ -144,17 +144,26 @@ void    Server::pass_command(Message &msg) {
 
     UnvalidatedUser *unvalid_user;
     std::string     nickname;
-    
+    std::cout << msg.params->size() << std::endl;
+    if (msg.params->size() == 0)
+    {
+        msg.res.str("");
+        msg.res << ERR_NEEDMOREPARAMS << NEEDMOREPARAMS << MSG_END;
+        send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+        return ;
+    }
     if (msg.params->size() != 1) {
         msg.res.str("");
-        msg.res << ERR_NEEDMOREPARAMS << NEEDMOREPARAMS;
+        msg.res << ERR_NEEDMOREPARAMS << "Too many arguments" << MSG_END;
         send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
         return ;
     }
 
     std::cout << msg.user << std::endl;
     if (msg.user and msg.user->get_notices())
+    {   
         return ;
+    }
 
     std::string password = msg.get_params_front();
     std::cout << "Password: " << password << std::endl;
@@ -172,9 +181,9 @@ void    Server::pass_command(Message &msg) {
         this->delete_unvalidated_user(msg.client_socket);
         return ;
     }
-
     unvalid_user = this->unvalidated_users[msg.client_socket];
     unvalid_user->password = 1;
+
 }
 
 void    Server::ping_command(Message &msg) {
@@ -231,6 +240,7 @@ void    Server::join_command(Message &msg) {
             if (channel == NULL) {
                 channel = this->create_channel(msg.user, room_name);
                 msg.res << channel->get_topic_msg(msg.user) << channel->get_user_list_msg(msg.user);
+                this->channels.push_back(channel);
             } 
             //el canal existe
             else {
@@ -502,17 +512,12 @@ void    Server::nick_command(Message &msg) {
 
         msg.res << ERR_NONICKNAMEGIVEN << NONICKNAMEGIVEN;
         send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
-
         return ;
     }
-
     nickname = msg.get_params_front();
     msg.res.str("");
     if (this->is_already(nickname))
         nickname += '_';
-
-
-
     if (this->check_name(nickname)) {
 
         msg.res << ERR_ERRONEUSNICKNAME << nickname << ERRONEUSNICKNAME;
@@ -523,6 +528,7 @@ void    Server::nick_command(Message &msg) {
             msg.user->set_notices(DISCONNECTED);
             close(msg.client_socket);
         }
+
         return ;
     }
     //TODO avisar al restor del cambio de nick
@@ -530,11 +536,14 @@ void    Server::nick_command(Message &msg) {
 
         user = this->get_user_by_socket(msg.client_socket);
         if (user)
+        {
             user->set_nickname(nickname);
-
+            msg.res.str("");
+            msg.res << "303 * Your new nickname is " << nickname << MSG_END;
+            send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+        }
         return ;
     }
-
     unvalid_user = this->unvalidated_users[msg.client_socket];
     if (unvalid_user->password == 0) {
         this->delete_unvalidated_user(msg.client_socket);
@@ -543,6 +552,7 @@ void    Server::nick_command(Message &msg) {
     }
     unvalid_user->nickname = nickname;
     user = this->get_user_by_nickname(unvalid_user->nickname);
+
 }
 
 void    Server::manage_response(int client_index) {
