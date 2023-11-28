@@ -1,6 +1,23 @@
 #include "Server.hpp"
 #include <exception>
 
+static bool erase_back_match(std::string &source, const std::string &to_erase) {
+
+    size_t  erase_len = 0;
+    size_t  source_len = source.size();
+
+    for (int i = 0; i < to_erase.size(); i++) {
+        if (source.find(to_erase[i]) != -1)
+            erase_len++;
+    }
+    if (erase_len)
+    {
+        source.erase(source_len - erase_len, source_len);
+        return true;
+    }
+    return false;
+}
+
 int get_channel_index(std::vector<Channel *> channels, std::string channel)
 {
 
@@ -108,7 +125,6 @@ void i_flag(Message &msg,char impact,Server *serv)
     std::cout << user_obj->get_nickname() << std::endl;
     it = serv->channels.at(index)->get_user_permissions()->find(user_obj);
     std::vector<char>& permissions = it->second;
-    std::cout <<"Permisos " << permissions[0] << std::endl;
     if (permissions[0] == '1' && impact == '+')
     {
         msg.res.str("");
@@ -159,7 +175,6 @@ void s_flag(Message &msg,char impact,Server *serv)
 
 void o_flag(Message &msg,char impact,Server *serv)
 {
-
     int ind = 0;
     bool finded = false;
     bool user_exist = false;
@@ -167,6 +182,8 @@ void o_flag(Message &msg,char impact,Server *serv)
     if(msg.holder->size() != 4)
         return;
     ind = get_channel_index(serv->channels,msg.holder->at(1));
+    if (ind < 0)
+        return; 
     for (int i = 0; i < serv->channels.at(ind)->get_users_size();i++)
         if (serv->channels.at(ind)->get_users().at(i)->get_nickname() == msg.user->get_nickname())
                 finded = true;
@@ -196,21 +213,15 @@ void o_flag(Message &msg,char impact,Server *serv)
     }
     if (impact == '+')
     {
-       // msg.res.str(":");
-       // msg.res.str(msg.holder->at(3));
        (*user_permissions)[msg.user].at(2) = '1';
-        msg.res.str(" MODE " + msg.holder->at(1) + " +o" + MSG_END);
-        send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
-        msg.res.str(":Server 324 " + msg.user->get_nickname() + " " + msg.holder->at(1) + " +o"+ MSG_END);
+        msg.res << ":juluk.org MODE " << msg.holder->at(1) << " +o " << msg.user->get_nickname() << MSG_END;
         send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
         return;
     }
     else
     {
         (*user_permissions)[msg.user].at(2) = '0';
-        msg.res.str(":Server MODE " + msg.holder->at(3) + " -o" + MSG_END);
-        send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
-        msg.res.str(":Server 324 " + msg.user->get_nickname() + " " + msg.holder->at(1) + " -o"+ MSG_END);
+        msg.res << ":juluk.org MODE " << msg.holder->at(1) << " -o " << msg.user->get_nickname() << MSG_END;
         send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
         return;
     }
@@ -227,12 +238,97 @@ void q_flag(Message &msg,char impact,Server *serv)
 
 void t_flag(Message &msg,char impact,Server *serv)
 {
-    std::cout << "Calling flag t" << std::endl;
+    int ind = 0;
+    int finded = 0;
+
+    if(msg.holder->size() == 3)
+    {
+        ind = get_channel_index(serv->channels,msg.holder->at(1));
+        if (ind == -1)
+        {
+            msg.res.str("");
+            msg.res << ERR_NOSUCHNICK << NOSUCHNICK;
+            send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
+            return ;
+        }
+        for (int i = 0; i < serv->channels.at(ind)->get_users_size(); i++)
+            if (serv->channels.at(ind)->get_users().at(i)->get_nickname() == msg.user->get_nickname())
+                finded = true;
+        if (!finded)
+        {
+            msg.res.str(":Server 441 " + msg.user->get_nickname() + " " + serv->channels.at(ind)->get_name() + " :You aren't on that channel" + MSG_END);
+            send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
+            return;
+        }
+        if (impact == '+')
+        {
+            serv->channels.at(ind)->get_channel_permissions()->at(0) = true;
+            msg.res.str("");
+            msg.res << ":juluk.org MODE " << msg.holder->at(1) << " +t " << msg.user->get_nickname() << MSG_END;
+            send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
+        }
+        else if (impact == '-')
+        {
+            serv->channels.at(ind)->get_channel_permissions()->at(0) = false;
+            msg.res.str("");
+            msg.res << ":juluk.org MODE " << msg.holder->at(1) << " -t " << msg.user->get_nickname() << MSG_END;
+            send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
+        }
+    }
+    else
+    {
+        msg.res.str("");
+        msg.res << ERR_CUSTOM << "Invalid number of parameters" << MSG_END;
+        send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+    }
 }
 
 void k_flag(Message &msg,char impact,Server *serv)
 {
-    std::cout << "Calling flag k" << std::endl;
+    int ind = 0;
+    bool finded = false;
+
+    if(msg.holder->size() != 4)
+    {
+        msg.res.str("");
+        msg.res << ERR_CUSTOM << "Invalid number of parameters" << MSG_END;
+        send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+        return;
+    }
+    ind = get_channel_index(serv->channels,msg.holder->at(1));
+    for (int i = 0; i < serv->channels.at(ind)->get_users_size();i++)
+        if (serv->channels.at(ind)->get_users().at(i)->get_nickname() == msg.user->get_nickname())
+                finded = true;
+    if (!finded)
+    {
+        msg.res.str(":Server 441 " + msg.user->get_nickname() + " " + serv->channels.at(ind)->get_name() + " :You aren't on that channel" + MSG_END);
+        send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
+        return;
+    }
+    std::map<const User*, std::vector<char> > *user_permissions = serv->channels.at(ind)->get_user_permissions();
+    serv->channels.at(ind)->stdout_channel__users_permissions(msg.user);
+    if ((*user_permissions)[msg.user].at(2) == '0' && !msg.user->get_operator_status())
+    {
+        msg.res.str(":Server 482 " + msg.user->get_nickname() + " " + serv->channels.at(ind)->get_name() + " :You're not channel operator" + MSG_END);
+        send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
+        return;
+    }
+    if (impact == '+')
+    {
+        erase_back_match(msg.holder->at(3),MSG_END);
+        serv->channels.at(ind)->set_key(msg.holder->at(3));
+        msg.res.str("");
+        msg.res << ":juluk.org MODE " << msg.holder->at(1) << " +k " << msg.user->get_nickname() << MSG_END;
+        send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
+    }
+    else if (impact == '-')
+    {
+        msg.res.str("");
+        msg.res << ":juluk.org MODE " << msg.holder->at(1) << " -k " << msg.user->get_nickname() << MSG_END;
+        send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
+    }
+
+
 }
 
 void l_flag(Message &msg,char impact,Server *serv)

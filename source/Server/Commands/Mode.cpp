@@ -6,21 +6,20 @@ static bool contains_invalid_mix(const std::string& input) {
 
     for (size_t i = 0; i < input.length(); i++) {
         char c = input[i];
-        if (std::string("tklbm").find(c) == std::string::npos) {
+        if (std::string("tklbm").find(c) == 0) {
             user = true;
             if (channel)
             {
                 std::cout << "Error on flag mixing" << std::endl;
                 return true; 
             }
-        } else if (std::string("iwsovq").find(c) == std::string::npos) {
+        } else if (std::string("iwsovq").find(c) == 0) {
             channel = true;
             if (user)
             {
                 std::cout << "Error on flag mixing" << std::endl;
                 return true;
-            }
-                
+            }      
         }else
             user = channel = false;
     }
@@ -151,7 +150,7 @@ static bool check_application_dest(Message &msg, std::vector<User *> users, std:
     if (!isNone)
     {
         std::cout << "Error on flag channel coordination" << std::endl;
-         return (true);
+        return (true);
     }
        
     return (false);
@@ -185,7 +184,6 @@ int mode_input_manager(Message &msg, std::vector<User *> users, std::vector<Chan
 
     if (msg.holder->size() == 2)
         reply_permissions(msg,channels);
-
     else if (msg.holder->size() == 1 || msg.holder->empty() ||  msg.holder->size() > 4 || msg.holder->at(2).empty() ||  is_repeated_char(msg.holder->at(2)) || is_duplicated_simbol(msg.holder->at(2)) ||
     (input_validator(msg.holder->at(2)) && twisted_input_validator(msg.holder->at(2))) || contains_invalid_mix(msg.holder->at(2))){
         msg.res.str("");
