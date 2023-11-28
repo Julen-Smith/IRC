@@ -240,9 +240,12 @@ void    Server::join_command(Message &msg) {
             //TODO create new channel
             //el canal no existe
             if (channel == NULL) {
+
                 channel = this->create_channel(msg.user, room_name);
+
                 msg.res << channel->get_topic_msg(msg.user) << channel->get_user_list_msg(msg.user);
-                msg.res << ":juluk.org MODE " << room_name << " +o " << msg.user->get_nickname() << MSG_END;
+                msg.res << "juluk.org MODE " << room_name << " +nt\r\n";
+                std::cout << msg.res;
                 this->channels.push_back(channel);
             }
             //el canal existe
@@ -433,20 +436,56 @@ void    Server::oper_command(Message& msg) {
 //TODO revisar funcionalidad de kick
 void    Server::kick_command(Message &msg) {
 
+    Channel     *channel;
     std::string nickname;
+    std::string channel_name;
+    std::string reason;
 
     if (!msg.user)
         return ;
-    if (msg.user->get_operator_status() == false) {
+
+    msg.res.str("");
+    if (msg.params->size() < 2) {
+
+        msg.res << ERR_NEEDMOREPARAMS << NEEDMOREPARAMS;
+        send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+        return ;
+    }
+
+    if (0 and msg.user->get_operator_status() == false) {
         msg.res.str("");
         msg.res << "481 :Permission Denied- You're not an IRC operator";
         send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
         return ;
     }
-    std::cout << "Kick command:\n - nickname: " << nickname << std::endl;
-    send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
-    msg.user->set_notices(DISCONNECTED);
-    close(msg.client_socket);
+
+    channel_name = msg.get_params_front();
+    nickname     = msg.get_params_front();
+    reason       = msg.get_params_front();
+
+    channel = this->get_channel_by_name(channel_name);
+    if (!channel) {
+        msg.res << ERR_NOSUCHCHANNEL << NOSUCHCHANNEL;
+        send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+        return ;
+    }
+
+    if (channel->is_operator(msg.user) == false) {
+
+        msg.res << ERR_CHANOPRIVSNEEDED << CHANOPRIVSNEEDED;
+        send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+        return ;
+    }
+
+    if (!channel->is_already(nickname)) {
+        msg.res << ERR_NOTONCHANNEL << NOTONCHANNEL;
+        send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+        return ;
+    }
+
+    msg.res << ":juluk.org KICK " << channel_name << " " << nickname << " " << reason << MSG_END;
+    channel->broadcast_msg(msg);
+    channel->delete_user(nickname);
 }
 
 void    Server::part_command(Message &msg) {
@@ -512,6 +551,9 @@ void    Server::nick_command(Message &msg) {
 
     UnvalidatedUser *unvalid_user;
     std::string     nickname;
+
+    if (this->find_unva_user_by_socket(msg.client_socket) == false and msg.user == NULL)
+        return ;
 
     if (msg.params->size() == 0) {// or nickname.size() == 0) {
 
@@ -585,10 +627,14 @@ void Server::topic_command(Message& msg)
     bool complete_execution = false;
     int channel_pos = 1;
 
+    if (!msg.user)
+        return ;
+
     msg.holder = msg.split(msg.buffer," ");
     std::cout << msg.holder->size() << std::endl;
     if (msg.holder->size() == 1)
         error_return(ERR_NEEDMOREPARAMS,NEEDMOREPARAMS,msg);
+
     erase_back_match(msg.holder->at(1),MSG_END);
     std::cout << "El tamaño es" << msg.holder->size() << std::endl;
     if (msg.holder->size() > 2)

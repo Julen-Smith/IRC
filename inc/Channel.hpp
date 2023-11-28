@@ -47,7 +47,7 @@ class Channel
         bool                                        get_invite() const;
         const std::string&                          get_name() const;
         const std::string&                          get_topic() const;
-        std::string                                 get_user_list() const;
+        std::string                                 get_user_list();
         std::string                                 get_visible_user_list() const;
         int                                         get_users_size() const;
         std::string                                 get_permissions_to_string();
@@ -61,6 +61,7 @@ class Channel
         bool                is_limit_raised() const;
         bool                is_banned(const std::string &nickname);
         bool                is_already(const std::string &nickname);
+        bool                is_operator(User *user);
 
 
         std::string         get_user_list_msg(User *user);
@@ -75,12 +76,13 @@ class Channel
         void                send_msg(Message &msg);
         void                notice_join(Message &msg);
         void                notice_part(Message &msg, const std::string &topic);
+        void                broadcast_msg(Message &msg);
 
 
         //Debug and stuff
         void                stdout_channel_permissions();
         void                stdout_channel__users_permissions(const User *user);
-       
+
 };
 
 
