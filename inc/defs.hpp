@@ -1,6 +1,8 @@
 #ifndef DEFS_HPP
 # define DEFS_HPP
 
+
+
 //User
 
 # define CONNECTED      true
@@ -9,6 +11,15 @@
 # define EMPTY          0
 
 //Channel
+
+//FLAGS
+
+# define TOPIC      0
+# define KEY        1
+# define LIMIT      2
+# define BAN        3
+# define MODERATED  4
+# define INVITE     5
 
 # define FOUND              true
 # define NOT_FOUND          false

@@ -301,3 +301,7 @@ void Channel::broadcast_msg(Message &msg) {
         send((*it)->get_socket(), msg.get_res_str(), msg.get_res_size(), 0);
 
 }
+
+bool Channel::is_flag(int type) {
+    return this->_channel_permissions[type];
+}

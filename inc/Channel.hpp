@@ -62,6 +62,7 @@ class Channel
         bool                is_banned(const std::string &nickname);
         bool                is_already(const std::string &nickname);
         bool                is_operator(User *user);
+        bool                is_flag(int flag);
 
 
         std::string         get_user_list_msg(User *user);

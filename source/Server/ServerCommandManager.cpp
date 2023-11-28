@@ -223,8 +223,9 @@ void    Server::join_command(Message &msg) {
     } else {
 
         //TODO hay que hacer split de los canales
+
         room_name = msg.get_params_front();
-        if (msg.params->size() == 2)
+        if (msg.params->size() == 1)
             key = msg.get_params_front();
 
         rooms = msg.split(room_name, CSV);
@@ -622,6 +623,7 @@ void    Server::manage_response(int client_index) {
 
 void Server::topic_command(Message& msg)
 {
+    Channel *ch;
     bool channel = false;
     int index= 0;
     bool complete_execution = false;
@@ -637,13 +639,41 @@ void Server::topic_command(Message& msg)
 
     erase_back_match(msg.holder->at(1),MSG_END);
     std::cout << "El tamaño es" << msg.holder->size() << std::endl;
+
+    //Cambiar el topic del canal
     if (msg.holder->size() > 2)
     {
         channel_pos = 1;
+        ch = this->get_channel_by_name(msg.holder->at(1));
+        if (ch == NULL) {
+
+            msg.res << ERR_NOSUCHCHANNEL << NOSUCHCHANNEL;
+            send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+            return ;
+
+        }
+
+        else if (!ch->is_already(msg.user->get_nickname())) {
+
+            msg.res << ERR_NOTONCHANNEL << NOTONCHANNEL;
+            send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+            return ;
+
+        }
+
+        else if (ch->is_flag(TOPIC) and (!ch->is_operator(msg.user) || !msg.user->get_operator_status())) {
+
+            msg.res << ERR_CHANOPRIVSNEEDED << CHANOPRIVSNEEDED;
+            send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+            return ;
+
+        }
+
         std::cout << msg.holder->at(1) << std::endl;
         complete_execution = true;
         erase_back_match(msg.holder->at(1),MSG_END);
     }
+
     for (index = 0; index < this->channels.size(); index++)
     {
         std::cout << this->channels.at(index)->get_name() << " " << msg.holder->at(channel_pos)<< std::endl;
@@ -653,6 +683,7 @@ void Server::topic_command(Message& msg)
             break;
         }
     }
+
     if (channel && !complete_execution)
     {
         if (this->channels.at(index)->get_topic() == "")
@@ -676,10 +707,12 @@ void Server::topic_command(Message& msg)
         for(int i = 3; i < msg.holder->size(); i++)
             msg.holder->at(2) += " " + msg.holder->at(i);
         this->channels.at(index)->set_topic(msg.holder->at(2));
-        msg.res << RPL_TOPIC << " " << this->channels.at(index)->get_name() << " : ";
+        //msg.res << RPL_TOPIC << " " << this->channels.at(index)->get_name() << " ";
+        msg.res << ":juluk.org TOPIC " << " " << this->channels.at(index)->get_name() << " ";
         msg.res << this->channels.at(index)->get_topic() <<MSG_END;
         std::cout << msg.get_res_str() << std::endl;
-        send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+        ch->broadcast_msg(msg);
+        //send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
     }
     else
     {
