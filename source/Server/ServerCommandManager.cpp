@@ -221,7 +221,6 @@ void    Server::join_command(Message &msg) {
         msg.res << ERR_NEEDMOREPARAMS << "JOIN " << NEEDMOREPARAMS;
         send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
     } else {
-
         //TODO hay que hacer split de los canales
 
         room_name = msg.get_params_front();
@@ -254,7 +253,7 @@ void    Server::join_command(Message &msg) {
                 //canal solo para invitados
                 if (channel->is_already(msg.user->get_nickname()))
                     return ;
-                else if (channel->get_invite() == INVITE_ONLY) {
+                else if (channel->get_invite() == INVITE_ONLY && msg.user->get_operator_status() == false) {
                     msg.res.str("");
                     msg.res << ERR_INVITEONLYCHAN << msg.user->get_nickname() << room_name << " " << INVITEONLYCHAN;
                 //canal con limite de usuarios superado
@@ -282,7 +281,7 @@ void    Server::join_command(Message &msg) {
                     }
                 }
             }
-            std::cout << msg.get_res_str() << std::endl;
+            std::cout << "Aqui " << msg.get_res_str() << std::endl;
             send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
         }
     }
@@ -638,9 +637,6 @@ void Server::topic_command(Message& msg)
         error_return(ERR_NEEDMOREPARAMS,NEEDMOREPARAMS,msg);
 
     erase_back_match(msg.holder->at(1),MSG_END);
-    std::cout << "El tamaño es" << msg.holder->size() << std::endl;
-
-    //Cambiar el topic del canal
     if (msg.holder->size() > 2)
     {
         channel_pos = 1;
@@ -732,7 +728,6 @@ void    Server::invite_command(Message &msg) {
 
     if (!msg.user)
         return ;
-
     msg.holder = msg.split(msg.buffer," ");
     if (msg.holder->size() != 3)
         error_return(ERR_NEEDMOREPARAMS,NEEDMOREPARAMS,msg);
@@ -740,6 +735,7 @@ void    Server::invite_command(Message &msg) {
     {
         erase_back_match(msg.holder->at(2),MSG_END);
         for (int i = 0; i < this->users.size(); i++){
+            std::cout << this->users.at(i)->get_nickname() << " y " << msg.holder->at(2) <<std::endl;
                 if (this->users.at(i)->get_nickname() == msg.holder->at(2)) {
                     exist = true;
                     break;
@@ -758,9 +754,20 @@ void    Server::invite_command(Message &msg) {
         if (!channel_exist && error_return(ERR_NOSUCHCHANNEL,NOSUCHCHANNEL,msg))
              return ;
         for (int i = 0; i < this->channels.at(real_index)->get_users().size();i++)
-            user_exist = ((this->channels.at(real_index)->get_users().at(i)->get_nickname() == msg.user->get_nickname()) && (!user_exist)) ? true : false;
+        {
+            std::cout << this->channels.at(real_index)->get_users().at(i)->get_nickname() << " y " << msg.user->get_nickname() << std::endl;
+            if (this->channels.at(real_index)->get_users().at(i)->get_nickname() == msg.user->get_nickname() && !user_exist)
+                user_exist = true;
+        }
+
         if (!user_exist && error_return(ERR_NOTONCHANNEL,NOTONCHANNEL,msg))
             return;
+        std::map<const User*, std::vector<char> > *user_permissions =  this->channels.at(real_index)->get_user_permissions();
+        if (!msg.user->get_operator_status() && (*user_permissions)[msg.user].at(2) == 0)
+        {
+            error_return(ERR_CHANOPRIVSNEEDED,CHANOPRIVSNEEDED,msg);
+            return;
+        }
         msg.res.str(":Server NOTICE " + msg.user->get_nickname() + " :Inviting " + msg.holder->at(2) + " to channel " + this->channels.at(real_index)->get_name() + MSG_END);
         send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
 

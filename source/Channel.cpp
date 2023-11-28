@@ -187,7 +187,11 @@ bool    Channel::enter_key(const std::string &key) {
     else if (this->_key_opt == KEY_NOT_SET and key.size() != NO_KEY)
         return INCORRECT_KEY;
     else if (this->_key_opt == KEY_SET and this->get_key() != key)
+    {
+        std::cout << this->get_key() << " :  " <<  key << std::endl;
         return INCORRECT_KEY;
+    }
+      
     return CORRECT_KEY;
 }
 
