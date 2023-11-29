@@ -59,7 +59,6 @@ void i_flag(Message &msg,char impact,Server *serv)
         for (int i = 0; i < serv->channels.at(ind)->get_users_size();i++)
             if (serv->channels.at(ind)->get_users().at(i)->get_nickname() == msg.user->get_nickname())
                 finded = true;
-
         if (!finded)
         {
             msg.res.str(":Server 441 " + msg.user->get_nickname() + " " + serv->channels.at(ind)->get_name() + " :You aren't on that channel" + MSG_END);
@@ -67,9 +66,6 @@ void i_flag(Message &msg,char impact,Server *serv)
             return;
         }
         std::map<const User*, std::vector<char> > *user_permissions = serv->channels.at(ind)->get_user_permissions();
-        std::cout << "User " << msg.user->get_nickname() << msg.user->get_operator_status() << std::endl;
-        std::cout << (*user_permissions)[msg.user].at(2) << " " << msg.user->get_operator_status() << std::endl;
-        
         if ((*user_permissions)[msg.user].at(2) == '0' && !msg.user->get_operator_status())
         {
             msg.res.str(":Server 482 " + msg.user->get_nickname() + " " + serv->channels.at(ind)->get_name() + " :You're not channel operator" + MSG_END);
@@ -82,7 +78,6 @@ void i_flag(Message &msg,char impact,Server *serv)
             serv->channels.at(ind)->set_invite(true);
             msg.res.str(":Server MODE " + channelName + " +i" + MSG_END);
             send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
-            std::cout << "Nombre canal " <<serv->channels.at(ind)->get_name() << std::endl;
             serv->channels.at(ind)->get_channel_permissions()->at(5) = true;
             msg.res.str(":Server 324 " + msg.user->get_nickname() + " " + channelName + " +i" + MSG_END);
             send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
@@ -158,9 +153,7 @@ void i_flag(Message &msg,char impact,Server *serv)
             socket_to_nick = serv->users.at(i)->get_nickname();
     }
     if (permissions[0] == '1')
-    {
         std::cout << "Si" << std::endl;
-    }
 }
    
 void w_flag(Message &msg,char impact,Server *serv)
@@ -239,8 +232,9 @@ void q_flag(Message &msg,char impact,Server *serv)
 void t_flag(Message &msg,char impact,Server *serv)
 {
     int ind = 0;
-    int finded = 0;
-
+    bool finded;
+    
+    finded = false;
     if(msg.holder->size() == 3)
     {
         ind = get_channel_index(serv->channels,msg.holder->at(1));
@@ -327,13 +321,61 @@ void k_flag(Message &msg,char impact,Server *serv)
         msg.res << ":juluk.org MODE " << msg.holder->at(1) << " -k " << msg.user->get_nickname() << MSG_END;
         send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
     }
-
-
 }
 
+
+
+
 void l_flag(Message &msg,char impact,Server *serv)
-{
-    std::cout << "Calling flag l" << std::endl;
+{   
+    int ind = 0;
+    bool finded;
+
+    if(msg.holder->size() != 4)
+    {
+        msg.res.str("");
+        msg.res << ERR_CUSTOM << "Invalid number of parameters" << MSG_END;
+        send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+        return;
+    }
+    finded = false;
+    ind = get_channel_index(serv->channels,msg.holder->at(1));
+    if (ind == -1)
+        return ;
+    for (int i = 0; i < serv->channels.at(ind)->get_users_size();i++)
+        if (serv->channels.at(ind)->get_users().at(i)->get_nickname() == msg.user->get_nickname())
+            finded = true;
+    if (!finded)
+    {
+        msg.res.str(":Server 441 " + msg.user->get_nickname() + " " + serv->channels.at(ind)->get_name() + " :You aren't on that channel" + MSG_END);
+        send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
+        return;
+    }
+    if (impact == '+')
+    {
+        msg.res.str("");
+        serv->channels.at(ind)->get_channel_permissions()->at(2) = true;
+        try
+        {
+            serv->channels.at(ind)->set_user_limit(std::stoi(msg.holder->at(3)));
+        }
+        catch(std::exception &e)
+        {
+            msg.res.str("");
+            msg.res << ERR_CUSTOM << "Non numeric argument." << MSG_END;
+            send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+            return;
+        }
+        msg.res << ":juluk.org MODE " << msg.holder->at(1) << " +l " << msg.user->get_nickname() << MSG_END;
+        send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
+    }
+    else if (impact == '-')
+    {
+        serv->channels.at(ind)->get_channel_permissions()->at(2) = false;
+        msg.res.str("");
+        msg.res << ":juluk.org MODE " << msg.holder->at(1) << " -l " << msg.user->get_nickname() << MSG_END;
+        send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
+    }
 }
 
 void b_flag(Message &msg,char impact,Server *serv)
@@ -345,7 +387,6 @@ void m_flag(Message &msg, char impact,Server *serv)
 {
     std::cout << "Calling flag m" << std::endl;
 }
-
 
 void    Server::flag_manager(Message &msg)
 {
@@ -376,5 +417,4 @@ void    Server::flag_manager(Message &msg)
     {
         std::cerr << "Error en la validacion de vectores" << std::endl;
     }
-    std::cout << "finish" << std::endl;
 }
