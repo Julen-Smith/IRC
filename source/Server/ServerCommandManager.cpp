@@ -194,6 +194,9 @@ void    Server::ping_command(Message &msg) {
 
     std::cout << "Ping command\n - nickname: " << msg.user->get_nickname() << std::endl;
 
+    msg.res << "juluk.org PONG juluk.org :juluk.org\r\n";
+    send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+
 }
 //TODO crear canal solo con invitación.
 //TODO nick, usuario, host no puede estar en lista ban.
@@ -498,15 +501,7 @@ void    Server::part_command(Message &msg) {
     if (!msg.user)
         return ;
 
-    //if (msg.user->get_operator_status() == false) {
-   //     msg.res.str("");
-   //     msg.res << "481 :Permission Denied- You're not an IRC operator";
-  //      send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
-   //     return ;
-   // }
-
-    if (!msg.user)
-        return ;
+    std::cout << msg.buffer;
 
     if (msg.params->size() < 1) {
         msg.res.str("");
@@ -566,9 +561,9 @@ void    Server::nick_command(Message &msg) {
     nickname = msg.get_params_front();
     msg.res.str("");
     if (this->is_already(nickname)) {
-	if (msg.user) {
-		msg.res << ERR_NICKNAMEINUSE << msg.user->get_nickname() << NICKNAMEINUSE;
-	}
+        if (msg.user) {
+            msg.res << ERR_NICKNAMEINUSE << msg.user->get_nickname() << NICKNAMEINUSE;
+        }
         nickname += '_';
     }
 
@@ -664,6 +659,7 @@ void Server::topic_command(Message& msg)
             return ;
 
         }
+        std::cout << "flag: " << ch->is_flag(TOPIC) << " is oper: " << !ch->is_operator(msg.user) << std::endl;
 
         std::cout << msg.holder->at(1) << std::endl;
         complete_execution = true;

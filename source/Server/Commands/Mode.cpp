@@ -185,6 +185,7 @@ int mode_input_manager(Message &msg, std::vector<User *> users, std::vector<Chan
 
     if (msg.holder->size() == 2)
         reply_permissions(msg,channels);
+
     else if (msg.holder->size() == 1 || msg.holder->empty() ||  msg.holder->size() > 4 || msg.holder->at(2).empty() ||  is_repeated_char(msg.holder->at(2)) || is_duplicated_simbol(msg.holder->at(2)) ||
     (input_validator(msg.holder->at(2)) && twisted_input_validator(msg.holder->at(2))) || contains_invalid_mix(msg.holder->at(2))){
         msg.res.str("");
@@ -215,8 +216,38 @@ int mode_input_manager(Message &msg, std::vector<User *> users, std::vector<Chan
 
 #pragma message("En la parte de los modes generaba errores extraños a la hora de incluirle el header, pendiente de modificarlo.")
 #pragma message("No debería haber tantas funciones en un fichero")
+
 void    Server::mode_command(Message &msg)
 {
+    //Channel     *ch;
+    std::string channel;
+    std::string flags;
+
+    if (!msg.user)
+        return ;
+
+    //if (msg.params->size() > 4 or msg.params->size() < 2) {
+    //    msg.res << ERR_NEEDMOREPARAMS << NEEDMOREPARAMS;
+    //    send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+    //    return ;
+    //}
+
+    //channel = msg.get_params_front();
+    //flags = msg.get_params_front();
+    //ch = this->get_channel_by_name(channel);
+
+    //if (!ch)
+    //    msg.res << ERR_NOSUCHCHANNEL << NOSUCHCHANNEL;
+    //else if (!ch->is_already(msg.user->get_nickname()))
+    //    msg.res << ERR_NOTONCHANNEL << NOTONCHANNEL;
+    //else if (!ch->is_operator(msg.user))
+    //    msg.res << ERR_CHANOPRIVSNEEDED << CHANOPRIVSNEEDED;
+
+    //if (msg.get_res_size()) {
+    //    send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+    //    return ;
+    //}
+
     if (mode_input_manager(msg, this->users, this->channels))
     {
         std::cout << "Error on validations... Skipping mode process" << std::endl;

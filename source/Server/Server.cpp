@@ -16,7 +16,6 @@ Server::Server(const char *port, const char *password): max_clients(MAX_CLIENTS)
     this->callback_map["PART"] = &Server::part_command;
     this->callback_map["PING"] = &Server::ping_command;
     this->callback_map["PASS"] = &Server::pass_command;
-    this->callback_map["PING"] = &Server::part_command;
     this->callback_map["MOTD"] = &Server::motd_command;
     this->callback_map["INVITE"] = &Server::invite_command;
     this->callback_map["PRIVMSG"] = &Server::prvmsg_command;
@@ -163,6 +162,8 @@ bool    Server::is_already(const std::string &nickname) {
 
     it = this->users.begin();
     for (; it != this->users.end(); it++) {
+        std::cout << "NEW: " << nickname << "- OG: " << (*it)->get_nickname() << MSG_END;
+        std::cout << "OG: " << (*it)->get_notices() << MSG_END;
         if (nickname == (*it)->get_nickname() and (*it)->get_notices())
             return true;
     }
