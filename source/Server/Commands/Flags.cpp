@@ -1,5 +1,7 @@
 #include "Server.hpp"
 #include <exception>
+#include <string>
+#include <stdlib.h>
 
 static bool erase_back_match(std::string &source, const std::string &to_erase) {
 
@@ -140,7 +142,7 @@ void i_flag(Message &msg,char impact,Server *serv)
         send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
     }
     else if (permissions[0] == '1' && impact == '-')
-    {   
+    {
         permissions[0] = '0';
         msg.res.str("");
         msg.res << ERR_CUSTOM << VISIBLE;
@@ -155,7 +157,7 @@ void i_flag(Message &msg,char impact,Server *serv)
     if (permissions[0] == '1')
         std::cout << "Si" << std::endl;
 }
-   
+
 void w_flag(Message &msg,char impact,Server *serv)
 {
     std::cout << "Calling flag w" << std::endl;
@@ -176,7 +178,7 @@ void o_flag(Message &msg,char impact,Server *serv)
         return;
     ind = get_channel_index(serv->channels,msg.holder->at(1));
     if (ind < 0)
-        return; 
+        return;
     for (int i = 0; i < serv->channels.at(ind)->get_users_size();i++)
         if (serv->channels.at(ind)->get_users().at(i)->get_nickname() == msg.user->get_nickname())
                 finded = true;
@@ -233,7 +235,7 @@ void t_flag(Message &msg,char impact,Server *serv)
 {
     int ind = 0;
     bool finded;
-    
+
     finded = false;
     if(msg.holder->size() == 3)
     {
@@ -327,7 +329,7 @@ void k_flag(Message &msg,char impact,Server *serv)
 
 
 void l_flag(Message &msg,char impact,Server *serv)
-{   
+{
     int ind = 0;
     bool finded;
 
@@ -357,7 +359,7 @@ void l_flag(Message &msg,char impact,Server *serv)
         serv->channels.at(ind)->get_channel_permissions()->at(2) = true;
         try
         {
-            serv->channels.at(ind)->set_user_limit(std::stoi(msg.holder->at(3)));
+            serv->channels.at(ind)->set_user_limit(atoi(msg.holder->at(3).c_str()));
         }
         catch(std::exception &e)
         {
@@ -410,7 +412,7 @@ void    Server::flag_manager(Message &msg)
                 {
                     std::cout << "Validated flag : " << flags[flag] << std::endl;
                     do_flags[i](msg, impact, this);
-                } 
+                }
             }
         }
     } catch (std::exception &e)

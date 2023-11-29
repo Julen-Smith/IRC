@@ -63,3 +63,15 @@ void                User::set_operator_status(bool status) { this->_is_operator 
 void    User::add_channel_count() { this->_count++; }
 void    User::add_channel(Channel *channel) { this->_channels.push_back(channel);}
 void    User::substract_channel_count() { this->_count--; }
+
+void    User::delete_channel(Channel *channel) {
+    std::vector<Channel *>::iterator it;
+
+    it = this->_channels.begin();
+    for (; it != this->_channels.end(); it++) {
+        if ((*it) == channel) {
+            this->_channels.erase(it);
+            return ;
+        }
+    }
+}

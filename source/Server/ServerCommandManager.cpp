@@ -194,7 +194,7 @@ void    Server::ping_command(Message &msg) {
 
     std::cout << "Ping command\n - nickname: " << msg.user->get_nickname() << std::endl;
 
-    msg.res << "juluk.org PONG juluk.org :juluk.org\r\n";
+    msg.res << ":juluk.org PONG " << msg.user->get_nickname() << " :juluk.org\r\n";
     send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
 
 }
@@ -249,7 +249,7 @@ void    Server::join_command(Message &msg) {
                 msg.res << channel->get_topic_msg(msg.user) << channel->get_user_list_msg(msg.user);
                 msg.res << "juluk.org MODE " << room_name << " +nt\r\n";
                 std::cout << msg.res;
-                this->channels.push_back(channel);
+                //this->channels.push_back(channel);
             }
             //el canal existe
             else {
@@ -306,7 +306,8 @@ void    Server::quit_command(Message &msg) {
             (*it)->notice_part(msg, EXIT);
         }
     }
-    msg.user->set_notices(DISCONNECTED);
+    this->delete_user_by_socket(msg.client_socket);
+    //msg.user->set_notices(DISCONNECTED);
     close(msg.client_socket);
 }
 
@@ -510,6 +511,7 @@ void    Server::part_command(Message &msg) {
         return ;
     }
 
+
     token = msg.get_params_front();
     params = msg.split(token, CSV);
     if (msg.params->size()) {
@@ -521,16 +523,24 @@ void    Server::part_command(Message &msg) {
 
     for (size_t i = 0; i < params->size(); i++) {
 
+        msg.res.str("");
         token = params->front();
         params->pop_front();
 
         channel = this->get_channel_by_name(token);
         if (channel == NULL) {
-            msg.res.str("");
             msg.res << ERR_NOSUCHCHANNEL << token << " " << NOSUCHCHANNEL;
+            send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
             continue ;
         }
 
+        else if (!channel->is_already(msg.user->get_nickname())) {
+            msg.res << ERR_NOTONCHANNEL << NOTONCHANNEL;
+            send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+            continue;
+        }
+
+        msg.user->delete_channel(channel);
         channel->notice_part(msg, topic);
         channel->delete_user(msg.user->get_nickname());
 
@@ -560,10 +570,10 @@ void    Server::nick_command(Message &msg) {
 
     nickname = msg.get_params_front();
     msg.res.str("");
-    if (this->is_already(nickname)) {
-        if (msg.user) {
-            msg.res << ERR_NICKNAMEINUSE << msg.user->get_nickname() << NICKNAMEINUSE;
-        }
+    while (this->is_already(nickname)) {
+        //if (msg.user) {
+        //    msg.res << ERR_NICKNAMEINUSE << msg.user->get_nickname() << NICKNAMEINUSE;
+        //}
         nickname += '_';
     }
 
@@ -572,9 +582,9 @@ void    Server::nick_command(Message &msg) {
         msg.res << ERR_ERRONEUSNICKNAME << nickname << ERRONEUSNICKNAME;
         send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
 
-        if (this->find_unva_user_by_socket(msg.client_socket)) {
+        if (this->find_unva_user_by_socket(msg.client_socket)) {// and msg.user)) {
             std::cout << "close 1\n";
-            msg.user->set_notices(DISCONNECTED);
+            //msg.user->set_notices(DISCONNECTED);
             close(msg.client_socket);
         }
         return ;

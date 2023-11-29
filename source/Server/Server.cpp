@@ -132,7 +132,8 @@ void Server::send_intro(int client_socket) {
 bool Server::read_socket(Message &msg) {
     ssize_t read_size;
 
-    read_size = recv(msg.client_socket, msg.buffer, BUFFER_SIZE, 0);
+    //std::cout << "f: " << MSG_DONTWAIT << std::endl;
+    read_size = recv(msg.client_socket, msg.buffer, BUFFER_SIZE, MSG_DONTWAIT);
     std::cout << "read size: " << read_size << std::endl;
 
     //TODO handleear cuando read_size es 0
@@ -141,8 +142,6 @@ bool Server::read_socket(Message &msg) {
         this->delete_user_by_socket(msg.client_socket);
         std::cerr << "Error: read socket failed\n";
         close(msg.client_socket);
-        this->delete_user_by_socket(msg.client_socket);
-        this->delete_unvalidated_user(msg.client_socket);
         return true;
     }
     msg.buffer[read_size] = 0;
@@ -161,6 +160,7 @@ bool    Server::is_already(const std::string &nickname) {
     std::vector<User *>::iterator   it;
 
     it = this->users.begin();
+    std::cout << "Users size (is_already): " << this->users.size() << std::endl;
     for (; it != this->users.end(); it++) {
         std::cout << "NEW: " << nickname << "- OG: " << (*it)->get_nickname() << MSG_END;
         std::cout << "OG: " << (*it)->get_notices() << MSG_END;

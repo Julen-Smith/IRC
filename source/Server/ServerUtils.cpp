@@ -157,6 +157,8 @@ bool Server::delete_channel(const std::string &name) {
     std::vector<Channel *>::iterator it;
 
     it = this->channels.begin();
+    std::cout << "SIZE: " << this->channels.size() << std::endl;
+
     for (; it != this->channels.end(); it++) {
         if (name == (*it)->get_name()) {
             this->channels.erase(it);

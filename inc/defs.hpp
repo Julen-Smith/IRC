@@ -1,7 +1,12 @@
 #ifndef DEFS_HPP
 # define DEFS_HPP
 
+//MAIN
 
+# define PORT 1
+# define PASSWORD 2
+# define VALIDATOR_ERROR true
+# define VALIDATOR_OK false
 
 //User
 
@@ -41,14 +46,14 @@
 
 //Server
 
-# define PORT			    "4242"
+//# define PORT			    "4242"
 # define SOCKET_ERROR 		"Error al crear el socket"
 # define SOCKET_PREF_ERROR 	"Error al setear las preferencias del socket"
 # define MAX_CLIENTS 		50
 # define BUFFER_SIZE        1024
 # define TIMEOUT	        0
 # define MAIN               0
-# define PASSWORD           "42Urduliz"
+//# define PASSWORD           "42Urduliz"
 
 //MAIN ChaNNEL MSG
 

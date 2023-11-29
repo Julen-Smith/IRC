@@ -43,6 +43,8 @@ class User
         void                add_channel_count();
         void                substract_channel_count();
 
+        void                delete_channel(Channel *channel);
+
         std::string             _login_name;
         std::string             _realname;
         std::string             _level;

@@ -75,7 +75,7 @@ class Server
 		bool    					check_operator(Message &msg);
 
 		//channel getters
-		Channel						*get_channel_by_name(const std::string &name) const;
+		Channel						*get_channel_by_name(const std::string &name);
 		Channel    					*create_channel(User *user, const std::string &romm_name);
 		bool 						delete_channel(const std::string &name);
 
