@@ -222,6 +222,7 @@ void    Server::join_command(Message &msg) {
         send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
     } else {
         //TODO hay que hacer split de los canales
+
         room_name = msg.get_params_front();
         if (msg.params->size() == 1)
             key = msg.get_params_front();
@@ -239,9 +240,12 @@ void    Server::join_command(Message &msg) {
             //TODO create new channel
             //el canal no existe
             if (channel == NULL) {
+
                 channel = this->create_channel(msg.user, room_name);
+
                 msg.res << channel->get_topic_msg(msg.user) << channel->get_user_list_msg(msg.user);
-                msg.res << ":juluk.org MODE " << room_name << " +o " << msg.user->get_nickname() << MSG_END;
+                msg.res << "juluk.org MODE " << room_name << " +nt\r\n";
+                std::cout << msg.res;
                 this->channels.push_back(channel);
             }
             //el canal existe
@@ -432,20 +436,56 @@ void    Server::oper_command(Message& msg) {
 //TODO revisar funcionalidad de kick
 void    Server::kick_command(Message &msg) {
 
+    Channel     *channel;
     std::string nickname;
+    std::string channel_name;
+    std::string reason;
 
     if (!msg.user)
         return ;
-    if (msg.user->get_operator_status() == false) {
+
+    msg.res.str("");
+    if (msg.params->size() < 2) {
+
+        msg.res << ERR_NEEDMOREPARAMS << NEEDMOREPARAMS;
+        send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+        return ;
+    }
+
+    if (0 and msg.user->get_operator_status() == false) {
         msg.res.str("");
         msg.res << "481 :Permission Denied- You're not an IRC operator";
         send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
         return ;
     }
-    std::cout << "Kick command:\n - nickname: " << nickname << std::endl;
-    send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
-    msg.user->set_notices(DISCONNECTED);
-    close(msg.client_socket);
+
+    channel_name = msg.get_params_front();
+    nickname     = msg.get_params_front();
+    reason       = msg.get_params_front();
+
+    channel = this->get_channel_by_name(channel_name);
+    if (!channel) {
+        msg.res << ERR_NOSUCHCHANNEL << NOSUCHCHANNEL;
+        send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+        return ;
+    }
+
+    if (channel->is_operator(msg.user) == false) {
+
+        msg.res << ERR_CHANOPRIVSNEEDED << CHANOPRIVSNEEDED;
+        send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+        return ;
+    }
+
+    if (!channel->is_already(nickname)) {
+        msg.res << ERR_NOTONCHANNEL << NOTONCHANNEL;
+        send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+        return ;
+    }
+
+    msg.res << ":juluk.org KICK " << channel_name << " " << nickname << " " << reason << MSG_END;
+    channel->broadcast_msg(msg);
+    channel->delete_user(nickname);
 }
 
 void    Server::part_command(Message &msg) {
@@ -511,6 +551,9 @@ void    Server::nick_command(Message &msg) {
 
     UnvalidatedUser *unvalid_user;
     std::string     nickname;
+
+    if (this->find_unva_user_by_socket(msg.client_socket) == false and msg.user == NULL)
+        return ;
 
     if (msg.params->size() == 0) {// or nickname.size() == 0) {
 
@@ -579,23 +622,54 @@ void    Server::manage_response(int client_index) {
 
 void Server::topic_command(Message& msg)
 {
+    Channel *ch;
     bool channel = false;
     int index= 0;
     bool complete_execution = false;
     int channel_pos = 1;
 
+    if (!msg.user)
+        return ;
+
     msg.holder = msg.split(msg.buffer," ");
     std::cout << msg.holder->size() << std::endl;
     if (msg.holder->size() == 1)
         error_return(ERR_NEEDMOREPARAMS,NEEDMOREPARAMS,msg);
+
     erase_back_match(msg.holder->at(1),MSG_END);
     if (msg.holder->size() > 2)
     {
         channel_pos = 1;
+        ch = this->get_channel_by_name(msg.holder->at(1));
+        if (ch == NULL) {
+
+            msg.res << ERR_NOSUCHCHANNEL << NOSUCHCHANNEL;
+            send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+            return ;
+
+        }
+
+        else if (!ch->is_already(msg.user->get_nickname())) {
+
+            msg.res << ERR_NOTONCHANNEL << NOTONCHANNEL;
+            send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+            return ;
+
+        }
+
+        else if (ch->is_flag(TOPIC) and (!ch->is_operator(msg.user) || !msg.user->get_operator_status())) {
+
+            msg.res << ERR_CHANOPRIVSNEEDED << CHANOPRIVSNEEDED;
+            send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+            return ;
+
+        }
+
         std::cout << msg.holder->at(1) << std::endl;
         complete_execution = true;
         erase_back_match(msg.holder->at(1),MSG_END);
     }
+
     for (index = 0; index < this->channels.size(); index++)
     {
         std::cout << this->channels.at(index)->get_name() << " " << msg.holder->at(channel_pos)<< std::endl;
@@ -605,6 +679,7 @@ void Server::topic_command(Message& msg)
             break;
         }
     }
+
     if (channel && !complete_execution)
     {
         if (this->channels.at(index)->get_topic() == "")
@@ -628,10 +703,12 @@ void Server::topic_command(Message& msg)
         for(int i = 3; i < msg.holder->size(); i++)
             msg.holder->at(2) += " " + msg.holder->at(i);
         this->channels.at(index)->set_topic(msg.holder->at(2));
-        msg.res << RPL_TOPIC << " " << this->channels.at(index)->get_name() << " : ";
+        //msg.res << RPL_TOPIC << " " << this->channels.at(index)->get_name() << " ";
+        msg.res << ":juluk.org TOPIC " << " " << this->channels.at(index)->get_name() << " ";
         msg.res << this->channels.at(index)->get_topic() <<MSG_END;
         std::cout << msg.get_res_str() << std::endl;
-        send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+        ch->broadcast_msg(msg);
+        //send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
     }
     else
     {

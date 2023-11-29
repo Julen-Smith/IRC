@@ -1,6 +1,8 @@
 #ifndef DEFS_HPP
 # define DEFS_HPP
 
+
+
 //User
 
 # define CONNECTED      true
@@ -9,6 +11,15 @@
 # define EMPTY          0
 
 //Channel
+
+//FLAGS
+
+# define TOPIC      0
+# define KEY        1
+# define LIMIT      2
+# define BAN        3
+# define MODERATED  4
+# define INVITE     5
 
 # define FOUND              true
 # define NOT_FOUND          false
@@ -140,7 +151,7 @@
 # define RPL_CHANNELMODEIS "324 * "
 # define CHANNELMODEIS " :<channel> <mode> <mode params>\r\n"
 
-# define ERR_CHANOPRIVSNEEDED "482 * "
+# define ERR_CHANOPRIVSNEEDED ":juluk.org 482 * "
 # define CHANOPRIVSNEEDED " :You're not channel operator.\r\n"
 
 # define ERR_NOSUCHNICK "401 * "
@@ -174,7 +185,6 @@
 # define ERR_NOTONCHANNEL "442 * "
 # define ERR_USERONCHANNEL "443 * "
 # define USERONCHANNEL " :User is alredy on this channel.\r\n"
-# define ERR_CHANOPRIVSNEEDED "482 * "
 
 
 //RESPONSE COMMANDS

@@ -40,8 +40,10 @@ void Server::generate_default_channels()
 
 Channel *Server::get_channel_by_name(const std::string& name) const
 {
+    std::cout << "QUERY: " << name << std::endl;
     for(int i = 0; i < this->channels.size(); i++)
     {
+        std::cout << "OG: " << this->channels[i]->get_name() << std::endl;
         if (this->channels[i]->get_name() == name)
             return this->channels[i];
     }

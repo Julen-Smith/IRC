@@ -26,7 +26,7 @@ class Message
         size_t                  res_size;
 
         User                    *user;
-        
+
         char                    buffer[BUFFER_SIZE];
         int                     client_socket;
         int                     client_index;
@@ -49,7 +49,7 @@ class Message
 
         Message();
         ~Message();
-    
+
     protected:
 
     private:

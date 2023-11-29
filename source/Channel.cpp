@@ -28,7 +28,7 @@ void    Channel::send_msg(Message &msg) {
     }
 }
 
-Channel::Channel(const std::string& name, const std::string &topic) 
+Channel::Channel(const std::string& name, const std::string &topic)
 : _name(name), _topic(topic), _invite(false), _user_limit(STANDARD_LIMIT), _key_opt(KEY_NOT_SET)
 {
     std::cout << "The channel " << name << " has been created." << std::endl;
@@ -60,12 +60,18 @@ void Channel::join_channel(std::string buffer, User &user)
    // std::cout << "User " << this->channel_users.back()->getName() << " has join the channel" << std::endl;
 }
 
-std::string Channel::get_user_list() const
-{
+std::string Channel::get_user_list() {
     std::string user_list = "";
-    
-    for (int i = 0; i < this->_users.size(); i++)
+    std::map<const User*, std::vector<char> >::iterator it;
+
+    for (int i = 0; i < this->_users.size(); i++) {
+
+        it = this->get_user_permissions()->find(this->_users.at(i));
+        std::vector<char>& permissions = it->second;
+        if (permissions[2] == '1')
+            user_list += "@";
         user_list += this->_users.at(i)->get_nickname() + " ";
+    }
     return (user_list);
 }
 
@@ -73,7 +79,7 @@ void    Channel::add_user(User *user)
 {
 
     user->add_channel_count();
-  
+
     std::vector<char> permissions(6, '0');
     this->_user_permissions[user] = permissions;
     if (!this->_users.size())
@@ -137,7 +143,7 @@ std::string Channel::get_topic_msg(User *user) {
     //TODO hay que notificar al resto de una manera distinta
     res << ":" <<user->get_nickname(); //<< "!" << user->get_login_name() << "@localhost ";
     res << " JOIN " << this->_name << MSG_END;
-    res << RPL_TOPIC << user->get_nickname() << " " << this->get_name() << " :" << this->get_topic() << MSG_END; 
+    res << RPL_TOPIC << user->get_nickname() << " " << this->get_name() << " :" << this->get_topic() << MSG_END;
     return res.str();
 }
 
@@ -197,7 +203,7 @@ std::vector<User *> Channel::get_visible_users()
 std::string Channel::get_visible_user_list() const
 {
     std::string user_list = "";
-    
+
     for (int i = 0; i < this->_visible_users.size(); i++)
         user_list += this->_visible_users.at(i)->get_nickname() + " ";
     return (user_list);
@@ -230,14 +236,14 @@ void    Channel::stdout_channel__users_permissions(const User *user)
 std::string Channel::get_permissions_to_string()
 {
     std::string holder = "";
-    
+
     holder += this->_channel_permissions.at(0) == false ? "-t" : "+t";
     holder += this->_channel_permissions.at(1) == false ? "-k" : "+k";
     holder += this->_channel_permissions.at(2) == false ? "-l" : "+l";
     holder += this->_channel_permissions.at(3) == false ? "-b" : "+b";
     holder += this->_channel_permissions.at(4) == false ? "-m" : "+m";
     holder += this->_channel_permissions.at(5) == false ? "-i" : "+i";
-    
+
     return  holder;
 }
 
@@ -277,4 +283,29 @@ void    Channel::notice_part(Message &msg, const std::string &topic) {
 std::vector<bool> *Channel::get_channel_permissions()
 {
     return &_channel_permissions;
+}
+
+bool Channel::is_operator(User *user) {
+    std::map<const User*, std::vector<char> >::iterator it;
+
+    it = this->get_user_permissions()->find(user);
+    std::vector<char>& permissions = it->second;
+
+    if (!user)
+        return false;
+
+    return permissions[2] == '1';
+}
+
+void Channel::broadcast_msg(Message &msg) {
+    std::vector<User *>::iterator it;
+
+    it = this->_users.begin();
+    for (; it != this->_users.end(); it++)
+        send((*it)->get_socket(), msg.get_res_str(), msg.get_res_size(), 0);
+
+}
+
+bool Channel::is_flag(int type) {
+    return this->_channel_permissions[type];
 }

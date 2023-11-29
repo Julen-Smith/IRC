@@ -22,6 +22,7 @@ Server::Server(const char *port, const char *password): max_clients(MAX_CLIENTS)
     this->callback_map["PRIVMSG"] = &Server::prvmsg_command;
     this->callback_map["WHOIS"] = &Server::whois_command;
     this->callback_map["TOPIC"] = &Server::topic_command;
+    this->callback_map["KICK"] = &Server::kick_command;
 
     priv_list[0].user = "admin";
     priv_list[0].password = "admin";
@@ -39,8 +40,8 @@ Server::Server(const char *port, const char *password): max_clients(MAX_CLIENTS)
     this->_socket = socket(this->_res->ai_family, this->_res->ai_socktype, this->_res->ai_protocol);
 
     //this->sv_socket_info.sin_port = htons(4242);
-    //this->sv_socket_info.sin_family = AF_INET; 
-    //this->sv_socket_info.sin_addr.s_addr = INADDR_ANY; 
+    //this->sv_socket_info.sin_family = AF_INET;
+    //this->sv_socket_info.sin_addr.s_addr = INADDR_ANY;
     //this->_socket = socket(this->sv_socket_info.sin_family, SOCK_STREAM, 0);
     if (this->_socket == -1) //this->_socket == -1)
     {
@@ -69,12 +70,12 @@ Server::Server(const char *port, const char *password): max_clients(MAX_CLIENTS)
 //  DESTRUCTOR
 Server::~Server() {}
 
-// Tokenizer acepta como parametro un buffer de chars, utilizando getline 
+// Tokenizer acepta como parametro un buffer de chars, utilizando getline
 void Server::tokenizer(Message &msg) {
 
     Message::command  command;
     std::string       token;
-    
+
     msg.set_commands();
     if (msg.commands == NULL)
         return ;
@@ -113,7 +114,7 @@ void Server::send_intro(int client_socket) {
     std::stringstream   client_stream;
     //ssize_t             rd_size;
 
-    
+
     if (!inputFile.is_open()) {
         std::cout << "No se pudo abrir el archivo." << std::endl;
         return ;

@@ -130,9 +130,15 @@ void    Server::notice_new_user(Message &msg) {
 Channel    *Server::create_channel(User *user, const std::string &room_name) {
     Channel *channel;
 
-    channel = new Channel(room_name, "There is no topic"); 
+    channel = new Channel(room_name, "There is no topic");
     this->channels.push_back(channel);
     channel->add_user(user);
+
+    std::map<const User*, std::vector<char> >::iterator it;
+    it = channel->get_user_permissions()->find(user);
+    std::vector<char>& permissions = it->second;
+    permissions[2] = '1';
+
     user->add_channel(channel);
     std::cout << "New channel created: " << room_name << std::endl;
     return channel;
