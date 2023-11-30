@@ -57,8 +57,8 @@
 
 //MAIN ChaNNEL MSG
 
-# define MAIN_CHANNEL       "Server"
-# define WELCOME_MSG     "Welcome to the Server Lobby."
+# define MAIN_CHANNEL     "Server"
+# define WELCOME_MSG      "Welcome to the Server Lobby."
 # define PRIVMSG          "PRIVMSG"
 # define OTHER            "<OTHER>"
 # define YOU              "<YOU>"
@@ -86,8 +86,7 @@
 # define USER_INACTIVE      false
 # define BAD_USER_PARAMETER false
 
-
-#define OPER_PASSWORD "HARDCODE_IS_A_SAFER_WAY_THAN_MFA"
+#define OPER_PASSWORD "oper"
 #define TEST_USER_PASSWORD "."
 
 //CONFIG FILES
@@ -100,7 +99,6 @@
 # define INVISIBLE_ALR ":You are invisible alredy\r\n"
 # define VISIBLE ":You are visible now\r\n"
 # define VISIBLE_ALR ":You are visible alredy\r\n"
-
 
 # define ERR_NICKNAMEINUSE ":juluk.org 433 "
 # define NICKNAMEINUSE ":Nickname is already in use\r\n"
@@ -119,7 +117,6 @@
 
 # define ERR_INVITEONLYCHAN "473 "
 # define INVITEONLYCHAN " :Cannot join channel (+i)\r\n"
-
 
 # define ERR_CHANNELISFULL "471 "
 # define CHANNELISFULL " :Cannot join channel (+l)\r\n"

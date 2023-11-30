@@ -214,8 +214,6 @@ int mode_input_manager(Message &msg, std::vector<User *> users, std::vector<Chan
     return (1);
 }
 
-#pragma message("En la parte de los modes generaba errores extraños a la hora de incluirle el header, pendiente de modificarlo.")
-#pragma message("No debería haber tantas funciones en un fichero")
 
 void    Server::mode_command(Message &msg)
 {
