@@ -76,7 +76,6 @@ void    Server::whois_command(Message& msg) {
             }
             msg.res << RPL_ENDOFWHOIS << "<nick> :End of WHOIS list\r\n";
         }
-
     } else {
 
         msg.res << RPL_WHOISUSER << msg.user->get_nickname() << " " << msg.user->get_nickname() << " " << msg.user->_login_name << " juluk.org * " << msg.user->_realname << "\r\n";
@@ -159,16 +158,13 @@ void    Server::pass_command(Message &msg) {
         send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
         return ;
     }
-
     std::cout << msg.user << std::endl;
     if (msg.user and msg.user->get_notices())
     {
         return ;
     }
-
     std::string password = msg.get_params_front();
     std::cout << "Password: " << password << std::endl;
-
     if (msg.user and msg.user->get_notices()) {
 
         msg.res.str("");
@@ -184,16 +180,13 @@ void    Server::pass_command(Message &msg) {
     }
     unvalid_user = this->unvalidated_users[msg.client_socket];
     unvalid_user->password = 1;
-
 }
 
 void    Server::ping_command(Message &msg) {
 
     if (!msg.user)
         return ;
-
     std::cout << "Ping command\n - nickname: " << msg.user->get_nickname() << std::endl;
-
     msg.res << "juluk.org PONG juluk.org :juluk.org\r\n";
     send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
 
@@ -641,9 +634,7 @@ void Server::topic_command(Message& msg)
             msg.res << ERR_NOSUCHCHANNEL << NOSUCHCHANNEL;
             send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
             return ;
-
         }
-
         else if (!ch->is_already(msg.user->get_nickname())) {
 
             msg.res << ERR_NOTONCHANNEL << NOTONCHANNEL;
@@ -651,7 +642,6 @@ void Server::topic_command(Message& msg)
             return ;
 
         }
-
         else if (ch->is_flag(TOPIC) and (!ch->is_operator(msg.user) || !msg.user->get_operator_status())) {
 
             msg.res << ERR_CHANOPRIVSNEEDED << CHANOPRIVSNEEDED;

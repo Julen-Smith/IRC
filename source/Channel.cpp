@@ -156,13 +156,14 @@ std::string Channel::get_user_list_msg(User *user) {
     return res.str();
 }
 
-void    Channel::set_user_limit(int user_limit) { this->_user_limit = user_limit; }
+void    Channel::set_key_opt(const bool key_opt) {this->_key_opt = key_opt;}
 void    Channel::set_topic(std::string msg) { this->_topic = msg; }
 void    Channel::set_key(const std::string &key) {
     this->_key_opt = KEY_SET;
     this->_key = key;
 }
 void    Channel::set_invite(const bool invite) { this->_invite = invite; }
+void    Channel::set_user_limit(const int user_limit){this->_user_limit = user_limit;}
 void    Channel::set_user_ban(const std::string &nickname) {
 
     if (this->is_banned(nickname) == FOUND)
@@ -309,3 +310,6 @@ void Channel::broadcast_msg(Message &msg) {
 bool Channel::is_flag(int type) {
     return this->_channel_permissions[type];
 }
+
+
+

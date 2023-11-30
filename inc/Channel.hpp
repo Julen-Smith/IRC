@@ -34,12 +34,13 @@ class Channel
         Channel& operator=(const Channel &new_channel);
 
         //setters
-        void                set_user_limit(int user_limit);
         void                set_key(const std::string &key);
         void                set_invite(const bool invite);
         void                set_user_ban(const std::string &nickname);
         void                set_topic(const std::string nickname);
         void                unset_user_ban(const std::string &nickname);
+        void                set_key_opt(const bool key_opt);
+        void                set_user_limit(const int user_limit);
 
         //getters
 

@@ -54,8 +54,7 @@ void i_flag(Message &msg,char impact,Server *serv)
     {
         ind = get_channel_index(serv->channels,msg.holder->at(1));
         if (ind == -1)
-            return ;
-
+            return;
         for (int i = 0; i < serv->channels.at(ind)->get_users_size();i++)
             if (serv->channels.at(ind)->get_users().at(i)->get_nickname() == msg.user->get_nickname())
                 finded = true;
@@ -87,7 +86,7 @@ void i_flag(Message &msg,char impact,Server *serv)
         {
             std::string channelName = serv->channels.at(ind)->get_name();
             serv->channels.at(ind)->set_invite(false);
-            msg.res.str(":Server MODE " + channelName + " -i" + MSG_END);
+            msg.res.str(":Server MODE " + channelName + " -i " + MSG_END);
             send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
             serv->channels.at(ind)->get_channel_permissions()->at(5) = false;
             msg.res.str(":Server 324 " + msg.user->get_nickname() + " " + channelName + " -i" + MSG_END);
@@ -105,10 +104,7 @@ void i_flag(Message &msg,char impact,Server *serv)
     std::string user = msg.holder->at(3);
     int index = get_channel_index(serv->channels,channel);
     if (index == -1)
-    {
-        std::cout << "no encuentro index del canal" << std::endl;
         return ;
-    }
     if (get_user_index(serv->channels, index, user) == 0)
     {
         msg.res.str("");
@@ -208,17 +204,18 @@ void o_flag(Message &msg,char impact,Server *serv)
     {
        (*user_permissions)[msg.user].at(2) = '1';
         msg.res << ":juluk.org MODE " << msg.holder->at(1) << " +o " << msg.user->get_nickname() << MSG_END;
-        send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
+        serv->channels.at(ind)->broadcast_msg(msg);
         return;
     }
-    else
+    else if (impact == '-')
     {
         (*user_permissions)[msg.user].at(2) = '0';
         msg.res << ":juluk.org MODE " << msg.holder->at(1) << " -o " << msg.user->get_nickname() << MSG_END;
-        send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
+        serv->channels.at(ind)->broadcast_msg(msg);
         return;
     }
 }
+
 void v_flag(Message &msg,char impact,Server *serv)
 {
     std::cout << "Calling flag v" << std::endl;
@@ -259,14 +256,14 @@ void t_flag(Message &msg,char impact,Server *serv)
             serv->channels.at(ind)->get_channel_permissions()->at(0) = true;
             msg.res.str("");
             msg.res << ":juluk.org MODE " << msg.holder->at(1) << " +t " << msg.user->get_nickname() << MSG_END;
-            send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
+            serv->channels.at(ind)->broadcast_msg(msg);
         }
         else if (impact == '-')
         {
             serv->channels.at(ind)->get_channel_permissions()->at(0) = false;
             msg.res.str("");
             msg.res << ":juluk.org MODE " << msg.holder->at(1) << " -t " << msg.user->get_nickname() << MSG_END;
-            send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
+            serv->channels.at(ind)->broadcast_msg(msg);
         }
     }
     else
@@ -282,13 +279,6 @@ void k_flag(Message &msg,char impact,Server *serv)
     int ind = 0;
     bool finded = false;
 
-    if(msg.holder->size() != 4)
-    {
-        msg.res.str("");
-        msg.res << ERR_CUSTOM << "Invalid number of parameters" << MSG_END;
-        send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
-        return;
-    }
     ind = get_channel_index(serv->channels,msg.holder->at(1));
     for (int i = 0; i < serv->channels.at(ind)->get_users_size();i++)
         if (serv->channels.at(ind)->get_users().at(i)->get_nickname() == msg.user->get_nickname())
@@ -310,34 +300,43 @@ void k_flag(Message &msg,char impact,Server *serv)
     if (impact == '+')
     {
         erase_back_match(msg.holder->at(3),MSG_END);
+        if (msg.holder->size() != 4)
+        {
+            msg.res.str("");
+            msg.res << ERR_CUSTOM << "Invalid number of parameters" << MSG_END;
+            send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+            return;
+        }
         serv->channels.at(ind)->set_key(msg.holder->at(3));
         msg.res.str("");
         msg.res << ":juluk.org MODE " << msg.holder->at(1) << " +k " << msg.user->get_nickname() << MSG_END;
-        send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
+        serv->channels.at(ind)->broadcast_msg(msg);
     }
-    else if (impact == '-')
+    else if (impact == '-' && msg.holder->size() == 3)
     {
         msg.res.str("");
+        serv->channels.at(ind)->set_key_opt(false);
         msg.res << ":juluk.org MODE " << msg.holder->at(1) << " -k " << msg.user->get_nickname() << MSG_END;
-        send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
+        serv->channels.at(ind)->broadcast_msg(msg);
+        //send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
     }
+    else
+    {
+        std::cout << msg.holder->size() << std::endl;
+        msg.res.str("");
+        msg.res << ERR_CUSTOM << "Too many params" << MSG_END;
+        serv->channels.at(ind)->broadcast_msg(msg);
+    }
+
 }
-
-
-
 
 void l_flag(Message &msg,char impact,Server *serv)
 {   
     int ind = 0;
     bool finded;
 
-    if(msg.holder->size() != 4)
-    {
-        msg.res.str("");
-        msg.res << ERR_CUSTOM << "Invalid number of parameters" << MSG_END;
-        send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
-        return;
-    }
+
+    std::cout << "Size es : " << msg.holder->size() << std::endl;   
     finded = false;
     ind = get_channel_index(serv->channels,msg.holder->at(1));
     if (ind == -1)
@@ -367,14 +366,21 @@ void l_flag(Message &msg,char impact,Server *serv)
             return;
         }
         msg.res << ":juluk.org MODE " << msg.holder->at(1) << " +l " << msg.user->get_nickname() << MSG_END;
-        send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
+        serv->channels.at(ind)->broadcast_msg(msg);
     }
-    else if (impact == '-')
+    else if (impact == '-' && msg.holder->size() == 3)
     {
-        serv->channels.at(ind)->get_channel_permissions()->at(2) = false;
         msg.res.str("");
+        serv->channels.at(ind)->set_user_limit(STANDARD_LIMIT);
+        serv->channels.at(ind)->get_channel_permissions()->at(2) = false;
         msg.res << ":juluk.org MODE " << msg.holder->at(1) << " -l " << msg.user->get_nickname() << MSG_END;
-        send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
+        serv->channels.at(ind)->broadcast_msg(msg);
+    }
+    else
+    {
+        msg.res.str("");
+        msg.res << ERR_CUSTOM << "Too many params" << MSG_END;
+        send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
     }
 }
 
