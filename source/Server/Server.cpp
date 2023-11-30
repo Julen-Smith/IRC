@@ -22,6 +22,9 @@ Server::Server(const char *port, const char *password): max_clients(MAX_CLIENTS)
     this->callback_map["WHOIS"] = &Server::whois_command;
     this->callback_map["TOPIC"] = &Server::topic_command;
     this->callback_map["KICK"] = &Server::kick_command;
+    this->callback_map["CLOSE"] = &Server::close_command;
+
+    this->loop = 1;
 
     priv_list[0].user = "admin";
     priv_list[0].password = "admin";
@@ -35,7 +38,7 @@ Server::Server(const char *port, const char *password): max_clients(MAX_CLIENTS)
     this->_hints.ai_socktype = SOCK_STREAM;
     this->_hints.ai_flags = AI_PASSIVE;
 
-    getaddrinfo(NULL, "4242", &this->_hints, &this->_res);
+    getaddrinfo(NULL, port, &this->_hints, &this->_res);
     this->_socket = socket(this->_res->ai_family, this->_res->ai_socktype, this->_res->ai_protocol);
 
     //this->sv_socket_info.sin_port = htons(4242);
@@ -67,7 +70,27 @@ Server::Server(const char *port, const char *password): max_clients(MAX_CLIENTS)
 }
 
 //  DESTRUCTOR
-Server::~Server() {}
+Server::~Server() {
+    std::map<int, UnvalidatedUser *>::iterator unva_it;
+    std::vector<Channel *>::iterator ch_it;
+    std::vector<User *>::iterator user_it;
+
+    freeaddrinfo(this->_res);
+    unva_it = this->unvalidated_users.begin();
+    for (; unva_it != this->unvalidated_users.end(); unva_it++) {
+        delete unva_it->second;
+    }
+
+    ch_it = this->channels.begin();
+    for (; ch_it != this->channels.end(); ch_it++) {
+        delete (*ch_it);
+    }
+
+    user_it = this->users.begin();
+    for (; user_it != this->users.end(); user_it++) {
+        delete (*user_it);
+    }
+}
 
 // Tokenizer acepta como parametro un buffer de chars, utilizando getline
 void Server::tokenizer(Message &msg) {
@@ -97,8 +120,14 @@ void Server::tokenizer(Message &msg) {
             std::cerr << "Contents: " << msg.buffer << std::endl;
             std::cerr << "Error: invalid commnad -> " << token << std::endl;
         }
-        if (msg.params->size() != -1)
+        if (msg.params and msg.params->size() != -1) {
             delete msg.params;
+            msg.params = NULL;
+        }
+        if (msg.holder and msg.holder->size() != -1) {
+            delete msg.holder;
+            msg.holder = NULL;
+        }
     }
     delete msg.commands;
 }

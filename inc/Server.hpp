@@ -44,6 +44,7 @@ class Server
 
 		const int	max_clients;
 		const int	get_socket() const;
+		int	loop;
 
 		std::vector<pollfd>			fds;
 		std::vector<User *>			users;
@@ -109,6 +110,7 @@ class Server
 		void						prvmsg_command(Message&);
 		void						whois_command(Message&);
 		void						topic_command(Message&);
+		void 						close_command(Message&);
 
 		//flags
 		void						flag_manager(Message &msg);

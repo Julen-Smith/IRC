@@ -35,7 +35,7 @@ void main_loop(Server &server)
     //server.fds[1].events = POLLIN;
 
     //server.generate_default_channels();
-    while (true)
+    while (server.loop)
     {
         server.event_to_handle = poll(server.fds.data(), server.fds.size(), 0);
         for(int client = 0; client < server.fds.size(); client++)

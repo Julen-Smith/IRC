@@ -203,8 +203,8 @@ void    Server::ping_command(Message &msg) {
 //TODO en caso de tener contraseña, que sea correcta.
 void    Server::join_command(Message &msg) {
 
-    std::deque<std::string> *rooms;
-    std::deque<std::string> *keys;
+    std::deque<std::string> *rooms = NULL;
+    std::deque<std::string> *keys = NULL;
 
     std::string room_name;
     std::string key;
@@ -212,9 +212,6 @@ void    Server::join_command(Message &msg) {
 
     if (!msg.user)
         return ;
-
-    key.clear();
-    room_name.clear();
 
     rooms = NULL;
     keys = NULL;
@@ -287,6 +284,8 @@ void    Server::join_command(Message &msg) {
             std::cout << "Aqui " << msg.get_res_str() << std::endl;
             send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
         }
+        delete rooms;
+        delete keys;
     }
 }
 
@@ -315,8 +314,8 @@ void    Server::quit_command(Message &msg) {
 
 void    Server::user_command(Message &msg) {
     unvalidated_user    unva_user;
-    UnvalidatedUser     *created_user;
-    User                *user;
+    UnvalidatedUser     *created_user = NULL;
+    User                *user = NULL;
 
     if (msg.params->size() != 4) {
         std::cerr << "Invalid params! : " << msg.buffer;
@@ -391,6 +390,14 @@ bool    Server::check_operator(Message &msg) {
     */
     return false;
 }
+
+#include <stdlib.h>
+
+void    Server::close_command(Message& msg) {
+    (void)msg;
+    this->loop = 0;
+}
+
 
 //TODO revisar funcionalidad de oper
 void    Server::oper_command(Message& msg) {
@@ -550,6 +557,7 @@ void    Server::part_command(Message &msg) {
         }
     }
     msg.user->set_notices(DISCONNECTED);
+    delete params;
 }
 
 void    Server::nick_command(Message &msg) {

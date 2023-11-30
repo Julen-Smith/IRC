@@ -47,8 +47,17 @@ void    Server::erase_client(int socket)
 
 void    Server::add_unvalidated_user(int client_socket) {
     UnvalidatedUser  *unvalidated_user;
+    std::map<int, UnvalidatedUser *>::iterator it;
 
     unvalidated_user = new UnvalidatedUser(client_socket);
+    
+    it = this->unvalidated_users.find(client_socket);
+
+    if (it != this->unvalidated_users.end()) {
+        delete it->second;
+        this->unvalidated_users.erase(it);
+    }
+
     this->unvalidated_users[client_socket] = unvalidated_user;
 }
 
@@ -57,6 +66,7 @@ bool	Server::delete_unvalidated_user(int client_socket) {
 
     user = this->unvalidated_users.find(client_socket);
     if (user != this->unvalidated_users.end()) {
+        delete user->second;
         this->unvalidated_users.erase(user);
         return false;
     }
@@ -94,6 +104,7 @@ bool    Server::delete_user_by_socket(int client_socket) {
     user = this->users.begin();
     for (; user != this->users.end(); user++) {
         if ((*user)->get_socket() == client_socket) {
+            delete (*user);
             this->users.erase(user);
             return true;
         }

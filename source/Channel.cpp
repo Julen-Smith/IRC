@@ -77,7 +77,6 @@ std::string Channel::get_user_list() {
 
 void    Channel::add_user(User *user)
 {
-
     user->add_channel_count();
 
     std::vector<char> permissions(6, '0');
@@ -85,7 +84,7 @@ void    Channel::add_user(User *user)
     if (!this->_users.size())
         this->_user_permissions[user][2] = '1';
     this->_users.push_back(user);
-    stdout_channel__users_permissions(user);
+    //stdout_channel__users_permissions(user);
 }
 
 void    Channel::delete_user(const std::string &name)
@@ -222,6 +221,12 @@ void    Channel::stdout_channel_permissions()
 
 void    Channel::stdout_channel__users_permissions(const User *user)
 {
+    std::map<const User *, std::vector<char> >::iterator it;
+
+    //it = this->_user_permissions.find(user);
+    //if (it == this->_user_permissions.end())
+    //    return ;
+
     std::cout << "Permisos [ " << user->get_nickname() <<" ]" << std::endl;
     std::cout << "Modo invisible : " << this->_user_permissions[user].at(0) << std::endl;
     std::cout << "Modo wallops : " << this->_user_permissions[user].at(1) << std::endl;
@@ -257,7 +262,6 @@ std::vector<User *> Channel::get_users()
 {
     return this->_users;
 }
-
 
 void    Channel::notice_join(Message &msg) {
     std::stringstream   ss;
