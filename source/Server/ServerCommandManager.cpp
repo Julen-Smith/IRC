@@ -249,7 +249,7 @@ void    Server::join_command(Message &msg) {
                 //canal solo para invitados
                 if (channel->is_already(msg.user->get_nickname()))
                     return ;
-                else if (channel->get_invite() == INVITE_ONLY && msg.user->get_operator_status() == false) {
+                else if (channel->is_flag(INVITE) == INVITE_ONLY && msg.user->get_operator_status() == false && !channel->is_invited(msg.user)) {
                     msg.res.str("");
                     msg.res << ERR_INVITEONLYCHAN << msg.user->get_nickname() << room_name << " " << INVITEONLYCHAN;
                 //canal con limite de usuarios superado
@@ -621,8 +621,10 @@ void Server::topic_command(Message& msg)
 
     msg.holder = msg.split(msg.buffer," ");
     std::cout << msg.holder->size() << std::endl;
-    if (msg.holder->size() == 1)
+    if (msg.holder->size() == 1) {
         error_return(ERR_NEEDMOREPARAMS,NEEDMOREPARAMS,msg);
+        return ;
+    }
 
     erase_back_match(msg.holder->at(1),MSG_END);
     if (msg.holder->size() > 2)
@@ -677,8 +679,14 @@ void Server::topic_command(Message& msg)
         else
         {
             msg.res.str("");
-            msg.res << RPL_TOPIC << " " << this->channels.at(index)->get_name() << " : ";
-            msg.res << this->channels.at(index)->get_topic() <<MSG_END;
+            //msg.res << RPL_TOPIC << this->channels.at(index)->get_name() << " :";
+            //msg.res << this->channels.at(index)->get_topic() <<MSG_END;
+            msg.res << RPL_TOPIC << msg.user->get_nickname() << " " << this->channels.at(index)->get_name() << " :";
+            msg.res << this->channels.at(index)->get_topic() << MSG_END;
+            //send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+
+            //msg.res << ":juluk.org 333 " << msg.user->get_nickname() << " " << this->channels.at(index)->get_name() << " * " << MSG_END; 
+            //std::cout << msg.get_res_str() << std::endl;
             std::cout << msg.get_res_str() << std::endl;
             send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
         }
@@ -689,9 +697,9 @@ void Server::topic_command(Message& msg)
         for(int i = 3; i < msg.holder->size(); i++)
             msg.holder->at(2) += " " + msg.holder->at(i);
         this->channels.at(index)->set_topic(msg.holder->at(2));
-        //msg.res << RPL_TOPIC << " " << this->channels.at(index)->get_name() << " ";
-        msg.res << ":juluk.org TOPIC " << " " << this->channels.at(index)->get_name() << " ";
-        msg.res << this->channels.at(index)->get_topic() <<MSG_END;
+        msg.res << RPL_TOPIC << msg.user->get_nickname() << " " << this->channels.at(index)->get_name() << " ";
+        msg.res << this->channels.at(index)->get_topic() << MSG_END;
+        msg.res << ":juluk.org 333 " << msg.user->get_nickname() << " " << this->channels.at(index)->get_name() << " * " << MSG_END; 
         std::cout << msg.get_res_str() << std::endl;
         ch->broadcast_msg(msg);
         //send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
@@ -760,7 +768,10 @@ void    Server::invite_command(Message &msg) {
         msg.res.str(":Server NOTICE " + msg.holder->at(2) + " :" + msg.user->get_nickname() + " invited you to channel " + this->channels.at(real_index)->get_name() + MSG_END);
         for(int i = 0; i < this->users.size(); i++)
             if (this->users.at(i)->get_nickname() == msg.holder->at(2))
+            {
                 send(this->users.at(i)->get_socket(), msg.res.str().c_str(), msg.res.str().size(), 0);
+                this->channels.at(real_index)->add_invited_user(this->users.at(i));
+            }
     }
 
 }

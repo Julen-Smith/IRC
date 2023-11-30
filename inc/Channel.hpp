@@ -16,6 +16,7 @@ class Channel
         std::vector<User *>         _users;
         std::vector<User *>         _visible_users;
         std::vector<std::string>    _banned;
+        std::vector<User *>         _invited_users;
 
         std::map<const User*,  std::vector<char> > _user_permissions; //iwsovq
         std::vector<bool>           _channel_permissions; //tklbmi
@@ -41,6 +42,8 @@ class Channel
         void                unset_user_ban(const std::string &nickname);
         void                set_key_opt(const bool key_opt);
         void                set_user_limit(const int user_limit);
+        void                add_invited_user(User* user);
+
 
         //getters
 
@@ -56,6 +59,8 @@ class Channel
         std::vector<User *>                         get_visible_users();
         std::vector<bool>                           *get_channel_permissions();
         std::map<const User*,  std::vector<char> > *get_user_permissions();
+        std::vector<User *>                         get_invited_users();
+
 
         //is functions
 
@@ -64,6 +69,7 @@ class Channel
         bool                is_already(const std::string &nickname);
         bool                is_operator(User *user);
         bool                is_flag(int flag);
+        bool                is_invited(User *user);
 
 
         std::string         get_user_list_msg(User *user);
@@ -79,6 +85,7 @@ class Channel
         void                notice_join(Message &msg);
         void                notice_part(Message &msg, const std::string &topic);
         void                broadcast_msg(Message &msg);
+ 
 
 
         //Debug and stuff

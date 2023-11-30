@@ -77,6 +77,7 @@ std::string Channel::get_user_list() {
 
 void    Channel::add_user(User *user)
 {
+    std::vector<User *>::iterator  inv_user;
 
     user->add_channel_count();
 
@@ -86,6 +87,15 @@ void    Channel::add_user(User *user)
         this->_user_permissions[user][2] = '1';
     this->_users.push_back(user);
     stdout_channel__users_permissions(user);
+    std::cout << "3" << std::endl;
+    for(inv_user= this->_invited_users.begin(); inv_user != this->_invited_users.end(); inv_user++)
+    {
+        if ((*inv_user) == user) {
+            this->_invited_users.erase(inv_user);
+            break ;
+        }
+    }
+    
 }
 
 void    Channel::delete_user(const std::string &name)
@@ -107,6 +117,7 @@ bool    Channel::get_invite() const { return this->_invite; }
 const std::string&  Channel::get_name() const { return (this->_name );}
 const std::string&  Channel::get_topic() const { return (this->_topic );}
 int Channel::get_users_size() const { return (this->_users.size()); }
+std::vector<User *> Channel::get_invited_users(){return this->_invited_users;}
 
 //is
 
@@ -311,5 +322,24 @@ bool Channel::is_flag(int type) {
     return this->_channel_permissions[type];
 }
 
+bool Channel::is_invited(User *user)
+{
+     std::cout << "2" << std::endl;
+    for(int i = 0; i < this->_invited_users.size();i++)
+    {
+        if (user == this->_invited_users.at(i))
+            return true;
+    }
+    return false;
+}
 
-
+void                Channel::add_invited_user(User* user)
+{
+    std::cout << "1" << std::endl;
+    for(int i = 0; i < this->_invited_users.size();i++)
+    {
+        if (user == this->_invited_users.at(i))
+            return;
+    }
+    this->_invited_users.push_back(user);
+}
