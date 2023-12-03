@@ -120,6 +120,7 @@ void Server::tokenizer(Message &msg) {
             std::cerr << "Contents: " << msg.buffer << std::endl;
             std::cerr << "Error: invalid commnad -> " << token << std::endl;
         }
+
         if (msg.params and msg.params->size() != -1) {
             delete msg.params;
             msg.params = NULL;
@@ -189,7 +190,6 @@ bool    Server::is_already(const std::string &nickname) {
     std::vector<User *>::iterator   it;
 
     it = this->users.begin();
-    std::cout << "Users size (is_already): " << this->users.size() << std::endl;
     for (; it != this->users.end(); it++) {
         std::cout << "NEW: " << nickname << "- OG: " << (*it)->get_nickname() << MSG_END;
         std::cout << "OG: " << (*it)->get_notices() << MSG_END;

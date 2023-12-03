@@ -338,7 +338,7 @@ void l_flag(Message &msg,char impact,Server *serv)
     bool finded;
 
 
-    std::cout << "Size es : " << msg.holder->size() << std::endl;   
+    std::cout << "Size es : " << msg.holder->size() << std::endl;
     finded = false;
     ind = get_channel_index(serv->channels,msg.holder->at(1));
     if (ind == -1)

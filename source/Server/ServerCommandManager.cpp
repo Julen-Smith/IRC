@@ -2,6 +2,7 @@
 #include "defs.hpp"
 #include "Channel.hpp"
 #include <string.h>
+#include <stdlib.h>
 
 static int error_return(const std::string error_code,const std::string error_string, Message &msg)
 {
@@ -207,8 +208,6 @@ void    Server::join_command(Message &msg) {
     if (!msg.user)
         return ;
 
-    rooms = NULL;
-    keys = NULL;
     std::cout << keys << std::endl;
     if (msg.params->size() == 0 or msg.params->size() > 2 or msg.params->front().size() < 2) {
         msg.res.str("");
@@ -385,8 +384,6 @@ bool    Server::check_operator(Message &msg) {
     return false;
 }
 
-#include <stdlib.h>
-
 void    Server::close_command(Message& msg) {
     (void)msg;
     this->loop = 0;
@@ -512,7 +509,6 @@ void    Server::part_command(Message &msg) {
         return ;
     }
 
-
     token = msg.get_params_front();
     params = msg.split(token, CSV);
     if (msg.params->size()) {
@@ -584,9 +580,9 @@ void    Server::nick_command(Message &msg) {
         msg.res << ERR_ERRONEUSNICKNAME << nickname << ERRONEUSNICKNAME;
         send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
 
-        if (this->find_unva_user_by_socket(msg.client_socket)) {// and msg.user)) {
+        if (this->find_unva_user_by_socket(msg.client_socket)) {
             std::cout << "close 1\n";
-            //msg.user->set_notices(DISCONNECTED);
+            msg.user->set_notices(DISCONNECTED);
             close(msg.client_socket);
         }
         return ;
@@ -704,7 +700,6 @@ void Server::topic_command(Message& msg)
             msg.res << this->channels.at(index)->get_topic() << MSG_END;
             //send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
 
-            //msg.res << ":juluk.org 333 " << msg.user->get_nickname() << " " << this->channels.at(index)->get_name() << " * " << MSG_END;
             //std::cout << msg.get_res_str() << std::endl;
             std::cout << msg.get_res_str() << std::endl;
             send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);

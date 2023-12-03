@@ -49,7 +49,7 @@ std::string         User::get_channels_str() {
     result[result.size() - 1] = 0;
     return result;
 }
-bool                User::get_operator_status() const{return this->_is_operator;}   
+bool                User::get_operator_status() const{return this->_is_operator;}
 const std::string&  User::get_nickname(void) const {return this->_nickname;}
 const std::string&  User::get_login_name(void) const {return this->_login_name;}
 bool                User::get_notices(void) const {return this->_notices;}
@@ -58,7 +58,7 @@ size_t              User::get_count(void) const {return this->_count; }
 
 void                User::set_notices(bool state) {this->_notices = state; }
 void                User::set_nickname(std::string nick) { this->_nickname = nick; }
-void                User::set_operator_status(bool status) { this->_is_operator = status;} 
+void                User::set_operator_status(bool status) { this->_is_operator = status;}
 
 void    User::add_channel_count() { this->_count++; }
 void    User::add_channel(Channel *channel) { this->_channels.push_back(channel);}

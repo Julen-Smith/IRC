@@ -50,7 +50,7 @@ void    Server::add_unvalidated_user(int client_socket) {
     std::map<int, UnvalidatedUser *>::iterator it;
 
     unvalidated_user = new UnvalidatedUser(client_socket);
-    
+
     it = this->unvalidated_users.find(client_socket);
 
     if (it != this->unvalidated_users.end()) {

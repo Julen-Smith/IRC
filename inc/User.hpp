@@ -35,14 +35,13 @@ class User
         int                 get_socket(void) const;
         size_t              get_count(void) const;
         bool                get_operator_status() const;
-        
+
         void                set_notices(bool status);
         void                set_nickname(std::string);
         void                set_operator_status(bool status);
         void                add_channel(Channel *channel);
         void                add_channel_count();
         void                substract_channel_count();
-
         void                delete_channel(Channel *channel);
 
         std::string             _login_name;

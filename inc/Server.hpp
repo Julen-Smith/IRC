@@ -50,11 +50,11 @@ class Server
 		std::vector<User *>			users;
 		std::vector<Channel *>		channels;
 		typedef std::vector<User *>::iterator	validated_user;
-		
+
 		//CALLBACK MAP
 		typedef void (Server::*MemberFunction)(Message&);
-		std::map<std::string, MemberFunction> callback_map; 
-		std::map<std::string, MemberFunction>::iterator it; 
+		std::map<std::string, MemberFunction> callback_map;
+		std::map<std::string, MemberFunction>::iterator it;
 
 		typedef	std::map<int, UnvalidatedUser *>				unvalidated_user_map;
 		typedef	std::map<int, UnvalidatedUser *>::iterator	unvalidated_user;
@@ -92,7 +92,7 @@ class Server
 		bool 						check_validated_user(Server::validated_user);
 		bool						check_name(const std::string &name);
 		void    					notice_new_user(Message &msg);
-		
+
 		//commands
 		void						pass_command(Message&);
 		void						part_command(Message&);

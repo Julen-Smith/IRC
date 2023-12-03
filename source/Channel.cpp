@@ -203,7 +203,6 @@ bool    Channel::enter_key(const std::string &key) {
         std::cout << this->get_key() << " :  " <<  key << std::endl;
         return INCORRECT_KEY;
     }
-
     return CORRECT_KEY;
 }
 
@@ -234,12 +233,6 @@ void    Channel::stdout_channel_permissions()
 
 void    Channel::stdout_channel__users_permissions(const User *user)
 {
-    std::map<const User *, std::vector<char> >::iterator it;
-
-    //it = this->_user_permissions.find(user);
-    //if (it == this->_user_permissions.end())
-    //    return ;
-
     std::cout << "Permisos [ " << user->get_nickname() <<" ]" << std::endl;
     std::cout << "Modo invisible : " << this->_user_permissions[user].at(0) << std::endl;
     std::cout << "Modo wallops : " << this->_user_permissions[user].at(1) << std::endl;
