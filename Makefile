@@ -1,6 +1,5 @@
 CC				= clang++
-SERVER			= Server
-CLIENT			= Client
+SERVER			= ircserv
 FLAGS			=  -Wall -Werror -g3 -fsanitize=address -std=c++98 #-gdwarf-2 -g3 -std=c++98
 
 
