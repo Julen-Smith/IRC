@@ -21,7 +21,7 @@
 
 # define TOPIC      0
 # define KEY        1
-# define LIMIT      2
+# define LIMIT      3
 # define BAN        3
 # define MODERATED  4
 # define INVITE     5

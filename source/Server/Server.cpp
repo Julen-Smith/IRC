@@ -163,7 +163,7 @@ bool Server::read_socket(Message &msg) {
     ssize_t read_size;
 
     //std::cout << "f: " << MSG_DONTWAIT << std::endl;
-    read_size = recv(msg.client_socket, msg.buffer, BUFFER_SIZE, MSG_DONTWAIT);
+    read_size = recv(msg.client_socket, msg.buffer, BUFFER_SIZE, 0);
     std::cout << "read size: " << read_size << std::endl;
 
     //TODO handleear cuando read_size es 0
@@ -197,4 +197,14 @@ bool    Server::is_already(const std::string &nickname) {
             return true;
     }
     return false;
+}
+
+void Server::broadcast(Message &msg) {
+    std::vector<User *>::iterator it;
+
+    it = this->users.begin();
+    for (; it != this->users.end(); it++) {
+        if ((*it)->get_nickname() != "Bot")
+            send((*it)->get_socket(), msg.get_res_str(), msg.get_res_size(), 0);
+    }
 }

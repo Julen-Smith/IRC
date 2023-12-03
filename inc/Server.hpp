@@ -74,6 +74,7 @@ class Server
 		void						tokenizer(Message& msg);
 		bool						read_socket(Message &msg);
 		bool    					check_operator(Message &msg);
+		void 						broadcast(Message &msg);
 
 		//channel getters
 		Channel						*get_channel_by_name(const std::string &name);

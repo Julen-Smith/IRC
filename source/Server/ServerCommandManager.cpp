@@ -228,11 +228,16 @@ void    Server::join_command(Message &msg) {
         for (std::deque<std::string>::iterator it = rooms->begin(); it != rooms->end(); it++) {
             room_name = *it;
 
+            msg.res.str("");
             channel = this->get_channel_by_name(room_name);
 
             //TODO create new channel
             //el canal no existe
-            if (channel == NULL) {
+            if (channel == NULL and msg.user->get_count() >= MAX_CHANNELS) {
+
+                msg.res << ERR_TOOMANYCHANNELS << msg.user->get_nickname() << " " << room_name << TOOMANYCHANNELS;
+
+            } else if (channel == NULL) {
 
                 channel = this->create_channel(msg.user, room_name);
 
@@ -247,27 +252,21 @@ void    Server::join_command(Message &msg) {
                 if (channel->is_already(msg.user->get_nickname()))
                     return ;
                 else if (channel->is_flag(INVITE) == INVITE_ONLY && msg.user->get_operator_status() == false && !channel->is_invited(msg.user)) {
-                    msg.res.str("");
                     msg.res << ERR_INVITEONLYCHAN << msg.user->get_nickname() << room_name << " " << INVITEONLYCHAN;
                 //canal con limite de usuarios superado
                 } else if (channel->is_limit_raised()) {
-                    msg.res.str("");
                     msg.res << ERR_CHANNELISFULL << msg.user->get_nickname() << " " << room_name << CHANNELISFULL;
                 //usuario baneado
                 } else if (channel->is_banned(msg.user->get_nickname())) {
-                    msg.res.str("");
                     msg.res << ERR_BANNEDFROMCHAN << msg.user->get_nickname() << " " << room_name << BANNEDFROMCHAN;
                 } else {
                     if (channel->enter_key(key) == INCORRECT_KEY) {
-                        msg.res.str("");
                         msg.res << ERR_BADCHANNELKEY << msg.user->get_nickname() << " " << room_name << BADCHANNELKEY;
                     } else {
                         if (msg.user->get_count() >= MAX_CHANNELS) {
-                            msg.res.str("");
                             msg.res << ERR_TOOMANYCHANNELS << msg.user->get_nickname() << " " << room_name << TOOMANYCHANNELS;
                         } else {
                             channel->add_user(msg.user);
-                            msg.res.str("");
                             msg.res << channel->get_topic_msg(msg.user) << channel->get_user_list_msg(msg.user);
                             channel->notice_join(msg);
                         }
@@ -546,7 +545,7 @@ void    Server::part_command(Message &msg) {
             this->delete_channel(token);
         }
     }
-    msg.user->set_notices(DISCONNECTED);
+    //msg.user->set_notices(DISCONNECTED);
     delete params;
 }
 
@@ -581,8 +580,6 @@ void    Server::nick_command(Message &msg) {
         send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
 
         if (this->find_unva_user_by_socket(msg.client_socket)) {
-            std::cout << "close 1\n";
-            msg.user->set_notices(DISCONNECTED);
             close(msg.client_socket);
         }
         return ;
@@ -592,6 +589,7 @@ void    Server::nick_command(Message &msg) {
 	    msg.res << ":" << msg.user->get_nickname() << " NICK :" << nickname << MSG_END;
 	    msg.user->set_nickname(nickname);
 	    std::cout << msg.get_res_str();
+        //this->broadcast(msg);
 	    send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
 	    return ;
     }
