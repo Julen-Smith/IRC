@@ -28,6 +28,7 @@ void main_loop(Server &server)
     server.fds.push_back(pollfd());
     server.fds[0].fd = server.get_socket();
     server.fds[0].events = POLLIN;
+    server.fds[0].revents = 1;
 
     //server.users.push_back(new User("nickname", 8));
     //server.fds.push_back(pollfd());
@@ -35,11 +36,13 @@ void main_loop(Server &server)
     //server.fds[1].events = POLLIN;
 
     //server.generate_default_channels();
-    while (1) //server.loop)
+    long long n = 0;
+    while (server.loop)
     {
         server.event_to_handle = poll(server.fds.data(), server.fds.size(), 0);
-        for(int client = 0; client < server.fds.size(); client++)
+        for(size_t client = 0; client < server.fds.size(); client++)
         {
+            n++;
             if (server.fds[client].revents & POLLHUP)  //Erase client
             {
                 server.erase_client(server.fds[client].fd);
@@ -52,6 +55,7 @@ void main_loop(Server &server)
                 else
                     server.manage_response(client);
             }
+            //std::cout << n << std::endl;
         }
     }
 }

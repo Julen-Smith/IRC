@@ -52,7 +52,19 @@ Server::Server(const char *port, const char *password): max_clients(MAX_CLIENTS)
     }
 
     int option = 1;
+
+    struct timeval tv;
+    tv.tv_sec = 5;
+    tv.tv_usec = 0;
+
     while (setsockopt(this->_socket,SOL_SOCKET,SO_REUSEADDR, &option, sizeof(option)) < 0)
+    {
+        std::cerr << SOCKET_PREF_ERROR << std::endl;
+        std::cerr << "1 - Intentandolo de nuevo . . ." << std::endl;
+        usleep(1000000);
+    }
+
+    while (setsockopt(this->_socket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv) < 0)
     {
         std::cerr << SOCKET_PREF_ERROR << std::endl;
         std::cerr << "Intentandolo de nuevo . . ." << std::endl;
@@ -121,11 +133,11 @@ void Server::tokenizer(Message &msg) {
             std::cerr << "Error: invalid commnad -> " << token << std::endl;
         }
 
-        if (msg.params and msg.params->size() != -1) {
+        if (msg.params and msg.params->size() != static_cast<size_t>(-1)) {
             delete msg.params;
             msg.params = NULL;
         }
-        if (msg.holder and msg.holder->size() != -1) {
+        if (msg.holder and msg.holder->size() != static_cast<size_t>(-1)) {
             delete msg.holder;
             msg.holder = NULL;
         }
@@ -205,6 +217,6 @@ void Server::broadcast(Message &msg) {
     it = this->users.begin();
     for (; it != this->users.end(); it++) {
         if ((*it)->get_nickname() != "Bot")
-            send((*it)->get_socket(), msg.get_res_str(), msg.get_res_size(), 0);
+            send((*it)->get_socket(),  msg.res.str().c_str(), msg.res.str().size(), 0);
     }
 }

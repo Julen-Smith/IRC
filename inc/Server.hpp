@@ -136,7 +136,7 @@ class Server
 		struct addrinfo		*_res;
 
 		void			_init_cout() const;
-		void			_create_new_user(ssize_t, int, std::string);
+		void			_create_new_user(ssize_t, size_t, std::string);
 		void			send_intro(int);
 		std::istream&	get_token(Message&, std::string&, char, const std::string &);
 };

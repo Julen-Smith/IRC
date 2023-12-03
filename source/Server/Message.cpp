@@ -1,4 +1,5 @@
 #include <cstring>
+#include <iostream>
 
 #include "Message.hpp"
 
@@ -8,6 +9,9 @@ Message::Message(){
     this->holder = NULL;
     this->user = NULL;
 
+    this->res.clear();
+    this->res_string = "";
+    this->res_size = 0;
     std::memset(this->buffer, 0, BUFFER_SIZE);
 }
 
@@ -16,6 +20,7 @@ Message::~Message(){}
 size_t  Message::get_res_size() const { return this->res_size; }
 
 const char    *Message::get_res_str() {
+
     this->res_string = this->res.str();
     this->res_size = this->res_string.size();
     return this->res_string.c_str();
@@ -24,7 +29,8 @@ const char    *Message::get_res_str() {
 size_t	Message::_delimiter(const std::string &src, const std::string &pattern, size_t index, bool mode) {
 	size_t	j;
 
-	for (j = index; j < src.size() and (pattern.find(src[j]) == -1) == mode;) {
+	for (j = index; j < src.size()
+            and (pattern.find(src[j]) == static_cast<size_t>(-1)) == mode;) {
 		j++;
 	}
 	return j;

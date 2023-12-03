@@ -99,11 +99,21 @@ bool Server::check_validated_user(Server::validated_user user) {
 }
 
 bool    Server::delete_user_by_socket(int client_socket) {
+    std::vector<Channel *>::iterator ch;
     validated_user  user;
 
     user = this->users.begin();
     for (; user != this->users.end(); user++) {
+        //Borrar el usuario de los canales donde este
+
         if ((*user)->get_socket() == client_socket) {
+
+            ch = this->channels.begin();
+            for (; ch != this->channels.end(); ch++) {
+                if ((*ch)->is_already((*user)->get_nickname()))
+                    (*ch)->delete_user((*user)->get_nickname());
+            }
+
             delete (*user);
             this->users.erase(user);
             return true;
@@ -132,9 +142,9 @@ void    Server::notice_new_user(Message &msg) {
     msg.res << PRIVMSG << " " << MAIN_CHANNEL << " : " << msg.user->get_nickname() << " " << JOIN_MSG << MSG_END;
 
     //mandar el mensaje
-    for(int i = 0; i != this->fds.size(); i++) {
+    for(size_t i = 0; i != this->fds.size(); i++) {
         if (this->fds[i].fd != msg.client_socket)
-            send(this->fds[i].fd, msg.get_res_str(), msg.get_res_size(), 0);
+            send(this->fds[i].fd,  msg.res.str().c_str(), msg.res.str().size(), 0);
     }
 }
 

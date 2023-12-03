@@ -22,7 +22,7 @@ class Channel
         std::vector<bool>           _channel_permissions; //tklbmi
 
         bool                        _invite;
-        int                         _user_limit;
+        size_t                      _user_limit;
         bool                        _key_opt;
 
     public:
@@ -53,7 +53,7 @@ class Channel
         const std::string&                          get_topic() const;
         std::string                                 get_user_list();
         std::string                                 get_visible_user_list() const;
-        int                                         get_users_size() const;
+        size_t                                         get_users_size() const;
         std::string                                 get_permissions_to_string();
         std::vector<User *>                         get_users();
         std::vector<User *>                         get_visible_users();
@@ -85,7 +85,7 @@ class Channel
         void                notice_join(Message &msg);
         void                notice_part(Message &msg, const std::string &topic);
         void                broadcast_msg(Message &msg);
- 
+
 
 
         //Debug and stuff

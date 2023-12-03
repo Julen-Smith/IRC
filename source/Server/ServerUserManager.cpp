@@ -14,9 +14,9 @@ static bool erase_back_match(std::string &source, const std::string &to_erase) {
 
     size_t  erase_len = 0;
     size_t  source_len = source.size();
-    
-    for (int i = 0; i < to_erase.size(); i++) {
-        if (source.find(to_erase[i]) != -1)
+
+    for (size_t i = 0; i < to_erase.size(); i++) {
+        if (source.find(to_erase[i]) != static_cast<size_t>(-1))
             erase_len++;
     }
     if (erase_len)
@@ -24,10 +24,10 @@ static bool erase_back_match(std::string &source, const std::string &to_erase) {
         source.erase(source_len - erase_len, source_len);
         return true;
     }
-    return false;        
+    return false;
 }
 
-void    Server::_create_new_user(ssize_t rd_size, int clientIndex, std::string buffer)
+void    Server::_create_new_user(ssize_t rd_size, size_t clientIndex, std::string buffer)
 {
     std::stringstream   string_builder;
     std::string         server_stream;
@@ -44,7 +44,7 @@ void    Server::_create_new_user(ssize_t rd_size, int clientIndex, std::string b
     server_stream = string_builder.str();
 
     //mandar el mensaje
-    for(int cli = 0; cli != this->users.size(); cli++) {
+    for(size_t cli = 0; cli != this->users.size(); cli++) {
         if (cli != clientIndex)
             send(this->fds[clientIndex].fd, server_stream.c_str(),server_stream.size(), 0);
     }
@@ -69,5 +69,6 @@ void    Server::accept_new_user()
 
     new_pollfd.fd = client_socket;
     new_pollfd.events = POLLIN;
+    new_pollfd.revents = 1;
     this->fds.push_back(new_pollfd);
 }

@@ -1,0 +1,46 @@
+PASS 42Urduliz
+NICK peterrr
+USER a b c d
+
+LIST
+JOIN
+JOIN #test
+JOIN #AAAA
+LIST
+OPER
+OPER .
+OPER peter .
+OPER peter bad_password
+OPER bad_user .
+OPER bad_user bad_password
+PART
+PART #test
+PART #qwre
+PING
+PING a
+PING a a
+JOIN #test
+MODE #test +i
+INVITE
+INVITE #AAAA
+INVITE #AAAA inventado
+MODE #test +i
+INVITE #AAAX peterrr
+MODE #test +o
+INVITE #test
+INVITE #test inventado
+INVITE #test pit
+PRIVMSG
+PRIVMSG #test :Hola
+PRIVMSG #AAA :Hola
+PRIVMSG pit :Hola
+TOPIC
+TOPIC #test
+TOPIC #INVENTADO
+TOPIC #AAAA
+TOPIC #AAAA peter
+TOPIC #AAAA peterfdggfd´´´´:ofgdofdgifdiasdsasa
+WHOIS
+WHOIS pitrr
+
+

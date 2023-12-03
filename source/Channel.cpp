@@ -22,9 +22,9 @@ void    Channel::send_msg(Message &msg) {
         msg.res.str("");
         client_socket = (*it)->get_socket();
         msg.res << ":" << nickname << " PRIVMSG " << this->_name << " " << body.str();
-        std::cout << msg.res.str();
+        std::cout << "Prueba : "  << msg.res.str();
         if (client_socket != msg.client_socket)
-            send(client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+            send(client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);   
     }
 }
 
@@ -32,7 +32,7 @@ Channel::Channel(const std::string& name, const std::string &topic)
 : _name(name), _topic(topic), _invite(false), _user_limit(STANDARD_LIMIT), _key_opt(KEY_NOT_SET)
 {
     std::cout << "The channel " << name << " has been created." << std::endl;
-    for(int i = 0; i != 6; i++) _channel_permissions.push_back(false);
+    for (size_t i = 0; i != 6; i++) _channel_permissions.push_back(false);
     stdout_channel_permissions();
 }
 
@@ -64,7 +64,7 @@ std::string Channel::get_user_list() {
     std::string user_list = "";
     std::map<const User*, std::vector<char> >::iterator it;
 
-    for (int i = 0; i < this->_users.size(); i++) {
+    for (size_t i = 0; i < this->_users.size(); i++) {
 
         it = this->get_user_permissions()->find(this->_users.at(i));
         std::vector<char>& permissions = it->second;
@@ -116,7 +116,7 @@ const std::string &Channel::get_key() const { return this->_key; }
 bool    Channel::get_invite() const { return this->_invite; }
 const std::string&  Channel::get_name() const { return (this->_name );}
 const std::string&  Channel::get_topic() const { return (this->_topic );}
-int Channel::get_users_size() const { return (this->_users.size()); }
+size_t Channel::get_users_size() const { return (this->_users.size()); }
 std::vector<User *> Channel::get_invited_users(){return this->_invited_users;}
 
 //is
@@ -215,7 +215,7 @@ std::string Channel::get_visible_user_list() const
 {
     std::string user_list = "";
 
-    for (int i = 0; i < this->_visible_users.size(); i++)
+    for (size_t i = 0; i < this->_visible_users.size(); i++)
         user_list += this->_visible_users.at(i)->get_nickname() + " ";
     return (user_list);
 }
@@ -273,6 +273,8 @@ void    Channel::notice_join(Message &msg) {
     std::stringstream   ss;
     std::vector<User *>::iterator it;
 
+    ss.str("");
+
     ss << ":" << msg.user->get_nickname() << " JOIN :" << this->_name << MSG_END;
     for (it = this->_users.begin(); it != this->_users.end(); it++) {
         send((*it)->get_socket(), ss.str().c_str(), ss.str().size(), 0);
@@ -312,7 +314,7 @@ void Channel::broadcast_msg(Message &msg) {
 
     it = this->_users.begin();
     for (; it != this->_users.end(); it++)
-        send((*it)->get_socket(), msg.get_res_str(), msg.get_res_size(), 0);
+        send((*it)->get_socket(),  msg.res.str().c_str(), msg.res.str().size(), 0);
 
 }
 
@@ -323,7 +325,7 @@ bool Channel::is_flag(int type) {
 bool Channel::is_invited(User *user)
 {
      std::cout << "2" << std::endl;
-    for(int i = 0; i < this->_invited_users.size();i++)
+    for (size_t i = 0; i < this->_invited_users.size();i++)
     {
         if (user == this->_invited_users.at(i))
             return true;
@@ -334,7 +336,7 @@ bool Channel::is_invited(User *user)
 void                Channel::add_invited_user(User* user)
 {
     std::cout << "1" << std::endl;
-    for(int i = 0; i < this->_invited_users.size();i++)
+    for (size_t i = 0; i < this->_invited_users.size();i++)
     {
         if (user == this->_invited_users.at(i))
             return;

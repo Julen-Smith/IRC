@@ -33,8 +33,8 @@ bool erase_back_match(std::string &source, const std::string &to_erase) {
     size_t  erase_len = 0;
     size_t  source_len = source.size();
 
-    for (int i = 0; i < to_erase.size(); i++) {
-        if (source.find(to_erase[i]) != -1)
+    for (size_t i = 0; i < to_erase.size(); i++) {
+        if (source.find(to_erase[i]) != static_cast<size_t>(-1))
             erase_len++;
     }
     if (erase_len)
@@ -165,18 +165,18 @@ static void reply_permissions(Message &msg, std::vector<Channel *> channels)
         {
             msg.res.str("");
             msg.res << RPL_CHANNELMODEIS;
-            send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+            send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
             msg.res.str("");
             msg.res << RPL_CHANNELMODEIS << " :" \
             << (*it)->get_name()<<"[" <<
             (*it)->get_permissions_to_string() << "]" << MSG_END;
-            send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+            send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
             return ;
         }
     }
     msg.res.str("");
     msg.res << ERR_NOSUCHNICK << NOSUCHNICK;
-    send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+    send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
 }
 
 int mode_input_manager(Message &msg, std::vector<User *> users, std::vector<Channel *> channels)
@@ -190,7 +190,7 @@ int mode_input_manager(Message &msg, std::vector<User *> users, std::vector<Chan
     (input_validator(msg.holder->at(2)) && twisted_input_validator(msg.holder->at(2))) || contains_invalid_mix(msg.holder->at(2))){
         msg.res.str("");
         msg.res << ERR_UMODEUNKNOWNFLAG << UMODEUNKNOWNFLAG;
-        send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+        send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
         std::cout << "Error on checking basic validations" << std::endl;
         return (1);
     }
@@ -200,7 +200,7 @@ int mode_input_manager(Message &msg, std::vector<User *> users, std::vector<Chan
         {
             msg.res.str("");
             msg.res << ERR_NOSUCHNICK << NOSUCHNICK;
-            send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+            send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
             std::cout << "Error checking apk destination" << std::endl;
             return (1);
         }
@@ -226,7 +226,7 @@ void    Server::mode_command(Message &msg)
 
     //if (msg.params->size() > 4 or msg.params->size() < 2) {
     //    msg.res << ERR_NEEDMOREPARAMS << NEEDMOREPARAMS;
-    //    send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+    //    send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
     //    return ;
     //}
 
@@ -242,7 +242,7 @@ void    Server::mode_command(Message &msg)
     //    msg.res << ERR_CHANOPRIVSNEEDED << CHANOPRIVSNEEDED;
 
     //if (msg.get_res_size()) {
-    //    send(msg.client_socket, msg.get_res_str(), msg.get_res_size(), 0);
+    //    send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
     //    return ;
     //}
 

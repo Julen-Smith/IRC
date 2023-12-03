@@ -58,7 +58,7 @@ int Server::check_channel(std::string& validation)
 {
     //erase_match(validation, MSG_END_SPACE);
     std::cout << "Validation: " << validation << std::endl;
-    for(int i = 0; i < this->channels.size(); i++)
+    for(size_t i = 0; i < this->channels.size(); i++)
     {
         std::string placeholder(this->channels[i]->get_name());
         std::cout << "Place holder: " << validation << std::endl;
