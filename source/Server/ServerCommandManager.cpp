@@ -403,8 +403,8 @@ void    Server::oper_command(Message& msg) {
     {
         for (int i = 0; i < this->users.size(); i++){
             std::cout << this->users.at(i)->get_nickname() << msg.holder->at(1) <<std::endl;
-            if (this->users.at(i)->get_nickname() == msg.holder->at(1)) {
-
+            if (this->users.at(i)->get_nickname() == msg.holder->at(1) && this->users.at(i)->get_nickname() == msg.user->get_nickname())
+            {
                 exist = true;
                 break;
             }
