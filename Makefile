@@ -28,7 +28,7 @@ CLIENT_OBJ = $(CLIENT_SRCS:.cpp=.o)
 
 
 all : $(SERVER)
-	./Server
+	./ircserv
 
 %.o : %.cpp
 	${CC} $(INC) ${FLAGS} -c $< -o $@
