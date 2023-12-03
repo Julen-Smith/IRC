@@ -141,17 +141,21 @@ void    Server::notice_new_user(Message &msg) {
 Channel    *Server::create_channel(User *user, const std::string &room_name) {
     Channel *channel;
 
+    std::cout << "size(1): " << this->channels.size() << std::endl;
     channel = new Channel(room_name, "There is no topic");
     this->channels.push_back(channel);
     channel->add_user(user);
 
+    std::cout << "size(2): " << this->channels.size() << std::endl;
     std::map<const User*, std::vector<char> >::iterator it;
     it = channel->get_user_permissions()->find(user);
     std::vector<char>& permissions = it->second;
     permissions[2] = '1';
 
+    std::cout << "size(3): " << this->channels.size() << std::endl;
     user->add_channel(channel);
     std::cout << "New channel created: " << room_name << std::endl;
+    std::cout << "size(4): " << this->channels.size() << std::endl;
     return channel;
 }
 
@@ -168,12 +172,12 @@ bool Server::delete_channel(const std::string &name) {
     std::vector<Channel *>::iterator it;
 
     it = this->channels.begin();
-    std::cout << "SIZE: " << this->channels.size() << std::endl;
 
     for (; it != this->channels.end(); it++) {
+
         if (name == (*it)->get_name()) {
+            delete *it;
             this->channels.erase(it);
-            delete(*it);
             return true;
         }
     }

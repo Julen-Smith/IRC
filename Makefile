@@ -1,6 +1,6 @@
 CC				= clang++
 SERVER			= ircserv
-FLAGS			=  -Wall -Werror -g3 -fsanitize=address -std=c++98 -gdwarf-2 #-g3 -fsanitize=address -std=c++98
+FLAGS			=  -Wall -Werror -g3 -std=c++98 -gdwarf-2 -fsanitize=address
 
 
 SERVER_SRCS =   source/Server/Server.cpp \

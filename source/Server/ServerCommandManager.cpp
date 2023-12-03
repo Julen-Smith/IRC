@@ -517,8 +517,10 @@ void    Server::part_command(Message &msg) {
         topic[topic.size() - 1] = 0;
     }
 
+    std::cout << "size(part): " << this->channels.size() << std::endl;
     for (size_t i = 0; i < params->size(); i++) {
 
+        std::cerr << "loop" << std::endl;
         msg.res.str("");
         token = params->front();
         params->pop_front();
