@@ -1,42 +1,21 @@
-BIENVENIDO A TERRA CHAT
+List de comandos
 
-El trozo de texto estándar de Lorem Ipsum usado desde el año 1500 es reproducido debajo 
-para aquellos interesados. Las secciones 1.10.32 y 1.10.33 de "de Finibus Bonorum et Malorum"
-por Cicero son también reproducidas en su forma original exacta, acompañadas por
-versiones en Inglés de la traducción realizada en 1914 por H. Rackham.
+NICK <nickname> -> Cambiar el nickname.
+JOIN #<Canal> -> Acceder a un canal.
+WHOIS <nickname> -> Detalles sobre un usuario.
+OPER <nickname> <contrasena> -> Operario de servidor.
 
-¿Dónde puedo conseguirlo?
-Hay muchas variaciones de los pasajes de Lorem Ipsum disponibles,
-pero la mayoría sufrió alteraciones en alguna manera, 
-ya sea porque se le agregó humor, o palabras aleatorias que no parecen ni un poco creíbles.
-Si vas a utilizar un pasaje de Lorem Ipsum,
-necesitás estar seguro de que no hay nada avergonzante escondido en el medio del texto. 
-Todos los generadores de Lorem Ipsum que se encuentran en Internet tienden a repetir trozos predefinidos cuando sea necesario,
-haciendo a este el único generador verdadero (válido) en la Internet.
-Usa un diccionario de mas de 200 palabras provenientes del latín,
- combinadas con estructuras muy útiles de sentencias,para generar texto de Lorem Ipsum que parezca razonable.
-Este Lorem Ipsum generado siempre estará libre de repeticiones,
-humor agregado o palabras no características del lenguaje, etc.
-     .---.
-    (_,/\ \
-   (`a a(  )         
-   ) \=  ) (
-  (.--' '--.)
-  / (_\_/_) \
- | / \   / \ |
-  \\ / . \ //
-   \/\___/\/
-   |  \_/  |
-    \  /  /
-     \/  /
-      ( (
-      |\ \
-      | \ \
-     /_Y/_Y          
+El comando MODE admite quitar (-) o poner privilegios (+).
 
-Estas en el lobby del chat, donde aparecen las normas la información y todo lo relacionado con los comandos
+MODE #<canal> +-t -> Privilegios de topic.
+MODE #<canal> +-k -> Asignar contrasena.
+MODE #<canal> +-l -> Asignar limite de usuarios.
+MODE #<canal> +-i -> Asignar privilegios de invitacion.
+MODE #<canal> +-o -> Asignar privilegios de operario de canal.
 
-Comandos disponibles
-PRIVMSG - Mandar mensaje privado a otro usuario
-LIST - Listar los canales disponibles
-LIST USER - Listar los usuarios en el chat
+QUIT :<mensaje> -> Salir del servidor
+PART #<canal> :<mensaje>-> Salir del canal.
+MOTD -> El mensaje oficial del servidor.
+INVITE <usuario> -> Invitar a usuario.
+TOPIC :<mensaje> -> Cambiar el topic del canal.
+KICK :<usuario> -> Echar a un usuario del canal.

@@ -41,10 +41,6 @@ Server::Server(const char *port, const char *password): max_clients(MAX_CLIENTS)
     getaddrinfo(NULL, port, &this->_hints, &this->_res);
     this->_socket = socket(this->_res->ai_family, this->_res->ai_socktype, this->_res->ai_protocol);
 
-    //this->sv_socket_info.sin_port = htons(4242);
-    //this->sv_socket_info.sin_family = AF_INET;
-    //this->sv_socket_info.sin_addr.s_addr = INADDR_ANY;
-    //this->_socket = socket(this->sv_socket_info.sin_family, SOCK_STREAM, 0);
     if (this->_socket == -1) //this->_socket == -1)
         exit(1);
 
@@ -69,13 +65,12 @@ Server::Server(const char *port, const char *password): max_clients(MAX_CLIENTS)
     }
 
     if (bind(this->_socket, this->_res->ai_addr, this->_res->ai_addrlen) == -1) {//->_socket, (sockaddr *) &this->sv_socket_info, sizeof(sv_socket_info)) < 0) {
-    //if (bind(this->_socket, (sockaddr *) &this->sv_socket_info, sizeof(sv_socket_info)) < 0) {
         std::cerr << "Error al asignar la dirección al socket\n";
         exit(1);
     }
+
     listen(this->_socket, MAX_CLIENTS);
-    //listen(this->_socket,MAX_CLIENTS);
-    _init_cout();
+    this->_init_cout();
 }
 
 //  DESTRUCTOR
@@ -166,11 +161,8 @@ void Server::send_intro(int client_socket) {
 bool Server::read_socket(Message &msg) {
     ssize_t read_size;
 
-    //std::cout << "f: " << MSG_DONTWAIT << std::endl;
     read_size = recv(msg.client_socket, msg.buffer, BUFFER_SIZE, 0);
-    std::cout << "read size: " << read_size << std::endl;
 
-    //TODO handleear cuando read_size es 0
     if (read_size < 1) {
         this->delete_unvalidated_user(msg.client_socket);
         this->delete_user_by_socket(msg.client_socket);
@@ -195,8 +187,6 @@ bool    Server::is_already(const std::string &nickname) {
 
     it = this->users.begin();
     for (; it != this->users.end(); it++) {
-        std::cout << "NEW: " << nickname << "- OG: " << (*it)->get_nickname() << MSG_END;
-        std::cout << "OG: " << (*it)->get_notices() << MSG_END;
         if (nickname == (*it)->get_nickname() and (*it)->get_notices())
             return true;
     }

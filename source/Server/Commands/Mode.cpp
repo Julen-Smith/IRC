@@ -9,22 +9,15 @@ static bool contains_invalid_mix(const std::string& input) {
         if (std::string("tklbm").find(c) == 0) {
             user = true;
             if (channel)
-            {
-                std::cout << "Error on flag mixing" << std::endl;
                 return true;
-            }
         } else if (std::string("iwsovq").find(c) == 0) {
             channel = true;
             if (user)
-            {
-                std::cout << "Error on flag mixing" << std::endl;
                 return true;
-            }
 
-        }else
+        } else
             user = channel = false;
     }
-    std::cout << "Success on checking mixes" << std::endl;
     return false;
 }
 
@@ -54,10 +47,8 @@ static bool is_repeated_char(const std::string& input) {
             char d = input[j];
             if (d == '+' || d == '-')
                 continue;
-            if (c == d) {
-                std::cout << "Error on duplicated char" << std::endl;
+            if (c == d)
                 return true;
-            }
         }
     }
     return false;
@@ -69,22 +60,18 @@ static bool twisted_input_validator(std::string input)
 
     erase_back_match(input,MSG_END);
     if ((input[0] != '+' && input[0] != '-' )|| input.size() < 2)
-    {
-        std::cout << "Error en twisted con input : " << input[0] << std::endl;
         return true;
-    }
+
     for (size_t i = 0; i < input.length(); i++) {
         char c = input[i];
         if (c == '+' || c == '-') {
            isOperator = true;
         } else if (std::string("iwsovqtklbm").find(c) == std::string::npos) {
-            std::cout << "Error en twisted " << std::endl;
             return true;
         } else if (isOperator && (c != '+' && c != '-')) {
             isOperator = false;
         }
     }
-    std::cout << "Salida correcta twisted " << std::endl;
     return (false);
 }
 
@@ -94,10 +81,8 @@ bool is_duplicated_simbol(const std::string& input) {
     for (size_t i = 0; i < input.length(); i++) {
         char c = input[i];
         if (c == '+' || c == '-') {
-            if (c == last_char) {
-                std::cout << "Error on duplicated simbol" << std::endl;
+            if (c == last_char)
                 return true;
-            }
         }
         last_char = c;
     }
@@ -113,10 +98,7 @@ static bool input_validator(std::string input)
         for (size_t i = 1; i < input.length(); i++) {
             char c = input[i];
             if (std::string("iwsovqtklbm").find(c) == std::string::npos)
-            {
-                std::cout << "Error on checking basic input" << std::endl;
                 return true;
-            }
         }
     }else
         return true;
@@ -149,10 +131,7 @@ static bool check_application_dest(Message &msg, std::vector<User *> users, std:
         }
     }
     if (!isNone)
-    {
-        std::cout << "Error on flag channel coordination" << std::endl;
         return (true);
-    }
 
     return (false);
 }
@@ -191,7 +170,6 @@ int mode_input_manager(Message &msg, std::vector<User *> users, std::vector<Chan
         msg.res.str("");
         msg.res << ERR_UMODEUNKNOWNFLAG << UMODEUNKNOWNFLAG;
         send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
-        std::cout << "Error on checking basic validations" << std::endl;
         return (1);
     }
     else
@@ -201,55 +179,21 @@ int mode_input_manager(Message &msg, std::vector<User *> users, std::vector<Chan
             msg.res.str("");
             msg.res << ERR_NOSUCHNICK << NOSUCHNICK;
             send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
-            std::cout << "Error checking apk destination" << std::endl;
             return (1);
         }
         else
-        {
-            std::cout << "Successfully validated input" << std::endl;
             return (0);
-        }
     }
-    std::cout << "Something must be wrong :/" << std::endl;
     return (1);
 }
 
 
 void    Server::mode_command(Message &msg)
 {
-    //Channel     *ch;
-    std::string channel;
-    std::string flags;
-
     if (!msg.user)
         return ;
 
-    //if (msg.params->size() > 4 or msg.params->size() < 2) {
-    //    msg.res << ERR_NEEDMOREPARAMS << NEEDMOREPARAMS;
-    //    send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
-    //    return ;
-    //}
-
-    //channel = msg.get_params_front();
-    //flags = msg.get_params_front();
-    //ch = this->get_channel_by_name(channel);
-
-    //if (!ch)
-    //    msg.res << ERR_NOSUCHCHANNEL << NOSUCHCHANNEL;
-    //else if (!ch->is_already(msg.user->get_nickname()))
-    //    msg.res << ERR_NOTONCHANNEL << NOTONCHANNEL;
-    //else if (!ch->is_operator(msg.user))
-    //    msg.res << ERR_CHANOPRIVSNEEDED << CHANOPRIVSNEEDED;
-
-    //if (msg.get_res_size()) {
-    //    send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
-    //    return ;
-    //}
-
     if (mode_input_manager(msg, this->users, this->channels))
-    {
-        std::cout << "Error on validations... Skipping mode process" << std::endl;
         return ;
-    }
     flag_manager(msg);
 }

@@ -38,7 +38,6 @@ void    Server::motd_command(Message& msg) {
     msg.res.str("");
 
     if (!inputFile.is_open()) {
-        std::cout << "No se pudo abrir el archivo." << std::endl;
         msg.res << ERR_NOMOTD << NOMOTD;
     } else if (msg.params->size() or !msg.user) {
         return ;
@@ -49,8 +48,6 @@ void    Server::motd_command(Message& msg) {
             msg.res << RPL_MOTD << msg.user->get_nickname() << " " << line << MSG_END;
         msg.res << RPL_ENDOFMOTD << msg.user->get_nickname() << " " << ENDOFMOTD;
     }
-    std::cout << "size: " << msg.get_res_size();
-    std::cout << "MSG: " << msg.get_res_str();
     send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
 }
 
@@ -66,7 +63,6 @@ void    Server::whois_command(Message& msg) {
     msg.res.str("");
     if (msg.params->size() == 1) {
         nickname = msg.get_params_front();
-	std::cout << "nickname: " << nickname << std::endl;
         user = this->get_user_by_nickname(nickname);
         if (!user) {
             msg.res << ERR_NOSUCHNICK << NOSUCHNICK;
@@ -110,7 +106,6 @@ void    Server::prvmsg_command(Message& msg) {
     else {
         user = this->get_user_by_nickname(name);
         if (!user) {
-            std::cout << "handle this error\n";
             return ;
         }
         msg.res.str("");
@@ -121,10 +116,6 @@ void    Server::prvmsg_command(Message& msg) {
         msg.res << MSG_END;
         send(user->get_socket(), msg.res.str().c_str(), msg.res.str().size(), 0);
     }
-    //std::cout << "raw: " << msg.buffer << std::endl;
-    std::cout << "PRVMSG command\n - Channel name: " << name << ".\n - Nickname: " << msg.user->get_nickname();
-    std::cout << "\n - Message: ";
-
 }
 
 
@@ -148,7 +139,6 @@ void    Server::pass_command(Message &msg) {
 
     UnvalidatedUser *unvalid_user;
     std::string     nickname;
-    std::cout << msg.params->size() << std::endl;
     if (msg.params->size() == 0)
     {
         msg.res.str("");
@@ -162,13 +152,11 @@ void    Server::pass_command(Message &msg) {
         send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
         return ;
     }
-    std::cout << msg.user << std::endl;
     if (msg.user and msg.user->get_notices())
     {
         return ;
     }
     std::string password = msg.get_params_front();
-    std::cout << "Password: " << password << std::endl;
     if (msg.user and msg.user->get_notices()) {
 
         msg.res.str("");
@@ -190,7 +178,6 @@ void    Server::ping_command(Message &msg) {
 
     if (!msg.user)
         return ;
-    std::cout << "Ping command\n - nickname: " << msg.user->get_nickname() << std::endl;
 
     msg.res << ":juluk.org PONG " << msg.user->get_nickname() << " :juluk.org\r\n";
     send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
@@ -228,7 +215,6 @@ void    Server::join_command(Message &msg) {
         if (key.size())
             keys = msg.split(key, CSV);
 
-        std::cout << "Join command:\n - channels: " << room_name << "\n - keys: " << key << std::endl;
         for (std::deque<std::string>::iterator it = rooms->begin(); it != rooms->end(); it++) {
             room_name = *it;
 
@@ -246,8 +232,6 @@ void    Server::join_command(Message &msg) {
 
                 msg.res << channel->get_topic_msg(msg.user) << channel->get_user_list_msg(msg.user);
                 msg.res << "juluk.org MODE " << room_name << " +nt\r\n";
-                std::cout << msg.res;
-                //this->channels.push_back(channel);
             }
             //el canal existe
             else {
@@ -280,8 +264,6 @@ void    Server::join_command(Message &msg) {
                     }
                 }
             }
-            std::cout << "join command: " << msg.get_res_str();
-            std::cout << "join command size: " << msg.get_res_size();
             send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
         }
         delete rooms;
@@ -306,7 +288,6 @@ void    Server::quit_command(Message &msg) {
             (*it)->notice_part(msg, EXIT);
 
             if ((*it)->get_users_size() == 0) {
-                std::cout << "quit_command - Empty channel!" << std::endl;
                 delete (*it);
                 this->channels.erase(it);
             } else
@@ -335,9 +316,6 @@ void    Server::user_command(Message &msg) {
         return ;
     }
 
-    std::cout << "Buffer: " << msg.buffer << std::endl;
-    std::cout << "Size: " << msg.params->size() << std::endl;
-
     user = this->get_user_by_socket(msg.client_socket);
     if (user and user->get_notices())
         return ;
@@ -352,7 +330,6 @@ void    Server::user_command(Message &msg) {
 
     //Si el usuario hace user antes de nick es expulsado
     if (created_user->nickname.size() == 0) {
-        std::cout << "Close 4\n";
         this->delete_unvalidated_user(msg.client_socket);
         close(msg.client_socket);
         return ;
@@ -370,15 +347,11 @@ void    Server::user_command(Message &msg) {
 
     msg.res.str("");
     msg.res << RPL_WELCOME << msg.user->get_nickname() << WELCOME << user->get_nickname() << "!" << "paco@yahoo\r\n";
-    std::cout << "size: " << msg.get_res_size();
-    std::cout << "MSG: " << msg.get_res_str();
 
     send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
 
     this->motd_command(msg);
     this->delete_unvalidated_user(msg.client_socket);
-
-    std::cout << "User command\n" << " - login: " << user->_login_name << "\n - realname: " << user->_realname << std::endl;
 }
 
 void    Server::close_command(Message& msg) {
@@ -400,7 +373,6 @@ void    Server::oper_command(Message& msg) {
     else
     {
         for (size_t i = 0; i < this->users.size(); i++){
-            std::cout << this->users.at(i)->get_nickname() << msg.holder->at(1) <<std::endl;
             if (this->users.at(i)->get_nickname() == msg.holder->at(1) && this->users.at(i)->get_nickname() == msg.user->get_nickname())
             {
                 exist = true;
@@ -497,8 +469,6 @@ void    Server::part_command(Message &msg) {
     if (!msg.user)
         return ;
 
-    std::cout << msg.buffer;
-
     if (msg.params->size() < 1) {
         msg.res.str("");
         msg.res << ERR_NEEDMOREPARAMS << NEEDMOREPARAMS;
@@ -515,10 +485,8 @@ void    Server::part_command(Message &msg) {
         topic[topic.size() - 1] = 0;
     }
 
-    std::cout << "size(part): " << this->channels.size() << std::endl;
     for (size_t i = 0; i < params->size(); i++) {
 
-        std::cerr << "loop" << std::endl;
         msg.res.str("");
         token = params->front();
         params->pop_front();
@@ -540,10 +508,8 @@ void    Server::part_command(Message &msg) {
         channel->notice_part(msg, topic);
         channel->delete_user(msg.user->get_nickname());
 
-        if (channel->get_users_size() == 0) {
-            std::cout << "Empty channel!" << std::endl;
+        if (channel->get_users_size() == 0)
             this->delete_channel(token);
-        }
     }
     //msg.user->set_notices(DISCONNECTED);
     delete params;

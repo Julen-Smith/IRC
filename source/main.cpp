@@ -13,17 +13,9 @@
 #include <stdlib.h>
 
 
-/*
-static void loop_client(Server &server)
-{
-}
-*/
-
 /** @attention Main loop del servidor @param none @return */
 void main_loop(Server &server)
 {
-    //signal(SIGPIPE, SIG_IGN);
-
     server.users.push_back(new User("Bot", server.get_socket()));
     server.fds.push_back(pollfd());
     server.fds[0].fd = server.get_socket();
@@ -83,13 +75,13 @@ static int validator(char const **argv) {
 /** @attention Main @param Argc,Port,Password @return exit mode */
 int main(int argc, char const *argv[])
 {
-    if (argc != 3)
-        return 0;
-
-    if (validator(argv)) {
-        std::cerr << "Error: bad input\r\n";
-        return 1;
+    if (argc != 3) {
+        std::cerr << "Error: Invalid number of arguments. Required port and password" << std::endl;
+        return 2;
     }
+
+    if (validator(argv))
+        return 1;
     Server	server(argv[PORT], argv[PASSWORD]);
 
     main_loop(server);
