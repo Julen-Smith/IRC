@@ -11,7 +11,6 @@
 
 # define NOT_MODIFIED false
 # define MODIFIED true
-# define BUFFER_SIZE 1024
 
 class Message
 {
@@ -27,7 +26,7 @@ class Message
 
         User                    *user;
 
-        char                    buffer[BUFFER_SIZE];
+        char                    buffer[BUFFER_SIZE + 1];
         int                     client_socket;
         int                     client_index;
 

@@ -110,9 +110,10 @@ void Server::tokenizer(Message &msg) {
         return ;
     }
 
-    for (command = msg.commands->begin(); command != msg.commands->end(); command++) {
+    for (command = msg.commands->begin(); msg.commands->size(); command++) {
         msg.set_params();
         token = msg.get_params_front();
+        std::cout << "Command: " << token << std::endl;
         this->it = this->callback_map.find(token);
 
         if (this->it != this->callback_map.end())
@@ -121,6 +122,7 @@ void Server::tokenizer(Message &msg) {
             std::cerr << "Contents: " << msg.buffer << std::endl;
             std::cerr << "Error: invalid commnad -> " << token << std::endl;
         }
+        std::cout << "Tokenizer commands size: " << msg.commands->size() << std::endl;
 
         if (msg.params and msg.params->size() != static_cast<size_t>(-1)) {
             delete msg.params;
@@ -130,6 +132,7 @@ void Server::tokenizer(Message &msg) {
             delete msg.holder;
             msg.holder = NULL;
         }
+
     }
     delete msg.commands;
 }

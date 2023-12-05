@@ -23,18 +23,15 @@ User::User(User &obj) // : rooms(obj.rooms)
     //Cambiar más adelante
     this->_notices = obj.get_notices();
     this->_nickname = obj.get_nickname();
-    std::cout << "Guest has join the channel [ " << "Lobby"<< " ]" << std::endl;
 }
 
 User::~User()
 {
-    std::cout << " - User " << this->_nickname << " has been deleted." << std::endl;
 }
 
 User& User::operator=(User &user)
 {
      (void)user;
-     std::cout << "Operator placeholder" << std::endl;
      return *this;
 }
 
@@ -45,7 +42,6 @@ std::string         User::get_channels_str() {
     it = this->_channels.begin();
     for (; it != this->_channels.end(); it++) {
         result += (*it)->get_name() + " ";
-        std::cout << "Whois channel: " << result << std::endl;
     }
     result[result.size() - 1] = 0;
     return result;

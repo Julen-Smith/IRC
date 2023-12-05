@@ -46,7 +46,6 @@ void i_flag(Message &msg,char impact,Server *serv)
 {
     std::map<const User*, std::vector<char> >::iterator it;
     std::vector<User *>         users;
-    std::cout << msg.buffer << std::endl;
     User * user_obj;
     int ind = 0;
     bool finded;
@@ -115,7 +114,6 @@ void i_flag(Message &msg,char impact,Server *serv)
         return ;
     }
     user_obj = get_user_index(serv->channels, index, user);
-    std::cout << user_obj->get_nickname() << std::endl;
     it = serv->channels.at(index)->get_user_permissions()->find(user_obj);
     std::vector<char>& permissions = it->second;
     if (permissions[0] == '1' && impact == '+')
@@ -150,8 +148,6 @@ void i_flag(Message &msg,char impact,Server *serv)
         if (serv->users.at(i)->get_socket() == msg.client_socket)
             socket_to_nick = serv->users.at(i)->get_nickname();
     }
-    if (permissions[0] == '1')
-        std::cout << "Si" << std::endl;
 }
 
 void w_flag(Message &msg,char impact,Server *serv)
@@ -159,7 +155,6 @@ void w_flag(Message &msg,char impact,Server *serv)
     (void)msg;
     (void)impact;
     (void)serv;
-    std::cout << "Calling flag w" << std::endl;
 }
 
 void s_flag(Message &msg,char impact,Server *serv)
@@ -167,7 +162,6 @@ void s_flag(Message &msg,char impact,Server *serv)
     (void)msg;
     (void)impact;
     (void)serv;
-    std::cout << "Calling flag s" << std::endl;
 }
 
 void o_flag(Message &msg,char impact,Server *serv)
@@ -228,7 +222,6 @@ void v_flag(Message &msg,char impact,Server *serv)
     (void)msg;
     (void)impact;
     (void)serv;
-    std::cout << "Calling flag v" << std::endl;
 }
 
 void q_flag(Message &msg,char impact,Server *serv)
@@ -236,7 +229,6 @@ void q_flag(Message &msg,char impact,Server *serv)
     (void)msg;
     (void)impact;
     (void)serv;
-    std::cout << "Calling flag q" << std::endl;
 }
 
 void t_flag(Message &msg,char impact,Server *serv)
@@ -334,7 +326,6 @@ void k_flag(Message &msg,char impact,Server *serv)
     }
     else
     {
-        std::cout << msg.holder->size() << std::endl;
         msg.res.str("");
         msg.res << ERR_CUSTOM << "Too many params" << MSG_END;
         serv->channels.at(ind)->broadcast_msg(msg);
@@ -348,7 +339,6 @@ void l_flag(Message &msg,char impact,Server *serv)
     bool finded;
 
 
-    std::cout << "Size es : " << msg.holder->size() << std::endl;
     finded = false;
     ind = get_channel_index(serv->channels,msg.holder->at(1));
     if (ind == -1)
@@ -401,7 +391,6 @@ void b_flag(Message &msg,char impact,Server *serv)
     (void)msg;
     (void)impact;
     (void)serv;
-    std::cout << "Calling flag b" << std::endl;
 }
 
 void m_flag(Message &msg, char impact,Server *serv)
@@ -409,7 +398,6 @@ void m_flag(Message &msg, char impact,Server *serv)
     (void)msg;
     (void)impact;
     (void)serv;
-    std::cout << "Calling flag m" << std::endl;
 }
 
 void    Server::flag_manager(Message &msg)
@@ -431,10 +419,7 @@ void    Server::flag_manager(Message &msg)
             for (size_t i = 0; i < compilation.size(); i++)
             {
                 if (flags[flag] == compilation[i])
-                {
-                    std::cout << "Validated flag : " << flags[flag] << std::endl;
                     do_flags[i](msg, impact, this);
-                }
             }
         }
     } catch (std::exception &e)

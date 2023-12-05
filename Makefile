@@ -1,6 +1,6 @@
 CC				= c++
 SERVER			= ircserv
-FLAGS			= -Wall -Werror -Wextra -std=c++98 -fsanitize=address
+FLAGS			= -Wall -Werror -Wextra -std=c++98 -fsanitize=address -g3
 
 
 SERVER_SRCS =   source/Server/Server.cpp \
@@ -27,7 +27,7 @@ CLIENT_OBJ = $(CLIENT_SRCS:.cpp=.o)
 
 
 all : $(SERVER)
-	./ircserv
+	./ircserv 1234 a
 
 %.o : %.cpp
 	${CC} $(INC) ${FLAGS} -c $< -o $@

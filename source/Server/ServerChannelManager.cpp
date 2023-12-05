@@ -41,13 +41,10 @@ void Server::generate_default_channels()
 Channel *Server::get_channel_by_name(const std::string& name)
 {
     std::vector<Channel *>::iterator   it;
-    std::cout << "QUERY: " << name << std::endl;
-    std::cout << "SIZE: " << this->channels.size() << std::endl;
 
     it = this->channels.begin();
     for (; it != this->channels.end(); it++)
     {
-        std::cout << "OG: " << (*it)->get_name() << std::endl;
         if ((*it)->get_name() == name)
             return (*it);
     }
@@ -57,12 +54,9 @@ Channel *Server::get_channel_by_name(const std::string& name)
 int Server::check_channel(std::string& validation)
 {
     //erase_match(validation, MSG_END_SPACE);
-    std::cout << "Validation: " << validation << std::endl;
     for(size_t i = 0; i < this->channels.size(); i++)
     {
         std::string placeholder(this->channels[i]->get_name());
-        std::cout << "Place holder: " << validation << std::endl;
-        std::cout << "equal validation: " << (validation == placeholder) << std::endl;
         if (validation == placeholder)
             return (i);
     }
