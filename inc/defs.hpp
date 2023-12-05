@@ -183,6 +183,10 @@
 # define ERR_UMODEUNKNOWNFLAG "501 * "
 # define UMODEUNKNOWNFLAG " :Unknown MODE flag.\r\n"
 
+# define ERR_BADCHANMASK ":juluk.org 476 * "
+# define BADCHANMASK " :Bad Channel Mask\r\n"
+
+
 // Invite
 # define ERR_NOTONCHANNEL "442 * "
 # define ERR_USERONCHANNEL "443 * "

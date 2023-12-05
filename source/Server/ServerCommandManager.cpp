@@ -208,13 +208,24 @@ void    Server::join_command(Message &msg) {
         //TODO hay que hacer split de los canales
 
         room_name = msg.get_params_front();
+        if (room_name.empty() || room_name[0] != '#')
+        {
+            msg.res << ERR_BADCHANMASK << msg.user->get_nickname() << " #" << BADCHANMASK;
+            send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
+            return;
+        }
         if (msg.params->size() == 1)
             key = msg.get_params_front();
 
         rooms = msg.split(room_name, CSV);
         if (key.size())
             keys = msg.split(key, CSV);
+<<<<<<< HEAD
 
+=======
+            
+        std::cout << "Join command:\n - channels: " << room_name << "\n - keys: " << key << std::endl;
+>>>>>>> 45010c90fe34a40c2a2c7c5471d921340dc7897d
         for (std::deque<std::string>::iterator it = rooms->begin(); it != rooms->end(); it++) {
             room_name = *it;
 
