@@ -46,10 +46,7 @@ Server::Server(const char *port, const char *password): max_clients(MAX_CLIENTS)
     //this->sv_socket_info.sin_addr.s_addr = INADDR_ANY;
     //this->_socket = socket(this->sv_socket_info.sin_family, SOCK_STREAM, 0);
     if (this->_socket == -1) //this->_socket == -1)
-    {
-        std::cout << SOCKET_ERROR << std::endl;
         exit(1);
-    }
 
     int option = 1;
 
@@ -118,16 +115,13 @@ void Server::tokenizer(Message &msg) {
         return ;
     }
 
-    std::cout << "RAW msg: " << msg.buffer << std::endl;
     for (command = msg.commands->begin(); command != msg.commands->end(); command++) {
         msg.set_params();
         token = msg.get_params_front();
         this->it = this->callback_map.find(token);
 
-        if (this->it != this->callback_map.end()) {
-            std::cout << "Valid command -> " << token << std::endl;
+        if (this->it != this->callback_map.end())
             (this->*(it->second))(msg);
-        }
         else {
             std::cerr << "Contents: " << msg.buffer << std::endl;
             std::cerr << "Error: invalid commnad -> " << token << std::endl;
@@ -145,7 +139,7 @@ void Server::tokenizer(Message &msg) {
     delete msg.commands;
 }
 
-const int	Server::get_socket() const {return this->_socket;}
+int	Server::get_socket() const {return this->_socket;}
 
 void Server::send_intro(int client_socket) {
 
@@ -156,10 +150,8 @@ void Server::send_intro(int client_socket) {
     //ssize_t             rd_size;
 
 
-    if (!inputFile.is_open()) {
-        std::cout << "No se pudo abrir el archivo." << std::endl;
+    if (!inputFile.is_open())
         return ;
-    }
 
     client_stream << RPL_MOTDSTART << MOTDSTART;
     while (std::getline(inputFile, line)) {

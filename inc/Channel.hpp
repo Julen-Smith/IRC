@@ -85,13 +85,6 @@ class Channel
         void                notice_join(Message &msg);
         void                notice_part(Message &msg, const std::string &topic);
         void                broadcast_msg(Message &msg);
-
-
-
-        //Debug and stuff
-        void                stdout_channel_permissions();
-        void                stdout_channel__users_permissions(const User *user);
-
 };
 
 

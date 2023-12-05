@@ -156,11 +156,17 @@ void i_flag(Message &msg,char impact,Server *serv)
 
 void w_flag(Message &msg,char impact,Server *serv)
 {
+    (void)msg;
+    (void)impact;
+    (void)serv;
     std::cout << "Calling flag w" << std::endl;
 }
 
 void s_flag(Message &msg,char impact,Server *serv)
 {
+    (void)msg;
+    (void)impact;
+    (void)serv;
     std::cout << "Calling flag s" << std::endl;
 }
 
@@ -195,7 +201,6 @@ void o_flag(Message &msg,char impact,Server *serv)
         return ;
     }
     std::map<const User*, std::vector<char> > *user_permissions = serv->channels.at(ind)->get_user_permissions();
-    serv->channels.at(ind)->stdout_channel__users_permissions(msg.user);
     if ((*user_permissions)[msg.user].at(2) == '0' && !msg.user->get_operator_status())
     {
         msg.res.str(":Server 482 " + msg.user->get_nickname() + " " + serv->channels.at(ind)->get_name() + " :You're not channel operator" + MSG_END);
@@ -220,11 +225,17 @@ void o_flag(Message &msg,char impact,Server *serv)
 
 void v_flag(Message &msg,char impact,Server *serv)
 {
+    (void)msg;
+    (void)impact;
+    (void)serv;
     std::cout << "Calling flag v" << std::endl;
 }
 
 void q_flag(Message &msg,char impact,Server *serv)
 {
+    (void)msg;
+    (void)impact;
+    (void)serv;
     std::cout << "Calling flag q" << std::endl;
 }
 
@@ -292,7 +303,6 @@ void k_flag(Message &msg,char impact,Server *serv)
         return;
     }
     std::map<const User*, std::vector<char> > *user_permissions = serv->channels.at(ind)->get_user_permissions();
-    serv->channels.at(ind)->stdout_channel__users_permissions(msg.user);
     if ((*user_permissions)[msg.user].at(2) == '0' && !msg.user->get_operator_status())
     {
         msg.res.str(":Server 482 " + msg.user->get_nickname() + " " + serv->channels.at(ind)->get_name() + " :You're not channel operator" + MSG_END);
@@ -388,11 +398,17 @@ void l_flag(Message &msg,char impact,Server *serv)
 
 void b_flag(Message &msg,char impact,Server *serv)
 {
+    (void)msg;
+    (void)impact;
+    (void)serv;
     std::cout << "Calling flag b" << std::endl;
 }
 
 void m_flag(Message &msg, char impact,Server *serv)
 {
+    (void)msg;
+    (void)impact;
+    (void)serv;
     std::cout << "Calling flag m" << std::endl;
 }
 

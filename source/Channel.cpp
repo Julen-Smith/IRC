@@ -22,7 +22,6 @@ void    Channel::send_msg(Message &msg) {
         msg.res.str("");
         client_socket = (*it)->get_socket();
         msg.res << ":" << nickname << " PRIVMSG " << this->_name << " " << body.str();
-        std::cout << "Prueba : "  << msg.res.str();
         if (client_socket != msg.client_socket)
             send(client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);   
     }
@@ -31,34 +30,20 @@ void    Channel::send_msg(Message &msg) {
 Channel::Channel(const std::string& name, const std::string &topic)
 : _name(name), _topic(topic), _invite(false), _user_limit(STANDARD_LIMIT), _key_opt(KEY_NOT_SET)
 {
-    std::cout << "The channel " << name << " has been created." << std::endl;
     for (size_t i = 0; i != 6; i++) _channel_permissions.push_back(false);
-    stdout_channel_permissions();
 }
 
 Channel::~Channel()
 {
-    std::cout << "The channel " << this->_name << " has been deleted." << std::endl;
 }
 
 Channel& Channel::operator=(const Channel &new_channel)
 {
+    (void)new_channel;
     return *this;
 }
 
-void Channel::welcome_msg() const
-{
-    std::cout << "Welcome to " << this->_name << std::endl;
-}
-
 Channel::Channel(){};
-
-void Channel::join_channel(std::string buffer, User &user)
-{
-   // this->channel_users.push_back(&user);
-   // this->channel_users.back().nickname = buffer;
-   // std::cout << "User " << this->channel_users.back()->getName() << " has join the channel" << std::endl;
-}
 
 std::string Channel::get_user_list() {
     std::string user_list = "";
@@ -86,8 +71,6 @@ void    Channel::add_user(User *user)
     if (!this->_users.size())
         this->_user_permissions[user][2] = '1';
     this->_users.push_back(user);
-    //stdout_channel__users_permissions(user);
-    std::cout << "3" << std::endl;
     for(inv_user= this->_invited_users.begin(); inv_user != this->_invited_users.end(); inv_user++)
     {
         if ((*inv_user) == user) {
@@ -200,7 +183,6 @@ bool    Channel::enter_key(const std::string &key) {
         return INCORRECT_KEY;
     else if (this->_key_opt == KEY_SET and this->get_key() != key)
     {
-        std::cout << this->get_key() << " :  " <<  key << std::endl;
         return INCORRECT_KEY;
     }
     return CORRECT_KEY;
@@ -219,30 +201,6 @@ std::string Channel::get_visible_user_list() const
         user_list += this->_visible_users.at(i)->get_nickname() + " ";
     return (user_list);
 }
-
-void    Channel::stdout_channel_permissions()
-{
-    std::cout << "Permisos [ " << this->get_name() <<" ]" << std::endl;
-    std::cout << "Modo solo temas : " << this->_channel_permissions.at(0) << std::endl;
-    std::cout << "Modo de clave : " << this->_channel_permissions.at(1) << std::endl;
-    std::cout << "Modo de limite de usuarios : " << this->_channel_permissions.at(2) << std::endl;
-    std::cout << "Modo de ban : " << this->_channel_permissions.at(3) << std::endl;
-    std::cout << "Modo moderado : " << this->_channel_permissions.at(4) << std::endl;
-    std::cout << "Modo invitación : " << this->_channel_permissions.at(5) << std::endl;
-}
-
-void    Channel::stdout_channel__users_permissions(const User *user)
-{
-    std::cout << "Permisos [ " << user->get_nickname() <<" ]" << std::endl;
-    std::cout << "Modo invisible : " << this->_user_permissions[user].at(0) << std::endl;
-    std::cout << "Modo wallops : " << this->_user_permissions[user].at(1) << std::endl;
-    std::cout << "Modo operator : " << this->_user_permissions[user].at(2) << std::endl;
-    std::cout << "Modo silencioso : " << this->_user_permissions[user].at(3) << std::endl;
-    std::cout << "Modo voz  : " << this->_user_permissions[user].at(4) << std::endl;
-    std::cout << "Modo cuarentena  : " << this->_user_permissions[user].at(5) << std::endl;
-    std::cout << "IS OPERATOR : " << user->get_operator_status() << std::endl;
-}
-
 
 std::string Channel::get_permissions_to_string()
 {
@@ -286,7 +244,6 @@ void    Channel::notice_part(Message &msg, const std::string &topic) {
     std::vector<User *>::iterator it;
 
     ss << ":" << msg.user->get_nickname() << " PART " << this->_name << " " << topic << MSG_END;
-    std::cout << ss.str() << std::endl;
     for (it = this->_users.begin(); it != this->_users.end(); it++) {
         send((*it)->get_socket(), ss.str().c_str(), ss.str().size(), 0);
     }
@@ -324,7 +281,6 @@ bool Channel::is_flag(int type) {
 
 bool Channel::is_invited(User *user)
 {
-     std::cout << "2" << std::endl;
     for (size_t i = 0; i < this->_invited_users.size();i++)
     {
         if (user == this->_invited_users.at(i))
@@ -335,7 +291,6 @@ bool Channel::is_invited(User *user)
 
 void                Channel::add_invited_user(User* user)
 {
-    std::cout << "1" << std::endl;
     for (size_t i = 0; i < this->_invited_users.size();i++)
     {
         if (user == this->_invited_users.at(i))

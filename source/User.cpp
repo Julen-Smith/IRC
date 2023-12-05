@@ -33,6 +33,7 @@ User::~User()
 
 User& User::operator=(User &user)
 {
+     (void)user;
      std::cout << "Operator placeholder" << std::endl;
      return *this;
 }

@@ -43,7 +43,7 @@ class Server
 		Message		message;
 
 		const int	max_clients;
-		const int	get_socket() const;
+		int	get_socket() const;
 		int	loop;
 
 		std::vector<pollfd>			fds;

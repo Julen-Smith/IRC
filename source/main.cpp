@@ -30,32 +30,22 @@ void main_loop(Server &server)
     server.fds[0].events = POLLIN;
     server.fds[0].revents = 1;
 
-    //server.users.push_back(new User("nickname", 8));
-    //server.fds.push_back(pollfd());
-    //server.fds[1].fd = 8;
-    //server.fds[1].events = POLLIN;
-
-    //server.generate_default_channels();
-    long long n = 0;
     while (server.loop)
     {
         server.event_to_handle = poll(server.fds.data(), server.fds.size(), 0);
         for(size_t client = 0; client < server.fds.size(); client++)
         {
-            n++;
             if (server.fds[client].revents & POLLHUP)  //Erase client
-            {
-                server.erase_client(server.fds[client].fd);
-                continue ;
-            }
-            if (server.fds[client].revents & POLLIN)  //Comprobación cambios fichero
+
+                server.delete_user_by_socket(server.fds[client].fd);
+            
+            else if (server.fds[client].revents & POLLIN)  //Comprobación cambios fichero
             {
                 if (server.fds[client].fd == server.get_socket())
                     server.accept_new_user();
                 else
                     server.manage_response(client);
             }
-            //std::cout << n << std::endl;
         }
     }
 }

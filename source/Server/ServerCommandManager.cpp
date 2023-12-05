@@ -381,29 +381,6 @@ void    Server::user_command(Message &msg) {
     std::cout << "User command\n" << " - login: " << user->_login_name << "\n - realname: " << user->_realname << std::endl;
 }
 
-bool    Server::check_operator(Message &msg) {
-  /*
-    User    *current_user;
-    std::string     user;
-    std::string     password;
-
-    user = msg.get_params_front();
-    password = msg.get_params_front();
-
-    current_user = NULL;
-    for (size_t i = 0; i < 2; i++) {
-        if (user == this->priv_list[i].user
-        && password == this->priv_list[i].password) {
-
-            current_user = this->get_user_by_socket(msg.client_socket);
-            current_user->_level = priv_list[i].level;
-            return true;
-        }
-    }
-    */
-    return false;
-}
-
 void    Server::close_command(Message& msg) {
     (void)msg;
     this->loop = 0;
