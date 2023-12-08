@@ -1,18 +1,17 @@
-PASS 42Urduliz
-NICK peterr
+PASS a
+NICK zfQghuCrwi
 USER a b c d
-
 LIST
 JOIN
 JOIN #test
 JOIN #AAAA
 LIST
-OPER
-OPER .
-OPER peter .
-OPER peter bad_password
-OPER bad_user .
-OPER bad_user bad_password
+OPER zfQghuCrwi .
+OPER zfQghuCrwi .
+OPER zfQghuCrwi .
+OPER zfQghuCrwi .
+OPER zfQghuCrwi .
+OPER zfQghuCrwi .
 PART
 PART #test
 PART #qwre
@@ -40,4 +39,5 @@ TOPIC #AAAA peter
 TOPIC #AAAA peterfdggfd´´´´:ofgdofdgifdiasdsasa
 WHOIS
 WHOIS pit
+QUIT
 

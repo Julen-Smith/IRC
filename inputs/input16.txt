@@ -1,0 +1,10 @@
+PASS a
+NICK jfkWiJlvbL
+USER a b c d
+NICK jfkWiJlvbL
+OPER jfkWiJlvbL .
+TOPIC #A wqeewqwqewq
+JOIN #A 
+MODE #A +k safsafs
+TOPIC #A NULL
+QUIT

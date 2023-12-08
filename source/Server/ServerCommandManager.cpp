@@ -450,10 +450,12 @@ void    Server::kick_command(Message &msg) {
         send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
         return ;
     }
+    std::cout << "Cantidad de parametros " << msg.params->size() << std::endl;
 
     channel_name = msg.get_params_front();
     nickname     = msg.get_params_front();
-    reason       = msg.get_params_front();
+    if (msg.params->size() > 1)
+        reason       = msg.get_params_front();
 
     channel = this->get_channel_by_name(channel_name);
     if (!channel) {
@@ -604,7 +606,7 @@ void    Server::manage_response(int client_index) {
     user = this->get_user_by_socket(msg.client_socket);
     if (user != NULL)
         msg.set_user(user);
-
+    std::cout <<msg.buffer << std::endl;
     this->tokenizer(msg);
 }
 
@@ -690,7 +692,6 @@ void Server::topic_command(Message& msg)
         msg.res << this->channels.at(index)->get_topic() << MSG_END;
         msg.res << ":juluk.org 333 " << msg.user->get_nickname() << " " << this->channels.at(index)->get_name() << " * " << MSG_END;
         ch->broadcast_msg(msg);
-        //send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
     }
     else
     {

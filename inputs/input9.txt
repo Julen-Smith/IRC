@@ -1,0 +1,14 @@
+PASS a
+NICK QjRhIBewxj
+USER a b c d
+OPER QjRhIBewxj .
+OPER QjRhIBewxj .
+OPER QjRhIBewxj .
+OPER QjRhIBewxj .
+OPER QjRhIBewxj .
+TOPIC #A wqeewqwqewq
+JOIN #A 
+OPER QjRhIBewxj .
+TOPIC #A NULL
+PRIVMSG #A SOY_EL_DEL_TEST_PART
+PART #A
