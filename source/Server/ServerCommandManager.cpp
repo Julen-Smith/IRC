@@ -103,7 +103,7 @@ void    Server::prvmsg_command(Message& msg) {
     channel = this->get_channel_by_name(name);
     if (channel != NULL and channel->is_already(msg.user->get_nickname()))
         channel->send_msg(msg);
-    else {
+    else if (channel == NULL) {
         user = this->get_user_by_nickname(name);
         if (!user) {
             return ;
