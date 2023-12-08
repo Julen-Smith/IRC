@@ -240,6 +240,13 @@ void t_flag(Message &msg,char impact,Server *serv)
     if(msg.holder->size() == 3)
     {
         ind = get_channel_index(serv->channels,msg.holder->at(1));
+        std::map<const User*, std::vector<char> > *user_permissions = serv->channels.at(ind)->get_user_permissions();
+        if ((*user_permissions)[msg.user].at(2) == '0' && !msg.user->get_operator_status())
+        {
+            msg.res.str(":Server 482 " + msg.user->get_nickname() + " " + serv->channels.at(ind)->get_name() + " :You're not channel operator" + MSG_END);
+            send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
+            return;
+        }
         if (ind == -1)
         {
             msg.res.str("");
@@ -256,6 +263,7 @@ void t_flag(Message &msg,char impact,Server *serv)
             send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
             return;
         }
+        
         if (impact == '+')
         {
             serv->channels.at(ind)->get_channel_permissions()->at(0) = true;
@@ -343,6 +351,13 @@ void l_flag(Message &msg,char impact,Server *serv)
     ind = get_channel_index(serv->channels,msg.holder->at(1));
     if (ind == -1)
         return ;
+    std::map<const User*, std::vector<char> > *user_permissions = serv->channels.at(ind)->get_user_permissions();
+    if ((*user_permissions)[msg.user].at(2) == '0' && !msg.user->get_operator_status())
+    {
+        msg.res.str(":Server 482 " + msg.user->get_nickname() + " " + serv->channels.at(ind)->get_name() + " :You're not channel operator" + MSG_END);
+        send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
+        return;
+    }
     for (size_t i = 0; i < serv->channels.at(ind)->get_users_size();i++)
         if (serv->channels.at(ind)->get_users().at(i)->get_nickname() == msg.user->get_nickname())
             finded = true;
