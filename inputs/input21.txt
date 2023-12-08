@@ -1,18 +1,17 @@
-PASS 42Urduliz
-NICK peter
+PASS a
+NICK zIojKoEtmq
 USER a b c d
-
 LIST
 JOIN
 JOIN #test
 JOIN #AAAA
 LIST
-OPER
-OPER .
-OPER peter .
-OPER peter bad_password
-OPER bad_user .
-OPER bad_user bad_password
+OPER zIojKoEtmq .
+OPER zIojKoEtmq .
+OPER zIojKoEtmq .
+OPER zIojKoEtmq .
+OPER zIojKoEtmq .
+OPER zIojKoEtmq .
 PART
 PART #test
 PART #qwre
@@ -20,7 +19,7 @@ PING
 PING a
 PING a a
 JOIN #test
-MODE #test +i
+OPER zIojKoEtmq .
 INVITE
 INVITE #AAAA
 INVITE #AAAA inventado

@@ -1,0 +1,13 @@
+PASS a
+NICK jlkkhuzRmz
+USER a b c d
+OPER jlkkhuzRmz .
+OPER jlkkhuzRmz .
+OPER jlkkhuzRmz .
+OPER jlkkhuzRmz .
+OPER jlkkhuzRmz .
+TOPIC #A wqeewqwqewq
+JOIN #A
+MODE #A +k
+TOPIC #A NULL
+PRIVMSG #A SOY_EL_DEL_TEST_+K

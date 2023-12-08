@@ -1,0 +1,11 @@
+PASS a
+NICK oqQFccRzUs
+USER a b c d
+NICK oqQFccRzUs
+OPER oqQFccRzUs .
+TOPIC #A wqeewqwqewq
+JOIN #A 
+MODE #A +i 
+TOPIC #A NULL
+PRIVMSG #A SOY_EL_DEL_TEST_+I
+QUIT

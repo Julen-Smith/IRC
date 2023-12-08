@@ -1,0 +1,5 @@
+PASS a
+NICK OCZbJqPzDT
+USER a b c d
+JOIN #A
+PRIVMSG #A hola

@@ -1,0 +1,10 @@
+PASS a
+NICK iWrRPVqkUH
+USER a b c d
+INVITE #AAAA
+INVITE #AAAA inventado
+INVITE #AAAX peter
+INVITE #test
+INVITE #test inventado
+INVITE #test pit
+QUIT

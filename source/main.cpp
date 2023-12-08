@@ -29,15 +29,11 @@ void main_loop(Server &server)
         for(size_t client = 0; client < server.fds.size(); client++)
         {
             if (server.fds[client].revents & POLLHUP)  {//Erase client
-
-                std::cerr << "main loop delete" << std::endl;
                 server.delete_user_by_socket(server.fds[client].fd);
             }
 
             else if (server.fds[client].revents & POLLIN)  //Comprobación cambios fichero
             {
-                //std::cout << "(main loop) - users size: " << server.users.size() << std::endl;
-                //std::cout << "(main loop) - fds size: " << server.fds.size() << std::endl;
                 if (server.fds[client].fd == server.get_socket())
                     server.accept_new_user();
                 else
