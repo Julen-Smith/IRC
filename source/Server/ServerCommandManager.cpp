@@ -63,7 +63,11 @@ void    Server::whois_command(Message& msg) {
     msg.res.str("");
     if (msg.params->size() == 1) {
         nickname = msg.get_params_front();
-        user = this->get_user_by_nickname(nickname);
+        if (nickname[0] == ':' and nickname.size() == 1)
+            user = msg.user;
+        else
+            user = this->get_user_by_nickname(nickname);
+
         if (!user) {
             msg.res << ERR_NOSUCHNICK << NOSUCHNICK;
         } else {
