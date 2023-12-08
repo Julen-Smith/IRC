@@ -25,6 +25,7 @@ void main_loop(Server &server)
     while (server.loop)
     {
         server.event_to_handle = poll(server.fds.data(), server.fds.size(), 0);
+        std::cout << server.event_to_handle << std::endl;
         for(size_t client = 0; client < server.fds.size(); client++)
         {
             if (server.fds[client].revents & POLLHUP)  {//Erase client
@@ -35,8 +36,8 @@ void main_loop(Server &server)
 
             else if (server.fds[client].revents & POLLIN)  //Comprobación cambios fichero
             {
-                std::cout << "(main loop) - users size: " << server.users.size() << std::endl;
-                std::cout << "(main loop) - fds size: " << server.fds.size() << std::endl;
+                //std::cout << "(main loop) - users size: " << server.users.size() << std::endl;
+                //std::cout << "(main loop) - fds size: " << server.fds.size() << std::endl;
                 if (server.fds[client].fd == server.get_socket())
                     server.accept_new_user();
                 else
