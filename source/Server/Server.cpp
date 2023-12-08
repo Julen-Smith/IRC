@@ -162,16 +162,10 @@ void Server::send_intro(int client_socket) {
 }
 
 bool Server::read_socket(Message &msg) {
-    UnvalidatedUser    *unva;
+    //UnvalidatedUser    *unva;
     ssize_t read_size;
 
     std::cout << "pre recv" << std::endl;
-    unva = this->unvalidated_users[msg.client_socket];
-    if (unva and unva->first_conn == false) {
-
-        unva->first_conn = true;
-        return false;
-    }
 
     read_size = recv(msg.client_socket, msg.buffer, BUFFER_SIZE, 0);
     std::cout << "post recv" << std::endl;
