@@ -75,6 +75,9 @@ void    Message::set_params() {
 std::string Message::get_params_front() {
     std::string token;
 
+    if (this->params == NULL)
+        return "";
+
     token = this->params->front();
     this->params->pop_front();
     return token;

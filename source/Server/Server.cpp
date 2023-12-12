@@ -113,7 +113,7 @@ void Server::tokenizer(Message &msg) {
     for (command = msg.commands->begin(); msg.commands->size(); command++) {
         msg.set_params();
         token = msg.get_params_front();
-        //std::cout << "Command: " << token << std::endl;
+
         this->it = this->callback_map.find(token);
 
         if (this->it != this->callback_map.end())

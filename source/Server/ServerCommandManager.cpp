@@ -176,12 +176,10 @@ void    Server::pass_command(Message &msg) {
         return ;
     }
 
-    std::cout << "Socket(pass_command): " << msg.client_socket << std::endl;
     unvalid_user = this->unvalidated_users[msg.client_socket];
     if (!unvalid_user)
         return ;
 
-    std::cout << "Unvalid user: " << unvalid_user << std::endl;
     unvalid_user->password = 1;
 }
 
@@ -319,8 +317,6 @@ void    Server::quit_command(Message &msg) {
 
     param = msg.commands->begin();
     for (; param != msg.commands->end(); ) {
-        std::cout << "Commands size: " << msg.commands->size() << std::endl;
-        std::cout << "Commands cnt: " << *param << std::endl;
         param = msg.commands->erase(param);
     }
 }
@@ -455,7 +451,6 @@ void    Server::kick_command(Message &msg) {
         send(msg.client_socket, msg.res.str().c_str(), msg.res.str().size(), 0);
         return ;
     }
-    std::cout << "Cantidad de parametros " << msg.params->size() << std::endl;
 
     channel_name = msg.get_params_front();
     nickname     = msg.get_params_front();
@@ -611,7 +606,6 @@ void    Server::manage_response(int client_index) {
     user = this->get_user_by_socket(msg.client_socket);
     if (user != NULL)
         msg.set_user(user);
-    std::cout <<msg.buffer << std::endl;
     this->tokenizer(msg);
 }
 
